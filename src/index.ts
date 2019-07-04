@@ -1,7 +1,7 @@
 import {importClassesFromDirectories} from './util/importClasses';
 import {generateRoutes} from './util/generateRoutes';
 
-export interface IJollofControllerOptions {
+export interface IKoaControllerOptions {
     basePath?: string;
     versions?: Array<number | string>;
     deprecatedVersions?: Array<number | string>;
@@ -9,12 +9,12 @@ export interface IJollofControllerOptions {
     disableVersioning?: boolean;
 }
 
-export let options: IJollofControllerOptions;
+export let options: IKoaControllerOptions;
 export const metadata = {
     controllers: {}
 };
 
-export const bootstrapControllers = async (koaApp, router, params: IJollofControllerOptions) => {
+export const bootstrapControllers = async (koaApp, router, params: IKoaControllerOptions) => {
     options = params;
     options.versions = options.versions || [1];
     options.deprecatedVersions = options.deprecatedVersions || [];
@@ -27,3 +27,24 @@ export const bootstrapControllers = async (koaApp, router, params: IJollofContro
 
 };
 
+export {
+    Controller,
+    Ctx,
+    State,
+    Body,
+    Cookie,
+    CurrentUser,
+    Delete,
+    Flow,
+    Get,
+    Header,
+    Params,
+    Patch,
+    Post,
+    Put,
+    Query,
+    Req,
+    Res,
+    Session,
+    Version
+} from './decorators';

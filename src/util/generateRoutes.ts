@@ -1,4 +1,4 @@
-import {IJollofControllerOptions} from '../index';
+import {IKoaControllerOptions} from '../index';
 
 const _ = require('lodash');
 
@@ -29,7 +29,7 @@ async function _determineArgument(ctx, {injectSource, injectOptions}) {
 }
 
 
-async function _generateEndPoints(router, options: IJollofControllerOptions, actions, parentPath: string, version: string | number) {
+async function _generateEndPoints(router, options: IKoaControllerOptions, actions, parentPath: string, version: string | number) {
     _.each(actions, (action, name) => {
 
         let willAddEndpoint = false;
@@ -71,7 +71,7 @@ async function _generateEndPoints(router, options: IJollofControllerOptions, act
  * @param options
  * @param metadata
  */
-export function generateRoutes(router, options: IJollofControllerOptions, metadata) {
+export function generateRoutes(router, options: IKoaControllerOptions, metadata) {
 
     const basePath = options.basePath || ''; // /api
 
