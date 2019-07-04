@@ -1,4 +1,5 @@
 import {IKoaControllerOptions} from '../index';
+import {validate} from "class-validator";
 
 const _ = require('lodash');
 
@@ -11,19 +12,21 @@ const argumentInjectorMap = {
 };
 
 
-async function _determineArgument(ctx, {injectSource, injectOptions}) {
+async function _determineArgument(ctx, index, {injectSource, injectOptions}) {
     let result;
 
-    // TODO: implement all special injectors
+    // TODO: implement all special argument injectors. Specials are defined in the argumentInjectorMap
     if (argumentInjectorMap[injectSource]) {
         result = await argumentInjectorMap[injectSource](ctx, injectOptions);
     } else {
-        // not a special arg injector. Try pull argument from ctx
+        // not a special arg injector? Try to pull argument from ctx
         result = ctx[injectSource];
         if (result && injectOptions) {
             result = result[injectOptions];
         }
     }
+
+    // await validate();
 
     return result;
 }
@@ -46,15 +49,18 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, action
         if (willAddEndpoint) {
             const path = parentPath + action.path;
 
+            //TODO: prepend controller defined flow to support class nested flows
             const flow = action.flow || [];
             flow.push(async (ctx) => {
 
                 const targetArguments = [];
 
-                for (const k of Object.keys(action.arguments)) {
-                    targetArguments[k] = await _determineArgument(ctx, action.arguments[k]);
+                //inject data into arguments
+                for (const index of Object.keys(action.arguments)) {
+                    targetArguments[index] = await _determineArgument(ctx, index, action.arguments[index]);
                 }
 
+                //run target endpoint handler
                 ctx.body = await action.target(...targetArguments);
             });
 
