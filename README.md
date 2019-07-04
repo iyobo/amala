@@ -21,7 +21,9 @@ await bootstrapControllers(app, router, {
 });
 
 ...
+```
 
+```
 --- constrollers/FooController.ts
 
 import {Controller, Ctx, Req, Body, Get, Post, Delete} from 'koa-ts-controllers';
