@@ -1,5 +1,5 @@
 {
-  "name": "koa-jollof-controllers",
+  "name": "koa-ts-controllers",
   "version": "0.0.1",
   "description": "A Typescript project",
   "scripts": {
