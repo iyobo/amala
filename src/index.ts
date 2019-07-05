@@ -1,6 +1,6 @@
 import {importClassesFromDirectories} from './util/importClasses';
 import {generateRoutes} from './util/generateRoutes';
-import bodyParser from 'koa-bodyparser';
+import * as bodyParser from 'koa-bodyparser';
 import Boom from 'boom';
 
 export interface IKoaControllerOptions {
@@ -12,6 +12,7 @@ export interface IKoaControllerOptions {
     initBodyParser?: boolean;
     boomifyErrors?: boolean;
     attachRoutes?:boolean;
+    router?: any;
 }
 
 export let options: IKoaControllerOptions;
@@ -26,7 +27,7 @@ const handleRestErrors = async (ctx, next) => {
 
         if (err.isBoom) {
             const error = err.output.payload;
-            error.data = err.data;
+            error.errorDetails = err.data;
             ctx.body = error;
             ctx.status = error.statusCode;
 
@@ -45,10 +46,15 @@ const handleRestErrors = async (ctx, next) => {
  * @param router - koarouter isntance
  * @param params - IKoaControllerOptions
  */
-export const bootstrapControllers = async (app, router, params: IKoaControllerOptions) => {
+export const bootstrapControllers = async (app, params: IKoaControllerOptions) => {
     options = params;
     options.versions = options.versions || [1];
     options.deprecatedVersions = options.deprecatedVersions || [];
+
+    if(!options.router){
+        options.router = new (require('koa-router'))();
+        options.attachRoutes = true;
+    }
 
     importClassesFromDirectories(options.controllers);
 
@@ -59,20 +65,22 @@ export const bootstrapControllers = async (app, router, params: IKoaControllerOp
 
     if (params.initBodyParser) {
         // Enable bodyParser with default options
-        app.use(bodyParser());
+        app.use((require('koa-body'))({ multipart: true }));
+        // app.use((require('koa-bodyparser'))());
+        // app.use(bodyParser());
     }
 
-    if (params.attachRoutes) {
+    if (options.attachRoutes) {
         // Combine routes
-        app.use(router.routes());
-        app.use(router.allowedMethods({
+        app.use(options.router.routes());
+        app.use(options.router.allowedMethods({
             methodNotAllowed: () => Boom.notFound(),
             notImplemented: () => Boom.notImplemented(),
             throw: true,
         }));
     }
 
-    await generateRoutes(router, options, metadata);
+    await generateRoutes(options.router, options, metadata);
 
 };
 

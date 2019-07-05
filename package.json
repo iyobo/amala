@@ -17,7 +17,9 @@
   "dependencies": {
     "boom": "^7.3.0",
     "class-transformer": "^0.2.3",
-    "koa-bodyparser": "^4.2.1"
+    "koa-body": "^4.1.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^7.4.0"
   },
   "peerDependencies": {},
   "devDependencies": {

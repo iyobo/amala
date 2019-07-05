@@ -1,9 +1,9 @@
-import {IKoaControllerOptions} from "../index";
-import {validate} from "class-validator";
-import {plainToClass} from "class-transformer";
-import _ from "lodash";
+import {IKoaControllerOptions} from '../index';
+import {validate} from 'class-validator';
+import {plainToClass} from 'class-transformer';
+import _ from 'lodash';
 
-const boom = require("boom");
+const boom = require('boom');
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
 
@@ -11,13 +11,13 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
         return body;
     }
 
-    if (typeof injectOptions === "string") {
+    if (typeof injectOptions === 'string') {
         return body[injectOptions];
-    } else if (typeof injectOptions === "object") {
+    } else if (typeof injectOptions === 'object') {
 
         //is required
-        if (injectOptions.required && (!body || !_.isEmpty(body))) {
-            throw boom.badData("Body: is required and cannot be null");
+        if (injectOptions.required && (!body || _.isEmpty(body))) {
+            throw boom.badData('Body: is required and cannot be null');
         }
 
         //is validatable
@@ -28,10 +28,14 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
             if (errors.length > 0) {
                 // throw new Error('eeeh')
                 // console.error(errors);
-                throw boom.badData("validation error for argument injector: " + name, errors);
+                throw boom.badData('validation error for argument type: ' + name,
+                    errors.map(it => {
+                        return {field: it.property, violations: it.constraints};
+                    })
+                );
             }
 
-            return classBody;
+            return body;
         }
 
         return body;
@@ -46,10 +50,10 @@ const argumentInjectorMap = {
     },
     ctx: async (ctx: any, injectOptions: any) => ctx,
     query: async (ctx: any, injectOptions: any) => {
-        return _argumentInjectorProcessor("query", ctx.query, injectOptions);
+        return _argumentInjectorProcessor('query', ctx.query, injectOptions);
     },
     body: async (ctx: any, injectOptions: any) => {
-        return _argumentInjectorProcessor("body", ctx.request.body, injectOptions);
+        return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
     },
 };
 
@@ -117,7 +121,7 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, action
  */
 export function generateRoutes(router, options: IKoaControllerOptions, metadata) {
 
-    const basePath = options.basePath || ""; // /api
+    const basePath = options.basePath || ''; // /api
 
     _.each(metadata.controllers, (controller) => {
 
