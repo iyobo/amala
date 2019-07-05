@@ -43,7 +43,6 @@ const handleRestErrors = async (ctx, next) => {
 /**
  *
  * @param app - Koa instance
- * @param router - koarouter isntance
  * @param params - IKoaControllerOptions
  */
 export const bootstrapControllers = async (app, params: IKoaControllerOptions) => {

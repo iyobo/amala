@@ -19,14 +19,14 @@
     "class-transformer": "^0.2.3",
     "koa-body": "^4.1.0",
     "koa-bodyparser": "^4.2.1",
-    "koa-router": "^7.4.0"
+    "koa-router": "^7.4.0",
+    "class-validator": "^0.9.1"
   },
   "peerDependencies": {},
   "devDependencies": {
     "@types/jest": "^24.0.15",
     "@types/lodash": "^4.14.135",
     "@types/node": "^12.0.10",
-    "class-validator": "^0.9.1",
     "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
