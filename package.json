@@ -19,9 +19,7 @@
     "class-transformer": "^0.2.3",
     "koa-bodyparser": "^4.2.1"
   },
-  "peerDependencies": {
-    "class-validator": "^0.9.1"
-  },
+  "peerDependencies": {},
   "devDependencies": {
     "@types/jest": "^24.0.15",
     "@types/lodash": "^4.14.135",

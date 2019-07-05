@@ -1,6 +1,7 @@
 import {importClassesFromDirectories} from './util/importClasses';
 import {generateRoutes} from './util/generateRoutes';
 import bodyParser from 'koa-bodyparser';
+import Boom from 'boom';
 
 export interface IKoaControllerOptions {
     controllers: Array<string>;
@@ -10,13 +11,13 @@ export interface IKoaControllerOptions {
     disableVersioning?: boolean;
     initBodyParser?: boolean;
     boomifyErrors?: boolean;
+    attachRoutes?:boolean;
 }
 
 export let options: IKoaControllerOptions;
 export const metadata = {
     controllers: {}
 };
-
 
 const handleRestErrors = async (ctx, next) => {
     try {
@@ -25,6 +26,7 @@ const handleRestErrors = async (ctx, next) => {
 
         if (err.isBoom) {
             const error = err.output.payload;
+            error.data = err.data;
             ctx.body = error;
             ctx.status = error.statusCode;
 
@@ -37,23 +39,37 @@ const handleRestErrors = async (ctx, next) => {
     }
 };
 
-export const bootstrapControllers = async (koaApp, router, params: IKoaControllerOptions) => {
+/**
+ *
+ * @param app - Koa instance
+ * @param router - koarouter isntance
+ * @param params - IKoaControllerOptions
+ */
+export const bootstrapControllers = async (app, router, params: IKoaControllerOptions) => {
     options = params;
     options.versions = options.versions || [1];
     options.deprecatedVersions = options.deprecatedVersions || [];
 
     importClassesFromDirectories(options.controllers);
 
-    // console.log(inspect(metadata));
-
-    if(params.boomifyErrors){
+    if (params.boomifyErrors) {
         // error handler
-        koaApp.use(handleRestErrors);
+        app.use(handleRestErrors);
     }
 
-    if(params.initBodyParser){
+    if (params.initBodyParser) {
         // Enable bodyParser with default options
-        koaApp.use(bodyParser());
+        app.use(bodyParser());
+    }
+
+    if (params.attachRoutes) {
+        // Combine routes
+        app.use(router.routes());
+        app.use(router.allowedMethods({
+            methodNotAllowed: () => Boom.notFound(),
+            notImplemented: () => Boom.notImplemented(),
+            throw: true,
+        }));
     }
 
     await generateRoutes(router, options, metadata);
@@ -81,3 +97,5 @@ export {
     Session,
     Version
 } from './decorators';
+
+export * from 'class-validator'
