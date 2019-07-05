@@ -1,14 +1,50 @@
 import {IKoaControllerOptions} from '../index';
-import {validate} from "class-validator";
+import {validate} from 'class-validator';
+import {plainToClass} from 'class-transformer';
+import _ from 'lodash';
+const boom = require('boom');
 
-const _ = require('lodash');
 
 const argumentInjectorMap = {
     currentUser: async (ctx: any, injectOptions: any) => {
         return ctx.state.user;
     },
     ctx: async (ctx: any, injectOptions: any) => ctx,
-    body: async (ctx: any, injectOptions: any) => ctx.request.body,
+    query: async (ctx: any, injectOptions: any) => {
+
+        return ctx.query;
+    },
+    body: async (ctx: any, injectOptions: any) => {
+        const body = ctx.request.body;
+        if(!injectOptions) return body;
+
+        if(typeof injectOptions === 'string'){
+            return body[injectOptions];
+        }
+        else if(typeof injectOptions === 'object'){
+
+            //is required
+            if(injectOptions.required && (!body || !_.isEmpty(body)))
+                throw boom.badData('Body: is required and cannot be null');
+
+            //is validatable
+            if(injectOptions.validClass){
+                //transpose object to provided validClass
+                const classBody = plainToClass(injectOptions.validClass, body);
+                const errors = await validate(classBody);
+                if(errors.length>0){
+                    console.error(errors);
+                    throw boom.badData(JSON.stringify(errors))
+                }
+
+                return classBody;
+            }
+
+            return body
+        }
+
+        throw boom.badImplementation('Body: Cannot handle injection options '+injectOptions);
+    },
 };
 
 
@@ -25,8 +61,6 @@ async function _determineArgument(ctx, index, {injectSource, injectOptions}) {
             result = result[injectOptions];
         }
     }
-
-    // await validate();
 
     return result;
 }
@@ -51,22 +85,22 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, action
 
             //TODO: prepend controller defined flow to support class nested flows
             const flow = action.flow || [];
-            flow.push(async (ctx) => {
+            flow.push(async function (ctx) {
 
                 const targetArguments = [];
 
                 //inject data into arguments
-                for (const index of Object.keys(action.arguments)) {
-                    targetArguments[index] = await _determineArgument(ctx, index, action.arguments[index]);
+                if (action.arguments) {
+                    for (const index of Object.keys(action.arguments)) {
+                        targetArguments[index] = await _determineArgument(ctx, index, action.arguments[index]);
+                    }
                 }
 
                 //run target endpoint handler
                 ctx.body = await action.target(...targetArguments);
             });
 
-            router[action.verb](path,
-                ...flow
-            );
+            router[action.verb](path, ...flow);
         }
     });
 }

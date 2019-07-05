@@ -118,7 +118,13 @@ export function Header(injectOptions?: string | Object) {
     };
 }
 
-export function Body(injectOptions?: string | Object) {
+export interface IValidationDecoratorOptions{
+    validClass?: Function;
+    required?: boolean;
+    trim?: boolean;
+}
+
+export function Body(injectOptions?: string | IValidationDecoratorOptions) {
     return function (object: Object, methodName: string, index: number) {
         _addArgumentInjectMeta({index, injectSource: 'body', injectOptions, methodName, object});
     };
@@ -160,7 +166,7 @@ export function Params(injectOptions?: string | Object) {
     };
 }
 
-export function Query(injectOptions?: string | Object) {
+export function Query(injectOptions?: string | IValidationDecoratorOptions) {
     return function (object: Object, methodName: string, index: number) {
         _addArgumentInjectMeta({index, injectSource: 'query', injectOptions, methodName, object});
     };
