@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "jest --config jestconfig.json",
+    "test:watch": "jest --config jestconfig.json --watch",
     "build": "tsc",
     "dev": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json"
@@ -25,9 +26,12 @@
   "peerDependencies": {},
   "devDependencies": {
     "@types/jest": "^24.0.15",
+    "@types/koa": "^2.0.49",
     "@types/lodash": "^4.14.135",
     "@types/node": "^12.0.10",
     "jest": "^24.8.0",
+    "koa": "^2.7.0",
+    "supertest": "^4.0.2",
     "ts-jest": "^24.0.2",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
