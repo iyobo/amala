@@ -31,16 +31,19 @@ export class ActionController {
         return 'okay';
     }
 
-    @Get('/mmm')
-    async mmm() {
-        return 'mmm';
-    }
+
 
     @Get('/mmm')
     @Version('1')
     async mmmV1() {
         return 'mmm for v1';
     }
+
+    @Get('/mmm')
+    async mmm() {
+        return 'mmm';
+    }
+
 
     @Get('/passFlow')
     @Flow([passFlow])

@@ -85,7 +85,6 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
     _.each(actions, (action, name) => {
 
         let willAddEndpoint = true;
-        let endpointVersionDeprecationMessage = null;
 
         // If API versioning mode is active...
         if (generatingForVersion) {
@@ -96,7 +95,7 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
 
                 // ...and current endpoint version being generated does NOT exist in the constraint
                 if (!endpointLimit) {
-                    // then ignore this endpoint
+                    // then ignore this version of the endpoint
                     willAddEndpoint = false;
                 }
                 // but if current endpoint version being generated DOES exist in the constraint and it is a string...
