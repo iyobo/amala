@@ -77,20 +77,32 @@ async function _determineArgument(ctx, index, {injectSource, injectOptions}) {
 async function _generateEndPoints(router, options: IKoaControllerOptions, controller, parentPath: string, generatingForVersion: string | number) {
     const actions = controller.actions;
 
+    let deprecationMessage = null;
+    if (options.versions && typeof options.versions[generatingForVersion] === 'string') {
+        deprecationMessage = options.versions[generatingForVersion];
+    }
+
     _.each(actions, (action, name) => {
 
         let willAddEndpoint = true;
+        let endpointVersionDeprecationMessage = null;
 
         // If API versioning mode is active...
         if (generatingForVersion) {
 
             // ...and endpoint has some version constraints defined...
             if (action.limitToVersions && !_.isEmpty(action.limitToVersions)) {
+                const endpointLimit = action.limitToVersions[generatingForVersion];
 
                 // ...and current endpoint version being generated does NOT exist in the constraint
-                if (!action.limitToVersions[generatingForVersion]) {
+                if (!endpointLimit) {
                     // then ignore this endpoint
                     willAddEndpoint = false;
+                }
+                // but if current endpoint version being generated DOES exist in the constraint and it is a string...
+                else if (typeof endpointLimit === 'string') {
+                    // ...this is a deprecation message
+                    deprecationMessage += ` - ${endpointLimit}`;
                 }
 
             }
@@ -110,8 +122,8 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
 
                 const targetArguments = [];
 
-                if (options.versions && typeof options.versions[generatingForVersion] === 'string') {
-                    ctx.headers.Deprecation = options.versions[generatingForVersion];
+                if (deprecationMessage) {
+                    ctx.headers.Deprecation = deprecationMessage;
                 }
 
                 // inject data into arguments

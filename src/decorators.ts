@@ -24,7 +24,7 @@ function _addVerbFunctionMeta({verb, path, methodName, object}) {
     metadata.controllers[object.constructor.name] = controller;
 }
 
-function _addVersionFunctionMeta({version, methodName, object}) {
+function _addVersionFunctionMeta({version, methodName, object, endpointDeprecationWarning}) {
     // console.log('version', version, object, methodName);
     const controller = metadata.controllers[object.constructor.name] || {};
     controller.actions = controller.actions || {};
@@ -32,7 +32,7 @@ function _addVersionFunctionMeta({version, methodName, object}) {
 
     // The presence of versions signifies that this method might be unavailable for some versions and should be skipped in final metadata processing step
     controller.actions[methodName].limitToVersions = controller.actions[methodName].limitToVersions || {};
-    controller.actions[methodName].limitToVersions[version] = true;
+    controller.actions[methodName].limitToVersions[version] = endpointDeprecationWarning || true;
 
     metadata.controllers[object.constructor.name] = controller;
 }
@@ -80,9 +80,9 @@ export function Delete(path: string | RegExp) {
     };
 }
 
-export function Version(version: string) {
+export function Version(version: string, endpointDeprecationWarning?: string) {
     return function (object: Object, methodName: string) {
-        _addVersionFunctionMeta({object, methodName, version});
+        _addVersionFunctionMeta({object, methodName, version, endpointDeprecationWarning});
     };
 }
 
