@@ -6,13 +6,13 @@ import Boom from 'boom';
 export interface IKoaControllerOptions {
     controllers: Array<string>;
     basePath?: string;
-    versions?: Array<number | string>;
-    deprecatedVersions?: Array<number | string>;
+    versions?: Array<number | string> | object;
     disableVersioning?: boolean;
     initBodyParser?: boolean;
     boomifyErrors?: boolean;
-    attachRoutes?:boolean;
+    attachRoutes?: boolean;
     router?: any;
+    flow?: Array<Function>;
 }
 
 export let options: IKoaControllerOptions;
@@ -47,10 +47,27 @@ const handleRestErrors = async (ctx, next) => {
  */
 export const bootstrapControllers = async (app, params: IKoaControllerOptions) => {
     options = params;
-    options.versions = options.versions || [1];
-    options.deprecatedVersions = options.deprecatedVersions || [];
+    options.versions = options.versions || {1: true};
+    options.flow = options.flow || [];
 
-    if(!options.router){
+    /**
+     * Versions can be defined in multiple ways.
+     * If an array, it's just a list of active versions.
+     * If as an object, then this datastructure can define not only active versions but obsolete versions as well.
+     *
+     * The object is the native form. Arrays are converted to object.
+     */
+    if (Array.isArray(options.versions)) {
+        const versions = {};
+
+        options.versions.forEach(version => {
+            versions[version] = true;
+        });
+        options.versions = versions;
+    }
+
+
+    if (!options.router) {
         options.router = new (require('koa-router'))();
         options.attachRoutes = true;
     }
@@ -64,10 +81,13 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
 
     if (params.initBodyParser) {
         // Enable bodyParser with default options
-        app.use((require('koa-body'))({ multipart: true }));
+        app.use((require('koa-body'))({multipart: true}));
         // app.use((require('koa-bodyparser'))());
         // app.use(bodyParser());
     }
+
+
+    await generateRoutes(options.router, options, metadata);
 
     if (options.attachRoutes) {
         // Combine routes
@@ -78,8 +98,6 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
             throw: true,
         }));
     }
-
-    await generateRoutes(options.router, options, metadata);
 
 };
 
@@ -105,4 +123,4 @@ export {
     Version
 } from './decorators';
 
-export * from 'class-validator'
+export * from 'class-validator';

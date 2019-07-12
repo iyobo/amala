@@ -92,11 +92,20 @@ export function Version(version: string) {
  * @param flow
  * @constructor
  */
-export function Flow(flow?: Function | Array<Function>) {
-    return function (object: Object, methodName: string) {
-        _addFlowFunctionMeta({flow, methodName, object});
+export function Flow(flow: Function | Array<Function>) {
+    return function (object: Function | Object, methodName?: string) {
+        if (typeof object === 'object') { // action
+
+            _addFlowFunctionMeta({flow, methodName, object});
+        } else if (typeof object === 'function') { // controller
+
+            const controller = metadata.controllers[object.name] || {};
+            controller.flow = flow;
+            metadata.controllers[object.name] = controller;
+        }
     };
 }
+
 
 // argument injection decorators
 function _addArgumentInjectMeta({index, injectSource, injectOptions, methodName, object}) {
@@ -118,7 +127,7 @@ export function Header(injectOptions?: string | Object) {
     };
 }
 
-export interface IValidationDecoratorOptions{
+export interface IValidationDecoratorOptions {
     validClass?: Function;
     required?: boolean;
     trim?: boolean;

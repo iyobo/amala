@@ -15,14 +15,14 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
         return body[injectOptions];
     } else if (typeof injectOptions === 'object') {
 
-        //is required
+        // is required
         if (injectOptions.required && (!body || _.isEmpty(body))) {
             throw boom.badData('Body: is required and cannot be null');
         }
 
-        //is validatable
+        // is validatable
         if (injectOptions.validClass) {
-            //transpose object to provided validClass
+            // transpose object to provided validClass
             const classBody = plainToClass(injectOptions.validClass, body);
             const errors = await validate(classBody);
             if (errors.length > 0) {
@@ -74,37 +74,54 @@ async function _determineArgument(ctx, index, {injectSource, injectOptions}) {
     return result;
 }
 
-async function _generateEndPoints(router, options: IKoaControllerOptions, actions, parentPath: string, version: string | number) {
+async function _generateEndPoints(router, options: IKoaControllerOptions, controller, parentPath: string, generatingForVersion: string | number) {
+    const actions = controller.actions;
+
     _.each(actions, (action, name) => {
 
-        let willAddEndpoint = false;
-        // 404 if endpoint is versioned
-        if (action.versions && version) {
-            // ...and currently iterated api version is included in endpoint's version stackConfig
-            if (actions.versions[version]) {
-                willAddEndpoint = true;
+        let willAddEndpoint = true;
+
+        // If API versioning mode is active...
+        if (generatingForVersion) {
+
+            // ...and endpoint has some version constraints defined...
+            if (action.limitToVersions && !_.isEmpty(action.limitToVersions)) {
+
+                // ...and current endpoint version being generated does NOT exist in the constraint
+                if (!action.limitToVersions[generatingForVersion]) {
+                    // then ignore this endpoint
+                    willAddEndpoint = false;
+                }
+
             }
-        } else {
-            willAddEndpoint = true;
         }
+
 
         if (willAddEndpoint) {
             const path = parentPath + action.path;
 
-            //TODO: prepend controller defined flow to support class nested flows
-            const flow = action.flow || [];
-            flow.push(async function(ctx) {
+            const flow = [
+                ...(options.flow || []),
+                ...(controller.flow || []),
+                ...(action.flow || [])
+            ];
+
+            flow.push(async function (ctx) {
 
                 const targetArguments = [];
 
-                //inject data into arguments
+                if (options.versions && typeof options.versions[generatingForVersion] === 'string') {
+                    ctx.headers.Deprecation = options.versions[generatingForVersion];
+                }
+
+                // inject data into arguments
                 if (action.arguments) {
                     for (const index of Object.keys(action.arguments)) {
                         targetArguments[index] = await _determineArgument(ctx, index, action.arguments[index]);
                     }
                 }
 
-                //run target endpoint handler
+                // run target endpoint handler
                 ctx.body = await action.target(...targetArguments);
             });
 
@@ -119,21 +136,19 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, action
  * @param options
  * @param metadata
  */
-export function generateRoutes(router, options: IKoaControllerOptions, metadata) {
+export async function generateRoutes(router, options: IKoaControllerOptions, metadata) {
 
-    const basePath = options.basePath || ''; // /api
+    const basePath = options.basePath || ''; // e.g /api
 
-    _.each(metadata.controllers, (controller) => {
+    _.each(metadata.controllers, async (controller) => {
 
-        // const controllerPath = basePath + controller.path; // /api/v1
-
-        // TODO: Do versioning loop here
         if (options.disableVersioning) {
-
-            _generateEndPoints(router, options, controller.actions, basePath + controller.path, undefined);
+            // e.g /api/users
+            await _generateEndPoints(router, options, controller, basePath + controller.path, undefined,);
         } else {
-            options.versions.forEach((version) => {
-                _generateEndPoints(router, options, controller.actions, basePath + `/v${version}` + controller.path, version);
+            // e.g /api/v1/user
+            _.each(options.versions, async (status, version) => {
+                await _generateEndPoints(router, options, controller, basePath + `/v${version}` + controller.path, version);
             });
         }
 

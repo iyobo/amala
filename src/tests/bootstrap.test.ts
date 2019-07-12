@@ -1,4 +1,3 @@
-
 import request from 'supertest';
 import Koa from 'koa';
 import {bootstrapControllers} from '../index';
@@ -30,7 +29,7 @@ afterAll((done) => {
     }
 });
 
-describe('bootstrapping server',()=>{
+describe('bootstrapping server', () => {
 
     it('should succeed ', async () => {
         const response = await testServer
@@ -60,4 +59,5 @@ describe('bootstrapping server',()=>{
             .expect(404);
 
     });
-})
+
+});

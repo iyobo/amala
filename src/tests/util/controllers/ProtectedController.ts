@@ -1,12 +1,13 @@
-import {Controller, Delete, Flow, Get, Patch, Post, Put, State, Version} from '../../../index';
+import {Controller, Delete, Flow, Get, Patch, Post, Put, Version} from '../../../index';
 import {passFlow, unauthorizedFlow} from '../flow/flow';
 
 
-@Controller('/action')
-export class ActionController {
+@Controller('/protected')
+@Flow([unauthorizedFlow])
+export class ProtectedController {
 
     @Get('/')
-    async getRoute() {
+    async hello() {
 
         return 'okay';
     }
@@ -32,13 +33,13 @@ export class ActionController {
     }
 
     @Get('/mmm')
-    async mmm() {
+    async someRoute() {
         return 'mmm';
     }
 
     @Get('/mmm')
     @Version('1')
-    async mmmV1() {
+    async v1OnlyRoute() {
         return 'mmm for v1';
     }
 
@@ -61,12 +62,6 @@ export class ActionController {
     async multiFlow() {
 
         return 'multiFlow allowed';
-    }
-
-    @Get('/staten')
-    async staten(@State() state: any) {
-
-        return state;
     }
 
 }
