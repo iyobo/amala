@@ -34,7 +34,7 @@ export class ActionController {
 
 
     @Get('/mmm')
-    @Version('1')
+    @Version('1','Do not use')
     async mmmV1() {
         return 'mmm for v1';
     }

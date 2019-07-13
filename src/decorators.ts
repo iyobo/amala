@@ -1,4 +1,6 @@
 import {metadata} from './index';
+import 'reflect-metadata';
+
 
 export function Controller(baseRoute?: string) {
     return function (object: Function) {
@@ -11,15 +13,19 @@ export function Controller(baseRoute?: string) {
 }
 
 // Function decorators
-function _addVerbFunctionMeta({verb, path, methodName, object}) {
+function _addVerbFunctionMeta({verb, path, object,methodName,}) {
     // console.log(verb, path, object, methodName);
     const controller = metadata.controllers[object.constructor.name] || {};
     controller.actions = controller.actions || {};
     controller.actions[methodName] = controller.actions[methodName] || {};
 
+    const argumentTypes = Reflect.getMetadata('design:paramtypes', object, methodName);
+
     controller.actions[methodName].verb = verb;
     controller.actions[methodName].path = path;
     controller.actions[methodName].target = object[methodName];
+    controller.actions[methodName].argumentTypes = argumentTypes;
+
 
     metadata.controllers[object.constructor.name] = controller;
 }
@@ -114,7 +120,6 @@ function _addArgumentInjectMeta({index, injectSource, injectOptions, methodName,
     controller.actions = controller.actions || {};
     controller.actions[methodName] = controller.actions[methodName] || {};
 
-    // The presence of versions signifies that this method might be unavailable for some versions and should be skipped in final metadata processing step
     controller.actions[methodName].arguments = controller.actions[methodName].arguments || {};
     controller.actions[methodName].arguments[index] = {injectSource, injectOptions};
 

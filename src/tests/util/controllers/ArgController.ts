@@ -37,33 +37,33 @@ class ClassInput {
 export class ArgController {
 
     @Post('/:model/:id')
-    async twoParams(@Params('model') model: any, @Params('id') id: any) {
-        return {model, id};
-    }
-
-    @Post('/body')
-    async body(@Body() body: ClassInput) {
-
+    async twoParams(@Params() params: any, @Params('id') id: any) {
+        return {params, id};
     }
 
     @Post('/bodyRequired')
     async bodyRequired(@Body({required: true}) body: ClassInput) {
+        return body;
+    }
 
+    @Post('/body')
+    async body(@Body() body: ClassInput) {
+        return body;
     }
 
     @Post('/interface')
     async bodyInterface(@Body() body: InterfaceInput) {
-
+        return body;
     }
 
 
     @Post('/state')
     @Flow([setSomethingStateFlow])
     async state(@State() state: any) {
-        return state.something;
+        return state;
     }
 
-    @Post('/heder')
+    @Post('/header')
     async header(@Header() header: any) {
         return header;
     }
@@ -87,7 +87,7 @@ export class ArgController {
     async req(@Req() req: any) {
         return req;
     }
-aa
+
     @Get('/res')
     async res(@Res() res: any) {
         return res;

@@ -57,10 +57,9 @@ const argumentInjectorMap = {
     },
 };
 
-async function _determineArgument(ctx, index, {injectSource, injectOptions}) {
+async function _determineArgument(ctx, index, {injectSource, injectOptions}, type) {
     let result;
 
-    // TODO: implement all special argument injectors. Specials are defined in the argumentInjectorMap
     if (argumentInjectorMap[injectSource]) {
         result = await argumentInjectorMap[injectSource](ctx, injectOptions);
     } else {
@@ -77,7 +76,7 @@ async function _determineArgument(ctx, index, {injectSource, injectOptions}) {
 async function _generateEndPoints(router, options: IKoaControllerOptions, controller, parentPath: string, generatingForVersion: string | number) {
     const actions = controller.actions;
 
-    let deprecationMessage = null;
+    let deprecationMessage = '';
     if (options.versions && typeof options.versions[generatingForVersion] === 'string') {
         deprecationMessage = options.versions[generatingForVersion];
     }
@@ -101,7 +100,7 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
                 // but if current endpoint version being generated DOES exist in the constraint and it is a string...
                 else if (typeof endpointLimit === 'string') {
                     // ...this is a deprecation message
-                    deprecationMessage += ` - ${endpointLimit}`;
+                    deprecationMessage += ` ${endpointLimit}`;
                 }
 
             }
@@ -122,13 +121,16 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
                 const targetArguments = [];
 
                 if (deprecationMessage) {
-                    ctx.headers.Deprecation = deprecationMessage;
+                    ctx.set({deprecation: deprecationMessage});
                 }
 
                 // inject data into arguments
                 if (action.arguments) {
                     for (const index of Object.keys(action.arguments)) {
-                        targetArguments[index] = await _determineArgument(ctx, index, action.arguments[index]);
+
+                        const argumentMeta = action.arguments[index];
+
+                        targetArguments[index] = await _determineArgument(ctx, index,argumentMeta, action.argumentTypes[index]);
                     }
                 }
 

@@ -77,6 +77,14 @@ describe('Controller actions', () => {
         expect(response.text).toEqual('mmm for v1');
     });
 
+    it('old version (v1) of an endpoint with endpoint deprecation message in header', async () => {
+
+        const response = await testServer
+            .get('/api/v1/action/mmm')
+            .expect(200);
+        expect(response.headers.deprecation).toEqual('Do not use');
+    });
+
     it('flows can allow', async () => {
 
         const response = await testServer
@@ -100,6 +108,7 @@ describe('Controller actions', () => {
             .expect(200);
         expect(response.text).toEqual('multiFlow allowed');
     });
+
 
 
 });
