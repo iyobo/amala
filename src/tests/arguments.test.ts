@@ -58,13 +58,13 @@ describe('Arguments', () => {
             expect(response.body).toEqual(payload);
         });
 
-        it.only('specific subfield can be injected', async () => {
+        it('specific subfield can be injected', async () => {
             const payload = {foo: 'Ijebu garri is the best for soaking'};
             const response = await testServer
                 .post('/api/v2/arg/bodySpecific')
                 .send(payload)
                 .expect(200);
-            expect(response.body).toEqual(payload.foo);
+            expect(response.text).toEqual(payload.foo);
         });
 
         it('validation fails if required but no input', async () => {

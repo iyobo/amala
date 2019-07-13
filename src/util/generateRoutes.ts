@@ -61,7 +61,7 @@ async function _determineArgument(ctx: Context, index, {injectSource, injectOpti
         result = await plainToClass(type, result);
         const errors = await validate(result); // TODO: wrap around this to trap runtime errors
         if (errors.length > 0) {
-            // throw new Error('eeeh')
+            // throw new Error('eeeh')a
             // console.error(errors);
             throw boom.badData('validation error for argument type: ' + injectSource,
                 errors.map(it => {

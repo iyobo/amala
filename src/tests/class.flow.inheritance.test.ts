@@ -30,9 +30,11 @@ afterAll((done) => {
     }
 });
 
-it('Flow can be inherited from class', async () => {
-    const response = await testServer
-        .get('/api/v2/protected')
-        .expect(401);
+describe('Controller class', () => {
+    it('Flow can be inherited from class', async () => {
+        const response = await testServer
+            .get('/api/v2/protected')
+            .expect(401);
 
+    });
 });

@@ -57,7 +57,7 @@ export class ArgController {
     }
 
     @Post('/bodySpecific')
-    async bodySpecific(@Body('foo') foo: any) {
+    async bodySpecific(@Body('foo') foo: string) {
         return foo;
     }
 
