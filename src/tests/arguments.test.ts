@@ -36,33 +36,70 @@ describe('Arguments', () => {
             const response = await testServer
                 .post('/api/v2/arg/akara/garri')
                 .expect(200);
-            expect(response.body.params).toEqual( {id: 'garri', model: 'akara'});
+            expect(response.body.params).toEqual({id: 'garri', model: 'akara'});
         });
 
         it('params key-value', async () => {
             const response = await testServer
                 .post('/api/v2/arg/akara/garri')
                 .expect(200);
-            expect(response.body.id).toEqual( 'garri');
+            expect(response.body.id).toEqual('garri');
         });
     });
 
 
     describe('body', () => {
-        it('validation fails if required and not provided', async () => {
+        it('whole object can be injected', async () => {
+            const payload = {foo: 'Ijebu garri is the best for soaking'};
+            const response = await testServer
+                .post('/api/v2/arg/bodySimple')
+                .send(payload)
+                .expect(200);
+            expect(response.body).toEqual(payload);
+        });
+
+        it.only('specific subfield can be injected', async () => {
+            const payload = {foo: 'Ijebu garri is the best for soaking'};
+            const response = await testServer
+                .post('/api/v2/arg/bodySpecific')
+                .send(payload)
+                .expect(200);
+            expect(response.body).toEqual(payload.foo);
+        });
+
+        it('validation fails if required but no input', async () => {
             const response = await testServer
                 .post('/api/v2/arg/bodyRequired')
                 .expect(422);
-            expect(response.body.message).toEqual( 'Body: is required and cannot be null');
+            expect(response.body.message).toEqual('Body: is required and cannot be null');
         });
 
-        it('validation fails if input validation does not match', async () => {
+        it('validation fails if input not valid', async () => {
             const response = await testServer
                 .post('/api/v2/arg/body')
-                .send({a:1,b:2,c:3})
+                .send({a: 1, b: 2, c: 3})
                 .expect(422);
-            expect(response.body.message).toEqual( 'Body: is required and cannot be null');
+            expect(response.body.message).toEqual('validation error for argument type: body');
+            expect(response.body.errorDetails.length).toEqual(2);
         });
+
+        it('validation fails if input not valid #2', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/body')
+                .send({aString: 'Ijebu garri is the best for soaking'})
+                .expect(422);
+            expect(response.body.message).toEqual('validation error for argument type: body');
+            expect(response.body.errorDetails.length).toEqual(1);
+            expect(response.body.errorDetails[0].violations.isNumber).toBeDefined();
+        });
+
+        it('Using an interface will not validate. Must use class with field decorators', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/interface')
+                .send({aString: 'Ijebu garri is the best for soaking'})
+                .expect(200);
+        });
+
     });
 
 });

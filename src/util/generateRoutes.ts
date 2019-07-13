@@ -2,6 +2,8 @@ import {IKoaControllerOptions} from '../index';
 import {validate} from 'class-validator';
 import {plainToClass} from 'class-transformer';
 import _ from 'lodash';
+import {Context} from 'koa';
+import {isClass} from './tools';
 
 const boom = require('boom');
 
@@ -20,23 +22,6 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
             throw boom.badData('Body: is required and cannot be null');
         }
 
-        // is validatable
-        if (injectOptions.validClass) {
-            // transpose object to provided validClass
-            const classBody = plainToClass(injectOptions.validClass, body);
-            const errors = await validate(classBody);
-            if (errors.length > 0) {
-                // throw new Error('eeeh')
-                // console.error(errors);
-                throw boom.badData('validation error for argument type: ' + name,
-                    errors.map(it => {
-                        return {field: it.property, violations: it.constraints};
-                    })
-                );
-            }
-
-            return body;
-        }
 
         return body;
     }
@@ -57,7 +42,7 @@ const argumentInjectorMap = {
     },
 };
 
-async function _determineArgument(ctx, index, {injectSource, injectOptions}, type) {
+async function _determineArgument(ctx: Context, index, {injectSource, injectOptions}, type) {
     let result;
 
     if (argumentInjectorMap[injectSource]) {
@@ -70,6 +55,23 @@ async function _determineArgument(ctx, index, {injectSource, injectOptions}, typ
         }
     }
 
+    // validate if this is a class
+    if (isClass(type)) {
+
+        result = await plainToClass(type, result);
+        const errors = await validate(result); // TODO: wrap around this to trap runtime errors
+        if (errors.length > 0) {
+            // throw new Error('eeeh')
+            // console.error(errors);
+            throw boom.badData('validation error for argument type: ' + injectSource,
+                errors.map(it => {
+                    return {field: it.property, violations: it.constraints};
+                })
+            );
+        }
+    }
+
+
     return result;
 }
 
@@ -81,7 +83,7 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
         deprecationMessage = options.versions[generatingForVersion];
     }
 
-    _.each(actions, (action, name) => {
+    _.each(actions, async (action, name) => {
 
         let willAddEndpoint = true;
 
@@ -130,7 +132,7 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
 
                         const argumentMeta = action.arguments[index];
 
-                        targetArguments[index] = await _determineArgument(ctx, index,argumentMeta, action.argumentTypes[index]);
+                        targetArguments[index] = await _determineArgument(ctx, index, argumentMeta, action.argumentTypes[index]);
                     }
                 }
 

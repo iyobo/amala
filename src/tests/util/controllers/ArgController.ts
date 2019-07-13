@@ -17,7 +17,7 @@ import {
 import {IsNumber, IsString} from 'class-validator';
 import {setSomethingStateFlow} from '../flow/flow';
 
-class InterfaceInput {
+interface InterfaceInput {
     aString: string;
 
     aNumber: number;
@@ -46,9 +46,19 @@ export class ArgController {
         return body;
     }
 
+    @Post('/bodySimple')
+    async simpleBody(@Body() body: any) {
+        return body;
+    }
+
     @Post('/body')
     async body(@Body() body: ClassInput) {
         return body;
+    }
+
+    @Post('/bodySpecific')
+    async bodySpecific(@Body('foo') foo: any) {
+        return foo;
     }
 
     @Post('/interface')
@@ -57,8 +67,8 @@ export class ArgController {
     }
 
 
-    @Post('/state')
     @Flow([setSomethingStateFlow])
+    @Post('/state')
     async state(@State() state: any) {
         return state;
     }
