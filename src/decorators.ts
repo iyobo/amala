@@ -186,15 +186,15 @@ export function Query(injectOptions?: string | IValidationDecoratorOptions) {
     };
 }
 
-export function CurrentUser(injectOptions?: string | Object) {
-    return function (object: Object, methodName: string, index: number) {
-        _addArgumentInjectMeta({index, injectSource: 'currentUser', injectOptions, methodName, object});
-    };
-}
+// export function CurrentUser(injectOptions?: string | Object) {
+//     return function (object: Object, methodName: string, index: number) {
+//         _addArgumentInjectMeta({index, injectSource: 'currentUser', injectOptions, methodName, object});
+//     };
+// }
 
 /**
  * OBSOLETE:
- * Direct file upload is not reccomended for server.
+ * Direct file upload is not recommended for server.
  * Client should handle upload of content to S3-compatible service by itself.
  * If it is a private/encrypted file, client can hit an endpoint from the server to create and send the client a key
  * which is then stored and can be used to encrypt the file.

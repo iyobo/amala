@@ -6,7 +6,7 @@ import {setSomethingStateFlow} from './util/flow/flow';
 let app: Koa;
 let nativeServer;
 let testServer: request.SuperTest<request.Test>;
-beforeAll(async (done) => {
+beforeAll(async () => {
     app = new Koa();
 
     await bootstrapControllers(app, {
@@ -19,7 +19,6 @@ beforeAll(async (done) => {
 
     nativeServer = app.listen();
     testServer = request(nativeServer);
-    done();
 });
 
 afterAll((done) => {

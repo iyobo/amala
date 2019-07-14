@@ -30,8 +30,16 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
 }
 
 const argumentInjectorMap = {
-    currentUser: async (ctx: any, injectOptions: any) => {
-        return ctx.state.user;
+    // currentUser: async (ctx: any, injectOptions: any) => {
+    //     return ctx.state.user;
+    // },
+    session: async (ctx: any, injectOptions: any) => {
+        if(!ctx.session) throw boom.failedDependency('Sessions have not been activated on this server');
+
+        if (typeof injectOptions === 'string') {
+            return ctx.session[injectOptions];
+        }
+        return ctx.session;
     },
     ctx: async (ctx: any, injectOptions: any) => ctx,
     query: async (ctx: any, injectOptions: any) => {
@@ -61,8 +69,6 @@ async function _determineArgument(ctx: Context, index, {injectSource, injectOpti
         result = await plainToClass(type, result);
         const errors = await validate(result); // TODO: wrap around this to trap runtime errors
         if (errors.length > 0) {
-            // throw new Error('eeeh')a
-            // console.error(errors);
             throw boom.badData('validation error for argument type: ' + injectSource,
                 errors.map(it => {
                     return {field: it.property, violations: it.constraints};

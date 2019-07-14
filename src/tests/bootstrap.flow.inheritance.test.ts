@@ -7,6 +7,22 @@ let app: Koa;
 let nativeServer;
 let testServer: request.SuperTest<request.Test>;
 
+beforeAll(async () => {
+    app = new Koa();
+
+    await bootstrapControllers(app, {
+        basePath: '/api',
+        controllers: [__dirname + '/util/controllers/**/*.ts'],
+        boomifyErrors: true,
+        initBodyParser: true,
+        versions: ['1', '2'],
+        flow: [setSomethingStateFlow]
+    });
+
+    nativeServer = app.listen();
+    testServer = request(nativeServer);
+});
+
 afterAll((done) => {
     if (nativeServer.listening) {
         nativeServer.close(done);
@@ -18,22 +34,6 @@ afterAll((done) => {
 
 describe('Bootstrap function', () => {
     describe('Flow', () => {
-        beforeEach(async (done) => {
-            app = new Koa();
-
-            await bootstrapControllers(app, {
-                basePath: '/api',
-                controllers: [__dirname + '/util/controllers/**/*.ts'],
-                boomifyErrors: true,
-                initBodyParser: true,
-                versions: ['1', '2'],
-                flow: [setSomethingStateFlow]
-            });
-
-            nativeServer = app.listen();
-            testServer = request(nativeServer);
-            done();
-        });
 
         it('works', async () => {
             const response = await testServer

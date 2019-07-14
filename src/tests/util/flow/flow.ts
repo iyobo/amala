@@ -11,6 +11,14 @@ export const setSomethingStateFlow = async (ctx, next) => {
    await next();
 };
 
+export const setSomethingSessionFlow = async (ctx, next) => {
+
+    if(ctx.session) {
+        ctx.session.amala = 'ewedu';
+    }
+    await next();
+};
+
 export const passFlow = async (ctx, next) => {
 
    await next();

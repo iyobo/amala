@@ -2,6 +2,7 @@ import {importClassesFromDirectories} from './util/importClasses';
 import {generateRoutes} from './util/generateRoutes';
 import * as bodyParser from 'koa-bodyparser';
 import Boom from 'boom';
+import cookie from 'koa-cookie';
 
 export interface IKoaControllerOptions {
     controllers: Array<string>;
@@ -86,6 +87,9 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
         // app.use(bodyParser());
     }
 
+    // parses cookies
+    app.use(cookie());
+
 
     await generateRoutes(options.router, options, metadata);
 
@@ -107,7 +111,6 @@ export {
     State,
     Body,
     Cookie,
-    CurrentUser,
     Delete,
     Flow,
     Get,

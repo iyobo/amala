@@ -5,7 +5,8 @@ import {bootstrapControllers} from '../index';
 let app: Koa;
 let nativeServer;
 let testServer: request.SuperTest<request.Test>;
-beforeAll(async (done) => {
+beforeAll(async () => {
+
     app = new Koa();
 
     await bootstrapControllers(app, {
@@ -18,10 +19,11 @@ beforeAll(async (done) => {
 
     nativeServer = app.listen();
     testServer = request(nativeServer);
-    done();
+
 });
 
 afterAll((done) => {
+
     if (nativeServer.listening) {
         nativeServer.close(done);
     } else {
@@ -100,6 +102,111 @@ describe('Arguments', () => {
                 .expect(200);
         });
 
+    });
+
+    describe('state', () => {
+        it('works', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/state')
+                .expect(200);
+            expect(response.body.something).toEqual('hahaha');
+        });
+    });
+
+    describe('header', () => {
+        it('works', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/header')
+                .set('foo', 'bar')
+                .expect(200);
+            expect(response.body.foo).toEqual('bar');
+        });
+    });
+
+    describe('cookie', () => {
+        it('whole', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/cookie')
+                .set('Cookie', ['amala=ewedu', 'beans=garri'])
+                .expect(200);
+            expect(response.body.amala).toEqual('ewedu');
+            expect(response.body.beans).toEqual('garri');
+        });
+        it('single field', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/cookieSingle')
+                .set('Cookie', ['amala=ewedu', 'beans=garri'])
+                .expect(200);
+            expect(response.text).toEqual('ewedu');
+        });
+        it('single field non existent', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/cookieSingleNonExist')
+                .set('Cookie', ['amala=ewedu', 'beans=garri'])
+                .expect(204);
+        });
+    });
+
+    describe('query', () => {
+        it('whole', async () => {
+            const response = await testServer
+                .get('/api/v2/arg/query?amala=ewedu&beans=garri')
+                .expect(200);
+            expect(response.body.amala).toEqual('ewedu');
+            expect(response.body.beans).toEqual('garri');
+        });
+        it('single field', async () => {
+            const response = await testServer
+                .get('/api/v2/arg/querySingle?amala=ewedu&beans=garri')
+                .expect(200);
+            expect(response.text).toEqual('ewedu');
+        });
+    });
+
+    describe('session', () => {
+        it('No session by default so fail. Works otherwise like any other ctx field', async () => {
+            const response = await testServer
+                .get('/api/v2/arg/session')
+                .expect(424);
+            expect(response.body.message).toEqual('Sessions have not been activated on this server');
+        });
+    });
+
+    describe('req', () => {
+        it('works', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/req')
+                .set('foo', 'bar')
+                .expect(200);
+
+            // returns a serialized req object
+            expect(Buffer.isBuffer(response.body)).toEqual(true);
+        });
+    });
+
+    describe('res', () => {
+        it('works', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/res')
+                .set('foo', 'bar')
+                .expect(200);
+
+            // returns a serialized res object
+            expect(response.text).toEqual('works');
+        });
+    });
+
+    describe('ctx', () => {
+        it('works', async () => {
+            const response = await testServer
+                .post('/api/v2/arg/ctx')
+                .set('foo', 'bar')
+                .expect(200);
+
+            // returns a serialized ctx object
+            expect(response.body.app).toBeDefined();
+            expect(response.body.app.env).toBeDefined();
+        });
     });
 
 });

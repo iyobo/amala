@@ -15,7 +15,8 @@ import {
     State
 } from '../../../index';
 import {IsNumber, IsString} from 'class-validator';
-import {setSomethingStateFlow} from '../flow/flow';
+import {setSomethingSessionFlow, setSomethingStateFlow} from '../flow/flow';
+import {Request, Response} from 'koa';
 
 interface InterfaceInput {
     aString: string;
@@ -82,28 +83,47 @@ export class ArgController {
     async cookie(@Cookie() cookie: any) {
         return cookie;
     }
+    @Post('/cookieSingle')
+    async cookieSingle(@Cookie('amala') cookie: string) {
+        return cookie;
+    }
+    @Post('/cookieSingleNonExist')
+    async cookieSingleNonExist(@Cookie('noooo') cookie: string) {
+        return cookie;
+    }
 
     @Get('/query')
     async query(@Query() q: any) {
         return q;
     }
+    @Get('/querySingle')
+    async querySingle(@Query('amala') q: string) {
+        return q;
+    }
 
     @Get('/session')
+    @Flow(setSomethingSessionFlow)
     async session(@Session() sess: any) {
         return sess;
     }
+    @Get('/sessionSingle')
+    @Flow(setSomethingSessionFlow)
+    async sessionSingle(@Session('amala') sess: string) {
+        return sess;
+    }
 
-    @Get('/req')
-    async req(@Req() req: any) {
+
+    @Post('/req')
+    async req(@Req() req: Request) {
         return req;
     }
 
-    @Get('/res')
-    async res(@Res() res: any) {
-        return res;
+    @Post('/res')
+    async res(@Res() res: Response) {
+        return res? 'works': 'did not work';
     }
 
-    @Get('/ctx')
+    @Post('/ctx')
     async ctx(@Ctx() ctx: any) {
         return ctx;
     }
