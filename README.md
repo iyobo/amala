@@ -38,27 +38,36 @@ import {Controller, Ctx, Req, Body, Get, Post, Delete} from 'koa-ts-controllers'
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
 
 @Controller('/foo')
-@Flow(aMiddleware)
+@Flow(aMiddleware) // middleware to pass into any of the endpoints in this controller.
 export class FooController {
 
-    @Get('/hello')
-    async simpleGet() {
-        // GET /api/v1/foo/hello
-        return 'world';
+    @Get('/')
+    async myEndpointHandler() {
+        // GET /api/v1/foo OR /api/v2/foo OR /api/vdangote/foo
+        
+        return 'Beans and garri makes sense';
     }
 
     @Get('/hello')
-    @Version('2') 
-    async simpleGet() {
-        // GET /api/v2/foo/hello  
-        // only if bootstrap options.version array contains '2', othewise 404.
+    @version('1') 
+    async simpleGetV1() {
+        // GET /api/v1/foo/hello... only!
+        // This is a versioned endpoint handler, so it will only handle a specific version of a particular route.
+        
 
-        return 'world v2';
+        return 'world v1';
+    }
+    
+    @Get('/hello')
+    async simpleGet() {
+        // GET /api/v2/foo/hello OR /api/vdangote/foo/hello
+        // This is a catch-remaining-versions endpoint for this route. It will handle any remaining undefined versions of previously versioned endpoint[s]. The positioning of the catch-remaining-versions endpoint is key. it needs to be defined last.
+        return 'world';
     }
 
     @Get('/:id')
     async getFooById( @Params('id') id: string) {
-        // GET /api/v1/foo/123
+        // GET /api/v.../foo/123
             // id will be 123
         
         //id has been injected with the id
@@ -68,7 +77,7 @@ export class FooController {
     @Flow([authMiddleware])
     async createFoo( @Body() body: any) {
 
-        // POST /api/v1/foo
+        // POST /api/v.../foo
 
         // body injected with post data   
 
@@ -78,7 +87,7 @@ export class FooController {
     @Delete('/:id')
     @Flow([aMiddleware, bMiddleware])
     async deleteFoo(@Params() params: any) {
-        // DELETE /api/v1/foo/123
+        // DELETE /api/v.../foo/123
             // params.id will be 123
 
         // ctx injected with the whole context. 
