@@ -1,4 +1,4 @@
-#koa-ts-controllers
+# koa-ts-controllers
 
 This is a Typescript routing controller system for KoaJS 2+.
 Define your REST API endpoints using classes and decorators.
