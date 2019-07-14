@@ -15,9 +15,12 @@ const router = new Router();
 
 ...
 
-await bootstrapControllers(app, router, {
+await bootstrapControllers(app, {
+    router,
     basePath: '/api',
-    controllers: [__dirname + '/controllers/**/*.ts']
+    controllers: [__dirname + '/controllers/**/*.ts'],
+    initBodyParser: true,
+    boomifyErrors: true
 });
 
 ...
@@ -30,6 +33,7 @@ import {Controller, Ctx, Req, Body, Get, Post, Delete} from 'koa-ts-controllers'
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
 
 @Controller('/foo')
+@Flow(aMiddleware)
 export class FooController {
 
     @Get('/hello')
@@ -94,27 +98,32 @@ Also, Koa-ts-controllers supports **API versioning**. You won't find that anywhe
 This library is used heavily in [JollofStack](https://github.com/iyobo/jollofstack) (WIP), which is the typescript-centered re-architecture of [JollofJS](https://github.com/iyobo/jollofjs).
 
 ## Docs
-### bootstrapControllers(app, router,  options)
+### bootstrapControllers(app,  options)
 
 Call this in your main file to initialize your controllers.
 
 `app` is an instance of Koa.
-`router` is an instance of Koa-router.
 `options` is an object of type
 ```$xslt
 {
+    router?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
     controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
-    basePath?: string; // prefix for API
-    versions?: Array<number | string>; // The active versions of this API. default [1]. Most recent version of api should always be the last.
+    basePath?: string; // prefix for API URI
+    versions?: Array<number | string> | object; // The active versions of this API. default is {'1': true}.
+    initBodyParser?: boolean; // set to true to attach a default koa-body middleware to your koa app.
 }
 ```
 
 ## Class Decorators
 These decorators can be used on Classes i.e controllers
 
-#### @Controller(basePath?)
+### @Controller(basePath?)
 Specifies this class as a controller class i.e a container of controller actions.
 `basepath` is prefixed to all action paths within this class.
+
+### @Flow([...middlewares])
+Flow is JollofJS terminology for "middleware chain". 
+Define the series of koa middleware that must run (and not throw an error) before any action in this class can satisfy the request.
 
 ## Action Decorators
 These decorators wrap functions of controller classes.
@@ -130,7 +139,7 @@ Specifies a function as a handler to the given PUT `path` route. See above examp
 ### @Delete(path)
 Specifies a function as a handler to the given DELETE `path` route. See above examples.
 ### @Version(v)
-specify that this route handler only handles version `v` paths. And only if bootstrap options.version array contains `v`, otherwise 404.
+specify that this route handler only handles version `v` paths. And only if bootstrap options.version contains `v`, otherwise 404.
 ### @Flow([...middlewares])
 Flow is JollofJS terminology for "middleware chain". 
 Define the series of middleware that must run (and not throw an error) before this function can satisfy the enpoint. See above example.
@@ -150,12 +159,13 @@ Injects ctx.params object or ctx.params[name]
 ### @Query() or @Query(name)
 Injects ctx.query object or ctx.query[name]
 ### @Session() or @Session(name)
+This works only if you have a session handler defined in ctx.session e.g koa-session.
 Injects ctx.session object or ctx.session[name]
 ### @Req()
-Injects the koa request object
-### @Res
+Injects the koa request object.
+### @Res()
 Injects the koa response object. useful when streaming data down to client.
 
 ### @Ctx()
-Injects the whole koa context. Avoid doing this if you can. Opt for more specific injections.
+Injects the whole koa context. For a more descriptive endpoint handler/action, avoid doing this if you can. Opt for more specific injections.
 
