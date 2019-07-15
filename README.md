@@ -54,7 +54,9 @@ export class FooController {
     @version('1') 
     async simpleGetV1() {
         // GET /api/v1/foo/hello... only!
-        // This is a versioned endpoint handler, so it will only handle a specific version of a particular route.
+        // This is a versioned endpoint handler, so it will only handle a specific version of a 
+        // particular route.
+        // Also, because v1 was specified with a warning message, there will be a 'Deprecated' header with that message.
         
 
         return 'world v1';
@@ -63,7 +65,10 @@ export class FooController {
     @Get('/hello')
     async simpleGet() {
         // GET /api/v2/foo/hello OR /api/vdangote/foo/hello
-        // This is a catch-remaining-versions endpoint for this route. It will handle any remaining undefined versions of previously versioned endpoint[s]. The positioning of the catch-remaining-versions endpoint is key. it needs to be defined last.
+        // This is a catch-remaining-versions endpoint for this route. It will handle any 
+        // remaining undefined versions of previously versioned endpoint[s]. 
+        // The positioning of the catch-remaining-versions endpoint is key. it needs to be defined last.
+        
         return 'world';
     }
 
@@ -120,8 +125,10 @@ export class FooController {
 
         // POST /api/v.../foo/orDie2
 
-        // providing a class as an type to an object-level argument (i.e not a primitive) means you want 
-        // that object to be validated by that class
+        // providing a class as an type to an object-level argument 
+        // (i.e not a primitive) means you want 
+        // that object to be validated by that class-validator class.
+        // See definition of FooCreateInput validation class below.
 
         return body;
     }
@@ -144,7 +151,7 @@ export class FooController {
     }
 }
 
-// Class validator, internally using class-validator library. 
+// Validator class, internally using class-validator library. 
 // Make sure to use the validator decorators exported directly from 'koa-ts-controllers'
 // See the class-validator module docs for details.
 class FooCreateInput {
