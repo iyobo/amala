@@ -39,6 +39,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-cookie": "^1.0.0",
     "koa-router": "^7.4.0",
+    "lodash": "^4.17.14",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {},
