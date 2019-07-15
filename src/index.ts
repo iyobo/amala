@@ -81,8 +81,6 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
 
     importClassesFromDirectories(options.controllers);
 
-
-
     if (params.initBodyParser) {
         // Enable bodyParser with default options
         app.use((require('koa-body'))({multipart: true}));
