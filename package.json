@@ -22,7 +22,7 @@
     "test": "jest --config jestconfig.json",
     "test:watch": "jest --config jestconfig.json --watch",
     "build": "tsc",
-    "prepublish": "tsc",
+    "prepublish": "tsc && npm test",
     "dev": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json"
   },
