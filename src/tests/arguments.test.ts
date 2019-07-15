@@ -163,6 +163,21 @@ describe('Arguments', () => {
         });
     });
 
+    describe('params', () => {
+        it('whole', async () => {
+            const response = await testServer
+                .get('/api/v2/arg/params/123')
+                .expect(200);
+            expect(response.body.id).toEqual('123');
+        });
+        it('single field', async () => {
+            const response = await testServer
+                .get('/api/v2/arg/paramsSingle/123')
+                .expect(200);
+            expect(response.text).toEqual('123');
+        });
+    });
+
     describe('session', () => {
         it('No session by default so fail. Works otherwise like any other ctx field', async () => {
             const response = await testServer

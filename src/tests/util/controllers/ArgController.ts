@@ -101,6 +101,15 @@ export class ArgController {
         return q;
     }
 
+    @Get('/params/:id')
+    async params(@Params() q: any) {
+        return q;
+    }
+    @Get('/paramsSingle/:id')
+    async paramsSingle(@Params('id') id: string) {
+        return id;
+    }
+
     @Get('/session')
     @Flow(setSomethingSessionFlow)
     async session(@Session() sess: any) {

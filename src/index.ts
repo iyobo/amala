@@ -50,6 +50,7 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
     options = params;
     options.versions = options.versions || {1: true};
     options.flow = options.flow || [];
+    options.boomifyErrors = params.boomifyErrors===false? false: true;
 
     /**
      * Versions can be defined in multiple ways.
@@ -73,12 +74,14 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
         options.attachRoutes = true;
     }
 
-    importClassesFromDirectories(options.controllers);
-
-    if (params.boomifyErrors) {
+    if (options.boomifyErrors) {
         // error handler
         app.use(handleRestErrors);
     }
+
+    importClassesFromDirectories(options.controllers);
+
+
 
     if (params.initBodyParser) {
         // Enable bodyParser with default options

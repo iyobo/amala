@@ -36,7 +36,7 @@ await bootstrapControllers(app, {
 ```
 --- constrollers/FooController.ts
 
-import {Controller, Ctx, Req, Body, Get, Post, Delete} from 'koa-ts-controllers';
+import {Controller, Ctx, Req, Body, Get, Post, Delete, IsString, IsNumber} from 'koa-ts-controllers';
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
 
 @Controller('/foo')
@@ -85,6 +85,47 @@ export class FooController {
 
         return body;
     }
+    
+    @Post('/specific')
+    async createFooSpecific( @Body('foo') fooParam: string) {
+
+        // POST /api/v.../foo/specific
+
+        // fooParam argument injected with particular field body.foo 
+
+        return fooParam;
+    }
+    @Post('/specific2')
+    async createFooSpecific2( @Body({field: 'foo}) fooParam: string) {
+
+        // POST /api/v.../foo/specific2
+
+        // Same as before. fooParam argument injected with particular field body.foo 
+
+        return fooParam;
+    }
+    
+    @Post('/orDie')
+    async createFooRequired( @Body({required: true}) body: any) {
+
+        // POST /api/v.../foo/orDie
+
+        // body will throw 422 error if no body input given 
+
+        return body;
+    }
+    
+    @Post('/orDie2')
+    async createFooRequired2( @Body({required: true}) body: FooCreateInput) {
+
+        // POST /api/v.../foo/orDie2
+
+        // providing a class as an type to an object-level argument (i.e not a primitive) means you want 
+        // that object to be validated by that class
+
+        return body;
+    }
+
 
     @Delete('/:id')
     @Flow([aMiddleware, bMiddleware])
@@ -92,11 +133,26 @@ export class FooController {
         // DELETE /api/v.../foo/123
             // params.id will be 123
 
-        // ctx injected with the whole context. 
-        // Better to be more specific about what you would like to inject 
-        // as params to make your controllers easier to reason about.   
+    }
+    
+    @Delete('/specific/:id')
+    @Flow([aMiddleware, bMiddleware])
+    async deleteFooSpecific(@Params('id') id: any) {
+        // DELETE /api/v.../foo/specific/123
+            // id will be 123 
 
     }
+}
+
+// Class validator, internally using class-validator library. 
+// Make sure to use the validator decorators exported directly from 'koa-ts-controllers'
+// See the class-validator module docs for details.
+class FooCreateInput {
+    @IsString()
+    aString: string;
+
+    @IsNumber()
+    aNumber: number;
 }
 
 ```
@@ -125,8 +181,10 @@ Call this in your main file to initialize your controllers.
     router?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
     controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
     basePath?: string; // prefix for API URI
-    versions?: Array<number | string> | object; // The active versions of this API. default is {'1': true}.
-    initBodyParser?: boolean; // set to true to attach a default koa-body middleware to your koa app.
+    versions?: Array<number | string> | object; // default: {1: true} The active versions of this API. default is {'1': true} meaning all routes will take the form /base/v1/controller/action.
+    disableVersion?: boolean // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action. Not recommended unless you wish to handle versioning manually in each controller's basePath. 
+    initBodyParser?: boolean; // Default: false. set to true to attach a default koa-body middleware to your koa app. If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before bootstrapserver is called.
+    boomifyErrors?: boolean; // Default: true. Makes your boom errors better received downstream.
 }
 ```
 
