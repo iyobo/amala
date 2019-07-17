@@ -188,10 +188,22 @@ Call this in your main file to initialize your controllers.
     router?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
     controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
     basePath?: string; // prefix for API URI
-    versions?: Array<number | string> | object; // default: {1: true} The active versions of this API. default is {'1': true} meaning all routes will take the form /base/v1/controller/action.
-    disableVersion?: boolean // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action. Not recommended unless you wish to handle versioning manually in each controller's basePath. 
-    initBodyParser?: boolean; // Default: false. set to true to attach a default koa-body middleware to your koa app. If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before bootstrapserver is called.
-    boomifyErrors?: boolean; // Default: true. Makes your boom errors better received downstream.
+    
+    // default: {1: true} The active versions of this API. default is {'1': true} meaning all routes will take 
+    the form /base/v1/controller/action.
+    versions?: Array<number | string> | object; 
+    
+    // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action. 
+    // Not recommended unless you wish to handle versioning manually in each controller's basePath.
+    disableVersion?: boolean  
+    
+    // Default: false. set to true to attach a default koa-body middleware to your koa app. 
+    // If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before 
+    // bootstrapserver is called.
+    initBodyParser?: boolean; 
+    
+    // Default: true. Makes your boom errors better received downstream.
+    boomifyErrors?: boolean; 
 }
 ```
 
@@ -229,21 +241,31 @@ Define the series of middleware that must run (and not throw an error) before th
 These decorators are used to inject contextual request data into your controller action's arguments. 
 Try to be as specific as possible with what you inject so that your endpoint handlers can be more easily tested.
 
+### @Body() or @Body({required}) or @Body(name)
+Injects ctx.request.body or ctx.request.body[name]
+
 ### @State() or @State(name)
 Injects ctx.state object or ctx.state[name]
+
 ### @Header() or @Header(name)
 Injects ctx.header object or ctx.header[name]
+
 ### @Cookie() or @Cookie(name)
 Injects ctx.cookies object or ctx.cookies[name]
+
 ### @Params() or @Params(name)
 Injects ctx.params object or ctx.params[name]
+
 ### @Query() or @Query(name)
 Injects ctx.query object or ctx.query[name]
+
 ### @Session() or @Session(name)
 This works only if you have a session handler defined in ctx.session e.g koa-session.
 Injects ctx.session object or ctx.session[name]
+
 ### @Req()
-Injects the koa request object.
+Injects the koa request object. useful when streaming data up to server
+
 ### @Res()
 Injects the koa response object. useful when streaming data down to client.
 
