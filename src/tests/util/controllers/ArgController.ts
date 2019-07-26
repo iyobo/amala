@@ -83,10 +83,12 @@ export class ArgController {
     async cookie(@Cookie() cookie: any) {
         return cookie;
     }
+
     @Post('/cookieSingle')
     async cookieSingle(@Cookie('amala') cookie: string) {
         return cookie;
     }
+
     @Post('/cookieSingleNonExist')
     async cookieSingleNonExist(@Cookie('noooo') cookie: string) {
         return cookie;
@@ -96,6 +98,7 @@ export class ArgController {
     async query(@Query() q: any) {
         return q;
     }
+
     @Get('/querySingle')
     async querySingle(@Query('amala') q: string) {
         return q;
@@ -105,16 +108,26 @@ export class ArgController {
     async params(@Params() q: any) {
         return q;
     }
+
     @Get('/paramsSingle/:id')
     async paramsSingle(@Params('id') id: string) {
         return id;
     }
 
+    // Argument primitive casting
+    @Get('/paramsCastNumber/:val')
+    async paramsCastNumber(@Params('val') val: number) {
+        return {type: typeof val, val};
+    }
+
+
+    // sessions
     @Get('/session')
     @Flow(setSomethingSessionFlow)
     async session(@Session() sess: any) {
         return sess;
     }
+
     @Get('/sessionSingle')
     @Flow(setSomethingSessionFlow)
     async sessionSingle(@Session('amala') sess: string) {
@@ -129,7 +142,7 @@ export class ArgController {
 
     @Post('/res')
     async res(@Res() res: Response) {
-        return res? 'works': 'did not work';
+        return res ? 'works' : 'did not work';
     }
 
     @Post('/ctx')

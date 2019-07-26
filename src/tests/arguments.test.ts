@@ -176,6 +176,13 @@ describe('Arguments', () => {
                 .expect(200);
             expect(response.text).toEqual('123');
         });
+        it('Single Field number', async () => {
+            const response = await testServer
+                .get('/api/v2/arg/paramsCastNumber/123')
+                .expect(200);
+            expect(response.body.type).toEqual('number');
+            expect(response.body.val).toEqual(123);
+        });
     });
 
     describe('session', () => {

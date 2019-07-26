@@ -78,9 +78,17 @@ export class FooController {
     @Get('/:id')
     async getFooById( @Params('id') id: string) {
         // GET /api/v.../foo/123
+            // id will be "123"
+        
+        //id has been injected with the string id
+    }
+    
+    @Get('/:idnum')
+    async getFooById( @Params('idnum') id: number) {
+        // GET /api/v.../foo/123
             // id will be 123
         
-        //id has been injected with the id
+        //id has been injected with the number id
     }
 
     @Post('/')

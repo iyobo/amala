@@ -34,7 +34,7 @@ const argumentInjectorMap = {
     //     return ctx.state.user;
     // },
     session: async (ctx: any, injectOptions: any) => {
-        if(!ctx.session) throw boom.failedDependency('Sessions have not been activated on this server');
+        if (!ctx.session) throw boom.failedDependency('Sessions have not been activated on this server');
 
         if (typeof injectOptions === 'string') {
             return ctx.session[injectOptions];
@@ -75,6 +75,8 @@ async function _determineArgument(ctx: Context, index, {injectSource, injectOpti
                 })
             );
         }
+    } else if (type === Number) {
+        result = Number(result);
     }
 
 
@@ -113,7 +115,6 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
 
             }
         }
-
 
         if (willAddEndpoint) {
             const path = parentPath + action.path;
