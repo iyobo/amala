@@ -1,7 +1,7 @@
 import {importClassesFromDirectories} from './util/importClasses';
 import {generateRoutes} from './util/generateRoutes';
 import * as bodyParser from 'koa-bodyparser';
-import Boom from 'boom';
+import Boom from '@hapi/boom';
 import cookie from 'koa-cookie';
 
 export interface IKoaControllerOptions {

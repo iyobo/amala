@@ -1,4 +1,4 @@
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 
 export const unauthorizedFlow = async (ctx, next) => {
 

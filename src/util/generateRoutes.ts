@@ -5,7 +5,7 @@ import _ from 'lodash';
 import {Context} from 'koa';
 import {isClass} from './tools';
 
-const boom = require('boom');
+const boom = require('@hapi/boom');
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
 
