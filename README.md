@@ -3,7 +3,8 @@
 This is a Typescript routing controller system for KoaJS 2+.
 Define your REST API endpoints using classes and decorators.
 Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
-This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere and also makes them easy to test.
+
+This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere. It also makes them easier to test.
 
 `npm i koa-ts-controllers`
 
