@@ -206,7 +206,7 @@ Call this in your main file to initialize your controllers.
     
     // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action. 
     // Not recommended unless you wish to handle versioning manually in each controller's basePath.
-    disableVersion?: boolean  
+    disableVersioning?: boolean  
     
     // Default: false. set to true to attach a default koa-body middleware to your koa app. 
     // If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before 
