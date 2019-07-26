@@ -2,6 +2,8 @@
 
 This is a Typescript routing controller system for KoaJS 2+.
 Define your REST API endpoints using classes and decorators.
+Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
+This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere and also makes them easy to test.
 
 `npm i koa-ts-controllers`
 
@@ -40,7 +42,7 @@ import {Controller, Ctx, Req, Body, Get, Post, Delete, IsString, IsNumber} from 
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
 
 @Controller('/foo')
-@Flow(aMiddleware) // middleware to pass into any of the endpoints in this controller.
+@Flow(aMiddleware) // middleware to pass into any of the endpoints in this controller. e.g auth middleware.
 export class FooController {
 
     @Get('/')
@@ -164,7 +166,7 @@ class FooCreateInput {
 
 ```
 
-Koa-ts-controllers is more native to Koa than other typescript controller systems (e.g routing-controllers) as it does not aim to be an abstraction layer for other API frameworks. 
+Koa-ts-controllers is more native to Koa than other Typescript controller systems (e.g routing-controllers) as it does not aim to be an abstraction layer for other API frameworks. 
 
 All it cares about is KoaJS.
 
