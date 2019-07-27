@@ -115,6 +115,14 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
 
             }
         }
+        else { // else If in-built api versioning mode is disabled...
+
+            // ...and endpoint has some version constraints defined...
+            if (action.limitToVersions && !_.isEmpty(action.limitToVersions)) {
+                // , then ignore any endpoint handler with a @Version decorator. Default to catch-all-remainders
+                willAddEndpoint = false;
+            }
+        }
 
         if (willAddEndpoint) {
             const path = parentPath + action.path;

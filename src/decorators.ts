@@ -36,7 +36,8 @@ function _addVersionFunctionMeta({version, methodName, object, endpointDeprecati
     controller.actions = controller.actions || {};
     controller.actions[methodName] = controller.actions[methodName] || {};
 
-    // The presence of versions signifies that this method might be unavailable for some versions and should be skipped in final metadata processing step
+    // The presence of versions signifies that this method might be unavailable for some versions and should
+    // be skipped in final metadata processing step
     controller.actions[methodName].limitToVersions = controller.actions[methodName].limitToVersions || {};
     controller.actions[methodName].limitToVersions[version] = endpointDeprecationWarning || true;
 
