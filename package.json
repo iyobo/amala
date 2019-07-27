@@ -24,6 +24,7 @@
     "test:watch": "jest --config jestconfig.json --watch",
     "build": "tsc",
     "prepublish": "tsc && npm test",
+    "postpublish": "git push origin master",
     "dev": "tsc -w",
     "lint": "tslint -c tslint.json -p tsconfig.json"
   },
