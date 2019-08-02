@@ -21,7 +21,7 @@ export const metadata = {
     controllers: {}
 };
 
-interface ControllerCodex {
+export interface ControllerCodex {
     [k: string]: {
         actions: {
             [ak: string]: {

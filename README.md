@@ -283,6 +283,11 @@ Injects the koa response object. useful when streaming data down to client.
 ### @Ctx()
 Injects the whole koa context. For a more descriptive endpoint handler/action, avoid doing this if you can. Opt for more specific injections.
 
+# How to programmatically access controller actions
+```
+import {getControllers} from 'koa-ts-controllers`
+const codex = getControllers(); //codex is now an index of all the controller functions and theor classes.
+```
 # Upcoming Features
 - Support for Open API 3
     - Koa-TS-Controllers will soon be able to generate Open API 3 spec files (JSON) based on your controller definitions.
