@@ -3,12 +3,13 @@ import 'reflect-metadata';
 
 
 export function Controller(baseRoute?: string) {
-    return function (object: Function) {
+    return function (classDefinition: Function) {
         // console.log('Controller', object);
-        const controller = metadata.controllers[object.name] || {};
+        const controller = metadata.controllers[classDefinition.name] || {};
         controller.path = baseRoute;
+        controller.class = classDefinition;
 
-        metadata.controllers[object.name] = controller;
+        metadata.controllers[classDefinition.name] = controller;
     };
 }
 

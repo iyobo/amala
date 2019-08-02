@@ -21,25 +21,46 @@ export const metadata = {
     controllers: {}
 };
 
+interface ControllerCodex {
+    [k: string]: {
+        actions: {
+            [ak: string]: {
+                flow?: Array<Function>;
+                verb: string;
+                path: string;
+                target: Function;
+                argumentTypes?: Array<any>;
+            }
+        };
+        path: String;
+        class: any;
+    };
+}
+
+export function getControllers(): ControllerCodex {
+    return metadata.controllers;
+}
+
 const handleRestErrors = async (ctx, next) => {
     try {
         await next();
     } catch (err) {
-
         if (err.isBoom) {
             const error = err.output.payload;
-            error.errorDetails = err.data;
+            error.errorDetails = error.statusCode >= 500 ? null : err.data;
             ctx.body = error;
             ctx.status = error.statusCode;
-
-            if (error.statusCode >= 500) console.error(err);
+            if (error.statusCode >= 500)
+                console.error(err);
         } else {
-            ctx.body = err;
+            ctx.body = {error: 'Internal Server Error'};
             ctx.status = 500;
             console.error(err);
         }
     }
 };
+
+export let controllers = {};
 
 /**
  *
@@ -50,7 +71,7 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
     options = params;
     options.versions = options.versions || {1: true};
     options.flow = options.flow || [];
-    options.boomifyErrors = params.boomifyErrors===false? false: true;
+    options.boomifyErrors = params.boomifyErrors === false ? false : true;
 
     /**
      * Versions can be defined in multiple ways.
