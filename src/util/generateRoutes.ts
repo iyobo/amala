@@ -64,7 +64,7 @@ async function _determineArgument(ctx: Context, index, {injectSource, injectOpti
     }
 
     // validate if this is a class
-    if (isClass(type)) {
+    if (result && isClass(type)) {
 
         result = await plainToClass(type, result);
         const errors = await validate(result); // TODO: wrap around this to trap runtime errors
