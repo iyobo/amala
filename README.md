@@ -6,6 +6,13 @@ Inject arguments into your endpoint handlers, effectively turning your controlle
 
 This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere. It also makes them easier to test.
 
+## Supporting the Project
+If you use koa-ts-controllers, consider 
+
+<a href="https://www.buymeacoffee.com/iyobo" target="_blank"><img src="https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+
+## How to Use
+
 `npm i koa-ts-controllers`
 
 ```
