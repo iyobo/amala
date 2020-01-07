@@ -292,7 +292,7 @@ Injects the whole koa context. For a more descriptive endpoint handler/action, a
 
 # How to programmatically access controller actions
 ```typescript
-import {getControllers} from 'koa-ts-controllers`
+import {getControllers} from 'koa-ts-controllers'
 const codex = getControllers(); //codex is now an index of all the controller functions and theor classes.
 ```
 # Upcoming Features
