@@ -15,7 +15,7 @@ If you use koa-ts-controllers and it's helping you do awesome stuff, be a sport 
 
 `npm i koa-ts-controllers`
 
-```
+```typescript
 --- main.ts
 
 import {bootstrapControllers} from 'koa-ts-controllers';
@@ -43,7 +43,7 @@ await bootstrapControllers(app, {
 ...
 ```
 
-```
+```typescript
 --- constrollers/FooController.ts
 
 import {Controller, Ctx, Req, Body, Get, Post, Delete, IsString, IsNumber} from 'koa-ts-controllers';
@@ -201,7 +201,7 @@ Call this in your main file to initialize your controllers.
 
 `app` is an instance of Koa.
 `options` is an object of type
-```$xslt
+```typescript
 {
     router?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
     controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
