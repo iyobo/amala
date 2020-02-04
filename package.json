@@ -1,6 +1,6 @@
 {
   "name": "koa-ts-controllers",
-  "version": "1.3.16",
+  "version": "1.4.0",
   "description": "This is a Typescript routing controller system for KoaJS 2+. Define your REST API endpoints using classes and decorators.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
