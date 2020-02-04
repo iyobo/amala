@@ -3,7 +3,7 @@ import * as path from 'path';
 /**
  * Loads all exported classes from the given directory.
  */
-export function importClassesFromDirectories(directories: string[], formats = ['.js', '.ts']): Function[] {
+export function importClassesFromDirectories(globString: string, formats = ['.js', '.ts']): Function[] {
 
     const loadFileClasses = function (exported: any, allLoaded: Function[]) {
         if (exported instanceof Function) {
@@ -17,16 +17,17 @@ export function importClassesFromDirectories(directories: string[], formats = ['
         return allLoaded;
     };
 
-    const allFiles = directories.reduce((allDirs, dir) => {
-        return allDirs.concat(require('glob').sync(path.normalize(dir)));
-    }, [] as string[]);
+    // get absolute paths of each file that matches the glut
+    const allFiles = require('glob').sync(path.normalize(globString));
 
     const dirs = allFiles
         .filter(file => {
+            // ignore any .d.ts files
             const dtsExtension = file.substring(file.length - 5, file.length);
             return formats.indexOf(path.extname(file)) !== -1 && dtsExtension !== '.d.ts';
         })
         .map(file => {
+            // Load it
             return require(file);
         });
 

@@ -1,6 +1,9 @@
 import request from 'supertest';
 import Koa from 'koa';
 import {bootstrapControllers} from '../index';
+import {ActionController} from './util/controllers/ActionController';
+import {ArgController} from './util/controllers/ArgController';
+import {ProtectedController} from './util/controllers/ProtectedController';
 
 let app: Koa;
 let nativeServer;
@@ -10,7 +13,7 @@ beforeAll(async () => {
 
     await bootstrapControllers(app, {
         basePath: '/api',
-        controllers: [__dirname + '/util/controllers/**/*.ts'],
+        controllers: [ActionController, ArgController, ProtectedController],
         boomifyErrors: true,
         initBodyParser: true,
         versions: ['1', '2']

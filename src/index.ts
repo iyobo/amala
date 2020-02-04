@@ -5,7 +5,8 @@ import Boom from '@hapi/boom';
 import cookie from 'koa-cookie';
 
 export interface IKoaControllerOptions {
-    controllers: Array<string>;
+    controllers: Array<string | Function>;
+    // controllerClasses: Array<Function>;
     basePath?: string;
     versions?: Array<number | string> | object;
     disableVersioning?: boolean;
@@ -100,7 +101,19 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
         app.use(handleRestErrors);
     }
 
-    importClassesFromDirectories(options.controllers);
+    // We don't need to do anything with the array of Controller classes these
+    // return because the decorators have already loaded up the classes into metadata.
+    // The Controller class files just need to be touched and they will handle their own registration in metadata
+    for (const controllerDef of options.controllers) {
+        if (typeof controllerDef === 'string') {
+            importClassesFromDirectories(controllerDef);
+        } else {
+            // if it is not a string, it means it is a class that has already been imported/required/loaded. No need to
+            // do anything else. Encourage users to still add the controller classes here even though the
+            // decorators already load things up, for possible future needs.
+        }
+    }
+
 
     if (params.initBodyParser) {
         // Enable bodyParser with default options
