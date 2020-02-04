@@ -1,18 +1,19 @@
 import {importClassesFromDirectories} from './util/importClasses';
 import {generateRoutes} from './util/generateRoutes';
-import * as bodyParser from 'koa-bodyparser';
 import Boom from '@hapi/boom';
 import cookie from 'koa-cookie';
 
 export interface IKoaControllerOptions {
     controllers: Array<string | Function>;
-    // controllerClasses: Array<Function>;
     basePath?: string;
-    versions?: Array<number | string> | object;
+    versions?: Array<number | string> | { [key: string]: string | boolean };
     disableVersioning?: boolean;
+    // whether bootstrapper should initialize body parser + multipart
     initBodyParser?: boolean;
+    // whether to convert all errors to boom API errors
     boomifyErrors?: boolean;
     attachRoutes?: boolean;
+    // optional koa-router object. Will create it's own if not specified
     router?: any;
     flow?: Array<Function>;
 }
@@ -118,8 +119,6 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
     if (params.initBodyParser) {
         // Enable bodyParser with default options
         app.use((require('koa-body'))({multipart: true}));
-        // app.use((require('koa-bodyparser'))());
-        // app.use(bodyParser());
     }
 
     // parses cookies
