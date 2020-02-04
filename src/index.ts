@@ -1,5 +1,5 @@
-import {importClassesFromDirectories} from './util/importClasses';
-import {generateRoutes} from './util/generateRoutes';
+import { importClassesFromDirectories } from './util/importClasses';
+import { generateRoutes } from './util/generateRoutes';
 import Boom from '@hapi/boom';
 import cookie from 'koa-cookie';
 
@@ -32,9 +32,9 @@ export interface ControllerCodex {
                 path: string;
                 target: Function;
                 argumentTypes?: Array<any>;
-            }
+            };
         };
-        path: String;
+        path: String | String[];
         class: any;
     };
 }
@@ -49,13 +49,12 @@ const handleRestErrors = async (ctx, next) => {
     } catch (err) {
         if (err.isBoom) {
             const error = err.output.payload;
-            error.errorDetails = error.statusCode >= 500 ? null : err.data;
+            error.errorDetails = error.statusCode >= 500 ? undefined : err.data;
             ctx.body = error;
             ctx.status = error.statusCode;
-            if (error.statusCode >= 500)
-                console.error(err);
+            if (error.statusCode >= 500) console.error(err);
         } else {
-            ctx.body = {error: 'Internal Server Error'};
+            ctx.body = { error: 'Internal Server Error' };
             ctx.status = 500;
             console.error(err);
         }
@@ -71,7 +70,7 @@ export let controllers = {};
  */
 export const bootstrapControllers = async (app, params: IKoaControllerOptions) => {
     options = params;
-    options.versions = options.versions || {1: true};
+    options.versions = options.versions || { 1: true };
     options.flow = options.flow || [];
     options.boomifyErrors = params.boomifyErrors === false ? false : true;
 
@@ -90,7 +89,6 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
         });
         options.versions = versions;
     }
-
 
     if (!options.router) {
         options.router = new (require('koa-router'))();
@@ -115,15 +113,13 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
         }
     }
 
-
     if (params.initBodyParser) {
         // Enable bodyParser with default options
-        app.use((require('koa-body'))({multipart: true}));
+        app.use(require('koa-body')({ multipart: true }));
     }
 
     // parses cookies
     app.use(cookie());
-
 
     await generateRoutes(options.router, options, metadata);
 
@@ -136,7 +132,6 @@ export const bootstrapControllers = async (app, params: IKoaControllerOptions) =
             throw: true,
         }));
     }
-
 };
 
 export {
