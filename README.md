@@ -6,9 +6,16 @@ Inject arguments into your endpoint handlers, effectively turning your controlle
 
 This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere. It also makes them easier to test.
 
+## Supporting the Project
+If you use koa-ts-controllers and it's helping you do awesome stuff, be a sport and  <a href="https://www.buymeacoffee.com/iyobo" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a> or <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Become a Patron!</a>. PRs are also welcome.
+
+
+
+## How to Use
+
 `npm i koa-ts-controllers`
 
-```
+```typescript
 --- main.ts
 
 import {bootstrapControllers} from 'koa-ts-controllers';
@@ -36,7 +43,7 @@ await bootstrapControllers(app, {
 ...
 ```
 
-```
+```typescript
 --- constrollers/FooController.ts
 
 import {Controller, Ctx, Req, Body, Get, Post, Delete, IsString, IsNumber} from 'koa-ts-controllers';
@@ -194,7 +201,7 @@ Call this in your main file to initialize your controllers.
 
 `app` is an instance of Koa.
 `options` is an object of type
-```$xslt
+```typescript
 {
     router?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
     controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
@@ -284,8 +291,8 @@ Injects the koa response object. useful when streaming data down to client.
 Injects the whole koa context. For a more descriptive endpoint handler/action, avoid doing this if you can. Opt for more specific injections.
 
 # How to programmatically access controller actions
-```
-import {getControllers} from 'koa-ts-controllers`
+```typescript
+import {getControllers} from 'koa-ts-controllers'
 const codex = getControllers(); //codex is now an index of all the controller functions and theor classes.
 ```
 # Upcoming Features
