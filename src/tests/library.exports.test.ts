@@ -1,11 +1,9 @@
-import request from 'supertest';
 import Koa from 'koa';
-import {bootstrapControllers, getControllers} from '../index';
+import { bootstrapControllers, getControllers } from '../index';
 
 
 let app: Koa;
 let nativeServer;
-let testServer: request.SuperTest<request.Test>;
 beforeAll(async () => {
     app = new Koa();
 
@@ -18,7 +16,6 @@ beforeAll(async () => {
     });
 
     nativeServer = app.listen();
-    testServer = request(nativeServer);
 });
 
 afterAll((done) => {
@@ -36,6 +33,5 @@ describe.only('library exports', () => {
         expect(controllers.ActionController).toBeDefined();
         expect(controllers.ArgController).toBeDefined();
         expect(controllers.ProtectedController).toBeDefined();
-
     });
 });

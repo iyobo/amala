@@ -1,13 +1,11 @@
-import {Controller, Delete, Flow, Get, Patch, Post, Put, State, Version} from '../../../index';
-import {passFlow, unauthorizedFlow} from '../flow/flow';
+import { Controller, Delete, Flow, Get, Patch, Post, Put, State, Version } from '../../../index';
+import { passFlow, unauthorizedFlow } from '../flow/flow';
 
 
 @Controller('/action')
 export class ActionController {
-
     @Get('/')
     async getRoute() {
-
         return 'okay';
     }
 
@@ -31,10 +29,8 @@ export class ActionController {
         return 'okay';
     }
 
-
-
     @Get('/mmm')
-    @Version('1','Do not use')
+    @Version('1', 'Do not use')
     async mmmV1() {
         return 'mmm for v1';
     }
@@ -44,32 +40,26 @@ export class ActionController {
         return 'mmm';
     }
 
-
     @Get('/passFlow')
     @Flow([passFlow])
     async passFlow() {
-
         return 'I was allowed';
     }
 
     @Get('/unauthorized')
     @Flow([unauthorizedFlow])
     async unauthorized() {
-
         return 'You\'ll never see this';
     }
 
     @Get('/multiFlow')
-    @Flow([passFlow,passFlow,passFlow])
+    @Flow([passFlow, passFlow, passFlow])
     async multiFlow() {
-
         return 'multiFlow allowed';
     }
 
     @Get('/staten')
     async staten(@State() state: any) {
-
         return state;
     }
-
 }
