@@ -182,9 +182,7 @@ export class FooController {
     }
 }
 
-// Validator class, internally using class-validator library. 
-// Make sure to use the validator decorators exported directly from 'koa-ts-controllers'
-// See the class-validator module docs for details.
+// Validator class.
 class FooCreateInput {
     @IsString()
     aString: string;
