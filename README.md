@@ -47,8 +47,9 @@ await bootstrapControllers(app, {
 ```typescript
 --- constrollers/FooController.ts
 
-import {Controller, Ctx, Req, Body, Get, Post, Delete, IsString, IsNumber} from 'koa-ts-controllers';
+import {Controller, Ctx, Req, Body, Get, Post, Delete, Flow, Params, Version} from 'koa-ts-controllers';
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
+import {IsNumber, IsString} from 'class-validator';
 
 @Controller('/foo')
 @Flow(aMiddleware) // middleware to pass into any of the endpoints in this controller. e.g auth middleware.
@@ -62,7 +63,7 @@ export class FooController {
     }
 
     @Get('/hello')
-    @version('1') 
+    @Version('1') 
     async simpleGetV1() {
         // GET /api/v1/foo/hello... only!
         // This is a versioned endpoint handler, so it will only handle a specific version of a 
@@ -131,7 +132,7 @@ export class FooController {
         return fooParam;
     }
     @Post('/specific2')
-    async createFooSpecific2( @Body({field: 'foo}) fooParam: string) {
+    async createFooSpecific2( @Body({field: 'foo'}) fooParam: string) {
 
         // POST /api/v.../foo/specific2
 
