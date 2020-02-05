@@ -1,14 +1,13 @@
-import {IKoaControllerOptions} from '../index';
-import {validate} from 'class-validator';
-import {plainToClass} from 'class-transformer';
+import { IKoaControllerOptions } from '../index';
+import { validate } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 import _ from 'lodash';
-import {Context} from 'koa';
-import {isClass} from './tools';
+import { Context } from 'koa';
+import { isClass } from './tools';
 
 const boom = require('@hapi/boom');
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
-
     if (!injectOptions) {
         return body;
     }
@@ -16,12 +15,10 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
     if (typeof injectOptions === 'string') {
         return body[injectOptions];
     } else if (typeof injectOptions === 'object') {
-
         // is required
         if (injectOptions.required && (!body || _.isEmpty(body))) {
             throw boom.badData('Body: is required and cannot be null');
         }
-
 
         return body;
     }
@@ -47,10 +44,10 @@ const argumentInjectorMap = {
     },
     body: async (ctx: any, injectOptions: any) => {
         return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
-    },
+    }
 };
 
-async function _determineArgument(ctx: Context, index, {injectSource, injectOptions}, type) {
+async function _determineArgument(ctx: Context, index, { injectSource, injectOptions }, type) {
     let result;
 
     if (argumentInjectorMap[injectSource]) {
@@ -65,20 +62,18 @@ async function _determineArgument(ctx: Context, index, {injectSource, injectOpti
 
     // validate if this is a class
     if (result && isClass(type)) {
-
         result = await plainToClass(type, result);
         const errors = await validate(result); // TODO: wrap around this to trap runtime errors
         if (errors.length > 0) {
             throw boom.badData('validation error for argument type: ' + injectSource,
                 errors.map(it => {
-                    return {field: it.property, violations: it.constraints};
+                    return { field: it.property, violations: it.constraints };
                 })
             );
         }
     } else if (type === Number) {
         result = Number(result);
     }
-
 
     return result;
 }
@@ -87,17 +82,20 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
     const actions = controller.actions;
 
     let deprecationMessage = '';
-    if (options.versions && typeof options.versions[generatingForVersion] === 'string') {
+    if (
+        options.versions &&
+        typeof options.versions[generatingForVersion] === 'string'
+    ) {
         deprecationMessage = options.versions[generatingForVersion];
     }
 
-    _.each(actions, async (action, name) => {
+    const mappedActions = Object.keys(actions).map(action => actions[action]);
 
+    for (const action of mappedActions) {
         let willAddEndpoint = true;
 
         // If API versioning mode is active...
         if (generatingForVersion) {
-
             // ...and endpoint has some version constraints defined...
             if (action.limitToVersions && !_.isEmpty(action.limitToVersions)) {
                 const endpointLimit = action.limitToVersions[generatingForVersion];
@@ -112,11 +110,9 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
                     // ...this is a deprecation message
                     deprecationMessage += ` ${endpointLimit}`;
                 }
-
             }
-        }
-        else { // else If in-built api versioning mode is disabled...
-
+        } else {
+            // else If in-built api versioning mode is disabled...
             // ...and endpoint has some version constraints defined...
             if (action.limitToVersions && !_.isEmpty(action.limitToVersions)) {
                 // , then ignore any endpoint handler with a @Version decorator. Default to catch-all-remainders
@@ -125,7 +121,7 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
         }
 
         if (willAddEndpoint) {
-            const path = parentPath + action.path;
+            const path = '/' + (parentPath + action.path).split('/').filter(i => i.length).join('/');
 
             const flow = [
                 ...(options.flow || []),
@@ -134,17 +130,15 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
             ];
 
             flow.push(async function (ctx) {
-
                 const targetArguments = [];
 
                 if (deprecationMessage) {
-                    ctx.set({deprecation: deprecationMessage});
+                    ctx.set({ deprecation: deprecationMessage });
                 }
 
                 // inject data into arguments
                 if (action.arguments) {
                     for (const index of Object.keys(action.arguments)) {
-
                         const argumentMeta = action.arguments[index];
 
                         targetArguments[index] = await _determineArgument(ctx, index, argumentMeta, action.argumentTypes[index]);
@@ -157,7 +151,7 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
 
             router[action.verb](path, ...flow);
         }
-    });
+    }
 }
 
 /**
@@ -169,18 +163,41 @@ async function _generateEndPoints(router, options: IKoaControllerOptions, contro
 export async function generateRoutes(router, options: IKoaControllerOptions, metadata) {
 
     const basePath = options.basePath || ''; // e.g /api
+    const controllers: any[] = Object.values(metadata.controllers);
 
-    _.each(metadata.controllers, async (controller) => {
+    for (const controller of controllers) {
+        const paths = Array.isArray(controller.path)
+            ? controller.path
+            : [controller.path];
 
         if (options.disableVersioning) {
             // e.g /api/users
-            await _generateEndPoints(router, options, controller, basePath + controller.path, undefined,);
+
+            for (const path of paths) {
+                await _generateEndPoints(
+                    router,
+                    options,
+                    controller,
+                    basePath + path,
+                    undefined
+                );
+            }
         } else {
             // e.g /api/v1/user
-            _.each(options.versions, async (status, version) => {
-                await _generateEndPoints(router, options, controller, basePath + `/v${version}` + controller.path, version);
-            });
-        }
 
-    });
+            const versions = _.isArray(options.versions) ? options.versions
+                : _.keysIn(options.versions);
+            for (const version of versions) {
+                for (const path of paths) {
+                    await _generateEndPoints(
+                        router,
+                        options,
+                        controller,
+                        basePath + `/v${version}` + path,
+                        version
+                    );
+                }
+            }
+        }
+    }
 }

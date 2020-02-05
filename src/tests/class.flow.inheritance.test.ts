@@ -1,7 +1,7 @@
 import request from 'supertest';
 import Koa from 'koa';
-import {bootstrapControllers} from '../index';
-import {setSomethingStateFlow} from './util/flow/flow';
+import { bootstrapControllers } from '../index';
+import { setSomethingStateFlow } from './util/flow/flow';
 
 let app: Koa;
 let nativeServer;

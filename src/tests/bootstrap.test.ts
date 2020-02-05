@@ -1,9 +1,9 @@
 import request from 'supertest';
 import Koa from 'koa';
-import {bootstrapControllers} from '../index';
-import {ActionController} from './util/controllers/ActionController';
-import {ArgController} from './util/controllers/ArgController';
-import {ProtectedController} from './util/controllers/ProtectedController';
+import { bootstrapControllers } from '../index';
+import { ActionController } from './util/controllers/ActionController';
+import { ArgController } from './util/controllers/ArgController';
+import { ProtectedController } from './util/controllers/ProtectedController';
 
 let app: Koa;
 let nativeServer;

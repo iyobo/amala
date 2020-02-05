@@ -1,12 +1,11 @@
 import request from 'supertest';
 import Koa from 'koa';
-import {bootstrapControllers} from '../index';
+import { bootstrapControllers } from '../index';
 
 let app: Koa;
 let nativeServer;
 let testServer: request.SuperTest<request.Test>;
 beforeAll(async () => {
-
     app = new Koa();
 
     await bootstrapControllers(app, {
@@ -21,7 +20,7 @@ beforeAll(async () => {
     testServer = request(nativeServer);
 });
 
-afterAll((done) => {
+afterAll(done => {
     if (nativeServer.listening) {
         nativeServer.close(done);
     } else {
@@ -30,63 +29,42 @@ afterAll((done) => {
 });
 
 describe('Controller actions', () => {
-
     it('Get works', async () => {
-        const response = await testServer
-            .get('/api/v2/action')
-            .expect(200);
+        const response = await testServer.get('/api/v2/action').expect(200);
     });
 
     it('Post works', async () => {
-        const response = await testServer
-            .post('/api/v2/action')
-            .expect(200);
+        const response = await testServer.post('/api/v2/action').expect(200);
     });
 
     it('Put works', async () => {
-        const response = await testServer
-            .put('/api/v2/action')
-            .expect(200);
+        const response = await testServer.put('/api/v2/action').expect(200);
     });
 
     it('Patch works', async () => {
-        const response = await testServer
-            .patch('/api/v2/action')
-            .expect(200);
+        const response = await testServer.patch('/api/v2/action').expect(200);
     });
 
     it('Delete works', async () => {
-        const response = await testServer
-            .delete('/api/v2/action')
-            .expect(200);
+        const response = await testServer.delete('/api/v2/action').expect(200);
     });
 
     it('current version (v2) of an endpoint works', async () => {
-        const response = await testServer
-            .get('/api/v2/action/mmm')
-            .expect(200);
+        const response = await testServer.get('/api/v2/action/mmm').expect(200);
         expect(response.text).toEqual('mmm');
-
     });
 
     it('old version (v1) of an endpoint works', async () => {
-
-        const response = await testServer
-            .get('/api/v1/action/mmm')
-            .expect(200);
+        const response = await testServer.get('/api/v1/action/mmm').expect(200);
         expect(response.text).toEqual('mmm for v1');
     });
 
     it('old version (v1) of an endpoint with endpoint deprecation message in header', async () => {
-
-        const response = await testServer
-            .get('/api/v1/action/mmm')
-            .expect(200);
+        const response = await testServer.get('/api/v1/action/mmm').expect(200);
         expect(response.headers.deprecation).toEqual('Do not use');
     });
 
     it('flows can allow', async () => {
-
         const response = await testServer
             .get('/api/v1/action/passFlow')
             .expect(200);
@@ -94,7 +72,6 @@ describe('Controller actions', () => {
     });
 
     it('flows can reject', async () => {
-
         const response = await testServer
             .get('/api/v1/action/unauthorized')
             .expect(401);
@@ -102,12 +79,16 @@ describe('Controller actions', () => {
     });
 
     it('can have multiple flows', async () => {
-
         const response = await testServer
             .get('/api/v1/action/multiFlow')
             .expect(200);
         expect(response.text).toEqual('multiFlow allowed');
     });
 
-
+    it('can have multiple paths', async () => {
+        Promise.all([
+            await testServer.get('/api/v2/multiple1').expect(200),
+            await testServer.get('/api/v2/multiple2').expect(200)
+        ]);
+    });
 });
