@@ -21,6 +21,7 @@ If you use koa-ts-controllers and it's helping you do awesome stuff, be a sport 
 import {bootstrapControllers} from 'koa-ts-controllers';
 const Koa = require('koa');
 const Router = require('koa-router');
+import MyOtherController from './otherController/MyOtherController'
 
 const app = new Koa();
 const router = new Router();
@@ -30,7 +31,7 @@ const router = new Router();
 await bootstrapControllers(app, {
     router,
     basePath: '/api',
-    controllers: [__dirname + '/controllers/**/*.ts'],
+    controllers: [MyOtherController, __dirname + '/controllers/**/*.ts'], // It is recommended to add controllers classes directly to this array, but you can also add glob strings
     initBodyParser: true,
     boomifyErrors: true,
     versions:{
@@ -79,8 +80,19 @@ export class FooController {
         // remaining undefined versions of previously versioned endpoint[s]. 
         // The positioning of the catch-remaining-versions endpoint is key. it needs to be defined last.
         
-        return 'world';
+        return 'Hello earthlings';
     }
+    
+    @Get(['hello/John', 'hello/Rick'])
+    async multiGet() {
+        // GET /api/v.../foo/fo OR /api/v.../foo/fi
+        // This is a catch-remaining-versions endpoint for this route. It will handle any 
+        // remaining undefined versions of previously versioned endpoint[s]. 
+        // The positioning of the catch-remaining-versions endpoint is key. it needs to be defined last.
+        
+        return 'Hello Gentlemen';
+    }
+
 
     @Get('/:id')
     async getFooById( @Params('id') id: string) {
@@ -293,7 +305,7 @@ Injects the whole koa context. For a more descriptive endpoint handler/action, a
 # How to programmatically access controller actions
 ```typescript
 import {getControllers} from 'koa-ts-controllers'
-const codex = getControllers(); //codex is now an index of all the controller functions and theor classes.
+const codex = getControllers(); //codex is now an index of all the controller functions and their classes.
 ```
 # Upcoming Features
 - Support for Open API 3
