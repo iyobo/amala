@@ -1,67 +1,69 @@
-import {Controller, Delete, Flow, Get, Patch, Post, Put, Version} from '../../../index';
-import {passFlow, unauthorizedFlow} from '../flow/flow';
+import {
+  Controller,
+  Delete,
+  Flow,
+  Get,
+  Patch,
+  Post,
+  Put,
+  Version
+} from "../../../index";
+import { passFlow, unauthorizedFlow } from "../flow/flow";
 
-
-@Controller('/protected')
+@Controller("/protected")
 @Flow([unauthorizedFlow])
 export class ProtectedController {
+  @Get("/")
+  async hello() {
+    return "okay";
+  }
 
-    @Get('/')
-    async hello() {
+  @Post("/")
+  async postRoute() {
+    return "okay";
+  }
 
-        return 'okay';
-    }
+  @Patch("/")
+  async patchRoute() {
+    return "okay";
+  }
 
-    @Post('/')
-    async postRoute() {
-        return 'okay';
-    }
+  @Put("/")
+  async putRoute() {
+    return "okay";
+  }
 
-    @Patch('/')
-    async patchRoute() {
-        return 'okay';
-    }
+  @Delete("/")
+  async deleteRoute() {
+    return "okay";
+  }
 
-    @Put('/')
-    async putRoute() {
-        return 'okay';
-    }
+  @Get("/mmm")
+  async someRoute() {
+    return "mmm";
+  }
 
-    @Delete('/')
-    async deleteRoute() {
-        return 'okay';
-    }
+  @Get("/mmm")
+  @Version("1")
+  async v1OnlyRoute() {
+    return "mmm for v1";
+  }
 
-    @Get('/mmm')
-    async someRoute() {
-        return 'mmm';
-    }
+  @Get("/passFlow")
+  @Flow([passFlow])
+  async passFlow() {
+    return "I was allowed";
+  }
 
-    @Get('/mmm')
-    @Version('1')
-    async v1OnlyRoute() {
-        return 'mmm for v1';
-    }
+  @Get("/unauthorized")
+  @Flow([unauthorizedFlow])
+  async unauthorized() {
+    return 'You\'ll never see this';
+  }
 
-    @Get('/passFlow')
-    @Flow([passFlow])
-    async passFlow() {
-
-        return 'I was allowed';
-    }
-
-    @Get('/unauthorized')
-    @Flow([unauthorizedFlow])
-    async unauthorized() {
-
-        return 'You\'ll never see this';
-    }
-
-    @Get('/multiFlow')
-    @Flow([passFlow,passFlow,passFlow])
-    async multiFlow() {
-
-        return 'multiFlow allowed';
-    }
-
+  @Get("/multiFlow")
+  @Flow([passFlow, passFlow, passFlow])
+  async multiFlow() {
+    return "multiFlow allowed";
+  }
 }

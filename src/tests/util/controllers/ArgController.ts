@@ -1,153 +1,130 @@
+import { IsNumber, IsString } from "class-validator";
+import { Request, Response } from "koa";
 import {
-    Body,
-    Controller,
-    Cookie,
-    Ctx,
-    Flow,
-    Get,
-    Header,
-    Params,
-    Post,
-    Query,
-    Req,
-    Res,
-    Session,
-    State
-} from '../../../index';
-import {IsNumber, IsString} from 'class-validator';
-import {setSomethingSessionFlow, setSomethingStateFlow} from '../flow/flow';
-import {Request, Response} from 'koa';
+  Body,
+  Controller,
+  Ctx,
+  Flow,
+  Get,
+  Header,
+  Params,
+  Post,
+  Query,
+  Req,
+  Res,
+  Session,
+  State
+} from "../../../index";
+import { setSomethingSessionFlow, setSomethingStateFlow } from "../flow/flow";
 
 interface InterfaceInput {
-    aString: string;
+  aString: string;
 
-    aNumber: number;
+  aNumber: number;
 }
-
 
 class ClassInput {
-    @IsString()
-    aString: string;
+  @IsString()
+  aString: string;
 
-    @IsNumber()
-    aNumber: number;
+  @IsNumber()
+  aNumber: number;
 }
 
-
-@Controller('/arg')
+@Controller("/arg")
 export class ArgController {
+  @Post("/:model/:id")
+  async twoParams(@Params() params: any, @Params("id") id: any) {
+    return { params, id };
+  }
 
-    @Post('/:model/:id')
-    async twoParams(@Params() params: any, @Params('id') id: any) {
-        return {params, id};
-    }
+  @Post("/bodyRequired")
+  async bodyRequired(@Body({ required: true }) body: ClassInput) {
+    return body;
+  }
 
-    @Post('/bodyRequired')
-    async bodyRequired(@Body({required: true}) body: ClassInput) {
-        return body;
-    }
+  @Post("/bodySimple")
+  async simpleBody(@Body() body: any) {
+    return body;
+  }
 
-    @Post('/bodySimple')
-    async simpleBody(@Body() body: any) {
-        return body;
-    }
+  @Post("/body")
+  async body(@Body() body: ClassInput) {
+    return body;
+  }
 
-    @Post('/body')
-    async body(@Body() body: ClassInput) {
-        return body;
-    }
+  @Post("/bodySpecific")
+  async bodySpecific(@Body("foo") foo: string) {
+    return foo;
+  }
 
-    @Post('/bodySpecific')
-    async bodySpecific(@Body('foo') foo: string) {
-        return foo;
-    }
+  @Post("/interface")
+  async bodyInterface(@Body() body: InterfaceInput) {
+    return body;
+  }
 
-    @Post('/interface')
-    async bodyInterface(@Body() body: InterfaceInput) {
-        return body;
-    }
+  @Flow([setSomethingStateFlow])
+  @Post("/state")
+  async state(@State() state: any) {
+    return state;
+  }
 
+  @Post("/header")
+  async header(@Header() header: any) {
+    return header;
+  }
 
-    @Flow([setSomethingStateFlow])
-    @Post('/state')
-    async state(@State() state: any) {
-        return state;
-    }
+  @Get("/query")
+  async query(@Query() q: any) {
+    return q;
+  }
 
-    @Post('/header')
-    async header(@Header() header: any) {
-        return header;
-    }
+  @Get("/querySingle")
+  async querySingle(@Query("amala") q: string) {
+    return q;
+  }
 
-    @Post('/cookie')
-    async cookie(@Cookie() cookie: any) {
-        return cookie;
-    }
+  @Get("/params/:id")
+  async params(@Params() q: any) {
+    return q;
+  }
 
-    @Post('/cookieSingle')
-    async cookieSingle(@Cookie('amala') cookie: string) {
-        return cookie;
-    }
+  @Get("/paramsSingle/:id")
+  async paramsSingle(@Params("id") id: string) {
+    return id;
+  }
 
-    @Post('/cookieSingleNonExist')
-    async cookieSingleNonExist(@Cookie('noooo') cookie: string) {
-        return cookie;
-    }
+  // Argument primitive casting
+  @Get("/paramsCastNumber/:val")
+  async paramsCastNumber(@Params("val") val: number) {
+    return { type: typeof val, val };
+  }
 
-    @Get('/query')
-    async query(@Query() q: any) {
-        return q;
-    }
+  // sessions
+  @Get("/session")
+  @Flow(setSomethingSessionFlow)
+  async session(@Session() sess: any) {
+    return sess;
+  }
 
-    @Get('/querySingle')
-    async querySingle(@Query('amala') q: string) {
-        return q;
-    }
+  @Get("/sessionSingle")
+  @Flow(setSomethingSessionFlow)
+  async sessionSingle(@Session("amala") sess: string) {
+    return sess;
+  }
 
-    @Get('/params/:id')
-    async params(@Params() q: any) {
-        return q;
-    }
+  @Post("/req")
+  async req(@Req() req: Request) {
+    return req;
+  }
 
-    @Get('/paramsSingle/:id')
-    async paramsSingle(@Params('id') id: string) {
-        return id;
-    }
+  @Post("/res")
+  async res(@Res() res: Response) {
+    return res ? "works" : "did not work";
+  }
 
-    // Argument primitive casting
-    @Get('/paramsCastNumber/:val')
-    async paramsCastNumber(@Params('val') val: number) {
-        return {type: typeof val, val};
-    }
-
-
-    // sessions
-    @Get('/session')
-    @Flow(setSomethingSessionFlow)
-    async session(@Session() sess: any) {
-        return sess;
-    }
-
-    @Get('/sessionSingle')
-    @Flow(setSomethingSessionFlow)
-    async sessionSingle(@Session('amala') sess: string) {
-        return sess;
-    }
-
-
-    @Post('/req')
-    async req(@Req() req: Request) {
-        return req;
-    }
-
-    @Post('/res')
-    async res(@Res() res: Response) {
-        return res ? 'works' : 'did not work';
-    }
-
-    @Post('/ctx')
-    async ctx(@Ctx() ctx: any) {
-        return ctx;
-    }
-
+  @Post("/ctx")
+  async ctx(@Ctx() ctx: any) {
+    return ctx;
+  }
 }
