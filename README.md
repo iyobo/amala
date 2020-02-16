@@ -1,19 +1,42 @@
 # koa-ts-controllers
 
-This is a Typescript routing controller system for KoaJS 2+.
-Define your REST API endpoints using classes and decorators.
-Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
+**koa-ts-controllers** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
+- Define your REST API endpoints using ES8 *classes* and *decorators*.
+- Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
 
-This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere. It also makes them easier to test.
+This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere. 
+It also makes your endpoint actions easier to test.
 
-## Supporting the Project
-If you use koa-ts-controllers and it's helping you do awesome stuff, be a sport and  <a href="https://www.buymeacoffee.com/iyobo" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a> or <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Become a Patron!</a>. PRs are also welcome.
 
+## Supporting Koa-ts-controllers
+**Koa-ts-controllers** is an MIT-licensed open source project with its ongoing development made possible entirely by 
+the support of these awesome backers. If koa-ts-controllers is helping you build 
+awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Becoming a Patron</a>.
+
+If you would like to contrinute in other ways, Pull requests are also welcome!
+
+### :heart: Platinum Sponsors :heart:
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https:// github.com/notemate" target="_blank" alt="notemate">
+          <img width="222px" src="https://static1.squarespace.com/static/5da7b755ae0a807795a1b5a5/t/5dba0838a2475c67d1956996/1574017118733/?format=1500w">
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table> 
 
 
 ## How to Use
 
-`npm i koa-ts-controllers`
+
+First you want to install it:
+
+`yarn add koa-ts-controllers` or `npm i koa-ts-controllers`
+
+Now have a look at the usage below.
 
 ```typescript
 --- main.ts
@@ -29,7 +52,7 @@ const router = new Router();
 ...
 
 await bootstrapControllers(app, {
-    router,
+    router, // optional. but recomended if you wish to add other routes not controlled by koa-ts-controllers
     basePath: '/api',
     controllers: [MyOtherController, __dirname + '/controllers/**/*.ts'], // It is recommended to add controllers classes directly to this array, but you can also add glob strings
     initBodyParser: true,
@@ -43,11 +66,17 @@ await bootstrapControllers(app, {
 
 ...
 ```
+It all begins from the `bootstrapControllers` function. This accepts a koa app, and generates endpoints as defines in the controller classes inserted into the `controllers` option.
+
+The `controllers` array option is required and can include actual Controller classes (preferred) or glut strings describing where controller classes exist. 
+Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`.
+
+Below is an example of a controller class, displaying many endpoint scenarios:
 
 ```typescript
 --- constrollers/FooController.ts
 
-import {Controller, Ctx, Req, Body, Get, Post, Delete, Flow, Params, Version} from 'koa-ts-controllers';
+import {Controller, Ctx, Req, Body, Get, Post, Delete, Query, Flow, Params, Version} from 'koa-ts-controllers';
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
 import {IsNumber, IsString} from 'class-validator';
 
@@ -77,49 +106,51 @@ export class FooController {
     @Get('/hello')
     async simpleGet() {
         // GET /api/v2/foo/hello OR /api/vdangote/foo/hello
-        // This is a catch-remaining-versions endpoint for this route. It will handle any 
+        // This is a catch-remaining-versions endpoint for the 'hello' route . It will handle any 
         // remaining undefined versions of previously versioned endpoint[s]. 
         // The positioning of the catch-remaining-versions endpoint is key. it needs to be defined last.
         
         return 'Hello earthlings';
     }
     
-    @Get(['hello/John', 'hello/Rick'])
+    @Get(['hello/john', 'hello/rick'])
     async multiGet() {
-        // GET /api/v.../foo/fo OR /api/v.../foo/fi
-        // This is a catch-remaining-versions endpoint for this route. It will handle any 
-        // remaining undefined versions of previously versioned endpoint[s]. 
-        // The positioning of the catch-remaining-versions endpoint is key. it needs to be defined last.
+        // GET /api/v.../foo/john OR /api/v.../foo/rick
         
         return 'Hello Gentlemen';
     }
 
 
-    @Get('/:id')
+    @Get('/model/:id')
     async getFooById( @Params('id') id: string) {
-        // GET /api/v.../foo/123
-            // id will be "123"
-        
-        //id has been injected with the string id
+        // GET /api/v.../foo/model/123
+        // The function argument id has been injected with ctx.params.id, which is the string "123"
     }
     
-    @Get('/:idnum')
+    @Get('/model/:idnum')
     async getFooById( @Params('idnum') id: number) {
         // GET /api/v.../foo/123
-            // id will be 123
-        
-        //id has been injected with the number id
+        // The function argument id has been injected with ctx.params.id, which has been casted into the number 123
     }
 
-    @Post('/')
+    @Get('/incidents/:region')
+    async getFooById( 
+        @Params('region') region: string, 
+        @Query('from') fromTimestamp: number ) {
+
+        // GET /api/v.../incidents/austintx?from=123456
+
+        // region === 'austintx' && fromTimestamp === 123456
+    }
+
+    @Post('/lead')
     @Flow([authMiddleware])
-    async createFoo( @Body() body: any) {
+    async createFoo( @Body() leadData: any) {
 
-        // POST /api/v.../foo
+        // POST /api/v.../lead
+        // leadData injected with all POST data   
 
-        // body injected with post data   
-
-        return body;
+        return leadData;
     }
     
     @Post('/specific')
@@ -310,3 +341,17 @@ const codex = getControllers(); //codex is now an index of all the controller fu
 - Support for Open API 3
     - Koa-TS-Controllers will soon be able to generate Open API 3 spec files (JSON) based on your controller definitions.
     
+# Troubleshooting
+- If you get errors like 
+```
+node_modules/class-validator/decorator/decorators.d.ts:161:45 - error TS2503: Cannot find namespace 'ValidatorJS'.
+161 export declare function IsDecimal(options?: ValidatorJS.IsDecimalOptions, validationOptions?: ValidationOptions): (object: Object, propertyName: string) => void;
+```
+(e.g if using `sequelize-typescript`),  
+Then means you are experiencing dependency clashes. 
+We recommend using yarn for much improved dependency resolution or, if you must use npm, consider adding the following to your `tsconfig.json`:
+
+ `"typeRoots": ["./node_modules/*/node_modules/@types/"]`
+
+
+
