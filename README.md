@@ -20,7 +20,7 @@ If you would like to contrinute in other ways, Pull requests are also welcome!
   <tbody>
     <tr>
       <td align="center" valign="middle">
-        <a href="https:// github.com/notemate" target="_blank" alt="notemate">
+        <a href="https://github.com/notemate" target="_blank" alt="notemate">
           <img width="222px" src="https://static1.squarespace.com/static/5da7b755ae0a807795a1b5a5/t/5dba0838a2475c67d1956996/1574017118733/?format=1500w">
         </a>
       </td>
