@@ -1,234 +1,214 @@
-import request from 'supertest';
-import Koa from 'koa';
-import {bootstrapControllers} from '../index';
+import Koa from "koa";
+import bodyParser from "koa-bodyparser";
+import Router from "koa-router";
+import request from "supertest";
+import { bootstrapControllers } from "../index";
 
 let app: Koa;
+let router: Router;
 let nativeServer;
 let testServer: request.SuperTest<request.Test>;
 beforeAll(async () => {
+  app = new Koa();
+  router = new Router();
 
-    app = new Koa();
+  await bootstrapControllers(app, {
+    basePath: "/api",
+    controllers: [__dirname + "/util/controllers/**/*.ts"],
+    versions: ["1", "2"],
+    router: router
+  });
 
-    await bootstrapControllers(app, {
-        basePath: '/api',
-        controllers: [__dirname + '/util/controllers/**/*.ts'],
-        boomifyErrors: true,
-        initBodyParser: true,
-        versions: ['1', '2']
-    });
+  app.use(bodyParser());
+  app.use(router.routes());
+  app.use(router.allowedMethods());
 
-    nativeServer = app.listen();
-    testServer = request(nativeServer);
-
+  nativeServer = app.listen();
+  testServer = request(nativeServer);
 });
 
-afterAll((done) => {
-
-    if (nativeServer.listening) {
-        nativeServer.close(done);
-    } else {
-        done();
-    }
+afterAll(done => {
+  if (nativeServer.listening) {
+    nativeServer.close(done);
+  } else {
+    done();
+  }
 });
 
-describe('Arguments', () => {
-
-    describe('params', () => {
-        it('whole object', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/akara/garri')
-                .expect(200);
-            expect(response.body.params).toEqual({id: 'garri', model: 'akara'});
-        });
-
-        it('params key-value', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/akara/garri')
-                .expect(200);
-            expect(response.body.id).toEqual('garri');
-        });
+describe("Arguments", () => {
+  describe("params", () => {
+    it("whole object", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/akara/garri")
+        .expect(200);
+      expect(response.body.params).toEqual({ id: "garri", model: "akara" });
     });
 
+    it("params key-value", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/akara/garri")
+        .expect(200);
+      expect(response.body.id).toEqual("garri");
+    });
+  });
 
-    describe('body', () => {
-        it('whole object can be injected', async () => {
-            const payload = {foo: 'Ijebu garri is the best for soaking'};
-            const response = await testServer
-                .post('/api/v2/arg/bodySimple')
-                .send(payload)
-                .expect(200);
-            expect(response.body).toEqual(payload);
-        });
-
-        it('specific subfield can be injected', async () => {
-            const payload = {foo: 'Ijebu garri is the best for soaking'};
-            const response = await testServer
-                .post('/api/v2/arg/bodySpecific')
-                .send(payload)
-                .expect(200);
-            expect(response.text).toEqual(payload.foo);
-        });
-
-        it('validation fails if required but no input', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/bodyRequired')
-                .expect(422);
-            expect(response.body.message).toEqual('Body: is required and cannot be null');
-        });
-
-        it('validation fails if input not valid', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/body')
-                .send({a: 1, b: 2, c: 3})
-                .expect(422);
-            expect(response.body.message).toEqual('validation error for argument type: body');
-            expect(response.body.errorDetails.length).toEqual(2);
-        });
-
-        it('validation fails if input not valid #2', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/body')
-                .send({aString: 'Ijebu garri is the best for soaking'})
-                .expect(422);
-            expect(response.body.message).toEqual('validation error for argument type: body');
-            expect(response.body.errorDetails.length).toEqual(1);
-            expect(response.body.errorDetails[0].violations.isNumber).toBeDefined();
-        });
-
-        it('Using an interface will not validate. Must use class with field decorators', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/interface')
-                .send({aString: 'Ijebu garri is the best for soaking'})
-                .expect(200);
-        });
-
+  describe("body", () => {
+    it("whole object can be injected", async () => {
+      const payload = { foo: "Ijebu garri is the best for soaking" };
+      const response = await testServer
+        .post("/api/v2/arg/bodySimple")
+        .send(payload)
+        .expect(200);
+      expect(response.body).toEqual(payload);
     });
 
-    describe('state', () => {
-        it('works', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/state')
-                .expect(200);
-            expect(response.body.something).toEqual('hahaha');
-        });
+    it("specific subfield can be injected", async () => {
+      const payload = { foo: "Ijebu garri is the best for soaking" };
+      const response = await testServer
+        .post("/api/v2/arg/bodySpecific")
+        .send(payload)
+        .expect(200);
+      expect(response.text).toEqual(payload.foo);
     });
 
-    describe('header', () => {
-        it('works', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/header')
-                .set('foo', 'bar')
-                .expect(200);
-            expect(response.body.foo).toEqual('bar');
-        });
+    it("validation fails if required but no input", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/bodyRequired")
+        .expect(422);
+      expect(response.body.message).toEqual(
+        "Body: is required and cannot be null"
+      );
     });
 
-    describe('cookie', () => {
-        it('whole', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/cookie')
-                .set('Cookie', ['amala=ewedu', 'beans=garri'])
-                .expect(200);
-            expect(response.body.amala).toEqual('ewedu');
-            expect(response.body.beans).toEqual('garri');
-        });
-        it('single field', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/cookieSingle')
-                .set('Cookie', ['amala=ewedu', 'beans=garri'])
-                .expect(200);
-            expect(response.text).toEqual('ewedu');
-        });
-        it('single field non existent', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/cookieSingleNonExist')
-                .set('Cookie', ['amala=ewedu', 'beans=garri'])
-                .expect(204);
-        });
+    it("validation fails if input not valid", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/body")
+        .send({ a: 1, b: 2, c: 3 })
+        .expect(422);
+      expect(response.body.message).toEqual(
+        "validation error for argument type: body"
+      );
+      expect(response.body.errorDetails.length).toEqual(2);
     });
 
-    describe('query', () => {
-        it('whole', async () => {
-            const response = await testServer
-                .get('/api/v2/arg/query?amala=ewedu&beans=garri')
-                .expect(200);
-            expect(response.body.amala).toEqual('ewedu');
-            expect(response.body.beans).toEqual('garri');
-        });
-        it('single field', async () => {
-            const response = await testServer
-                .get('/api/v2/arg/querySingle?amala=ewedu&beans=garri')
-                .expect(200);
-            expect(response.text).toEqual('ewedu');
-        });
+    it("validation fails if input not valid #2", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/body")
+        .send({ aString: "Ijebu garri is the best for soaking" })
+        .expect(422);
+      expect(response.body.message).toEqual(
+        "validation error for argument type: body"
+      );
+      expect(response.body.errorDetails.length).toEqual(1);
+      expect(response.body.errorDetails[0].violations.isNumber).toBeDefined();
     });
 
-    describe('params', () => {
-        it('whole', async () => {
-            const response = await testServer
-                .get('/api/v2/arg/params/123')
-                .expect(200);
-            expect(response.body.id).toEqual('123');
-        });
-        it('single field', async () => {
-            const response = await testServer
-                .get('/api/v2/arg/paramsSingle/123')
-                .expect(200);
-            expect(response.text).toEqual('123');
-        });
-        it('Single Field number', async () => {
-            const response = await testServer
-                .get('/api/v2/arg/paramsCastNumber/123')
-                .expect(200);
-            expect(response.body.type).toEqual('number');
-            expect(response.body.val).toEqual(123);
-        });
+    it("Using an interface will not validate. Must use class with field decorators", async () => {
+      await testServer
+        .post("/api/v2/arg/interface")
+        .send({ aString: "Ijebu garri is the best for soaking" })
+        .expect(200);
     });
+  });
 
-    describe('session', () => {
-        it('No session by default so fail. Works otherwise like any other ctx field', async () => {
-            const response = await testServer
-                .get('/api/v2/arg/session')
-                .expect(424);
-            expect(response.body.message).toEqual('Sessions have not been activated on this server');
-        });
+  describe("state", () => {
+    it("works", async () => {
+      const response = await testServer.post("/api/v2/arg/state").expect(200);
+      expect(response.body.something).toEqual("hahaha");
     });
+  });
 
-    describe('req', () => {
-        it('works', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/req')
-                .set('foo', 'bar')
-                .expect(200);
-
-            // returns a serialized req object
-            expect(Buffer.isBuffer(response.body)).toEqual(true);
-        });
+  describe("header", () => {
+    it("works", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/header")
+        .set("foo", "bar")
+        .expect(200);
+      expect(response.body.foo).toEqual("bar");
     });
+  });
 
-    describe('res', () => {
-        it('works', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/res')
-                .set('foo', 'bar')
-                .expect(200);
-
-            // returns a serialized res object
-            expect(response.text).toEqual('works');
-        });
+  describe("query", () => {
+    it("whole", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/query?amala=ewedu&beans=garri")
+        .expect(200);
+      expect(response.body.amala).toEqual("ewedu");
+      expect(response.body.beans).toEqual("garri");
     });
-
-    describe('ctx', () => {
-        it('works', async () => {
-            const response = await testServer
-                .post('/api/v2/arg/ctx')
-                .set('foo', 'bar')
-                .expect(200);
-
-            // returns a serialized ctx object
-            expect(response.body.app).toBeDefined();
-            expect(response.body.app.env).toBeDefined();
-        });
+    it("single field", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/querySingle?amala=ewedu&beans=garri")
+        .expect(200);
+      expect(response.text).toEqual("ewedu");
     });
+  });
 
+  describe("params", () => {
+    it("whole", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/params/123")
+        .expect(200);
+      expect(response.body.id).toEqual("123");
+    });
+    it("single field", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/paramsSingle/123")
+        .expect(200);
+      expect(response.text).toEqual("123");
+    });
+    it("Single Field number", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/paramsCastNumber/123")
+        .expect(200);
+      expect(response.body.type).toEqual("number");
+      expect(response.body.val).toEqual(123);
+    });
+  });
+
+  describe("session", () => {
+    it("No session by default so fail. Works otherwise like any other ctx field", async () => {
+      const response = await testServer.get("/api/v2/arg/session").expect(424);
+      expect(response.body.message).toEqual(
+        "Sessions have not been activated on this server"
+      );
+    });
+  });
+
+  describe("req", () => {
+    it("works", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/req")
+        .set("foo", "bar")
+        .expect(200);
+
+      // returns a serialized req object
+      expect(Buffer.isBuffer(response.body)).toEqual(true);
+    });
+  });
+
+  describe("res", () => {
+    it("works", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/res")
+        .set("foo", "bar")
+        .expect(200);
+
+      // returns a serialized res object
+      expect(response.text).toEqual("works");
+    });
+  });
+
+  describe("ctx", () => {
+    it("works", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/ctx")
+        .set("foo", "bar")
+        .expect(200);
+
+      // returns a serialized ctx object
+      expect(response.body.app).toBeDefined();
+      expect(response.body.app.env).toBeDefined();
+    });
+  });
 });
