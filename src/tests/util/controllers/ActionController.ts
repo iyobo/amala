@@ -9,7 +9,7 @@ import {
   State,
   Version
 } from "../../../index";
-import { passFlow, unauthorizedFlow } from "../flow/flow";
+import { passFlow, unauthorizedFlow, badFlow } from "../flow/flow";
 
 @Controller("/action")
 export class ActionController {
@@ -59,6 +59,12 @@ export class ActionController {
   @Flow([unauthorizedFlow])
   async unauthorized() {
     return 'You\'ll never see this';
+  }
+
+  @Get("/badFlow")
+  @Flow([badFlow])
+  async badFlow() {
+    return 'You\'ll never see this too';
   }
 
   @Get("/multiFlow")

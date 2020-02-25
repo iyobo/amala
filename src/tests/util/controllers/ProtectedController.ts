@@ -1,14 +1,5 @@
-import {
-  Controller,
-  Delete,
-  Flow,
-  Get,
-  Patch,
-  Post,
-  Put,
-  Version
-} from "../../../index";
-import { passFlow, unauthorizedFlow } from "../flow/flow";
+import {Controller, Delete, Flow, Get, Patch, Post, Put, Version} from '../../../index';
+import {passFlow, unauthorizedFlow} from '../flow/flow';
 
 @Controller("/protected")
 @Flow([unauthorizedFlow])

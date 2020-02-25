@@ -141,6 +141,7 @@ async function _generateEndPoints(
           .filter(i => i.length)
           .join("/");
 
+      // console.log('adding', path)
       const flow = [
         ...(options.flow || []),
         ...(controller.flow || []),
@@ -148,6 +149,7 @@ async function _generateEndPoints(
       ];
 
       flow.push(async function(ctx) {
+
         const targetArguments = [];
 
         if (deprecationMessage) {
@@ -170,6 +172,7 @@ async function _generateEndPoints(
 
         // run target endpoint handler
         ctx.body = await action.target(...targetArguments);
+
       });
 
       router[action.verb](path, ...flow);

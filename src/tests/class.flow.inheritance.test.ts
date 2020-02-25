@@ -39,4 +39,8 @@ describe("Controller class", () => {
   it("Flow can be inherited from class", async () => {
     await testServer.get("/api/v2/protected").expect(401);
   });
+
+  it("Flow should throw unexpected errors", async () => {
+    await testServer.get("/api/v2/action/badFlow").expect(500);
+  });
 });
