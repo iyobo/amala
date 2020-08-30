@@ -118,7 +118,7 @@ describe("Arguments", () => {
     });
   });
 
-  describe("user", () => {
+  describe("currentUser", () => {
     it("works", async () => {
       const response = await testServer.get("/api/v2/arg/user").expect(200);
       expect(response.body.id).toEqual("avenger1");

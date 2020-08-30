@@ -115,7 +115,7 @@ export {
     Flow,
     Get,
     Header,
-    User,
+    CurrentUser,
     Params,
     Patch,
     Post,

@@ -181,7 +181,7 @@ export function Session(injectOptions?: string | Record<string, any>) {
   };
 }
 
-export function User(injectOptions?: string | Record<string, any>) {
+export function CurrentUser(injectOptions?: string | Record<string, any>) {
   return function(
     object: Record<string, any>,
     methodName: string,
@@ -189,7 +189,7 @@ export function User(injectOptions?: string | Record<string, any>) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "user",
+      injectSource: "currentUser",
       injectOptions,
       methodName,
       object

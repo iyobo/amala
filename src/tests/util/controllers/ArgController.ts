@@ -13,7 +13,7 @@ import {
   Req,
   Res,
   Session,
-  State, User
+  State, CurrentUser
 } from '../../../index';
 import {setSomethingSessionFlow, setSomethingStateFlow, loginForTest} from '../flow/flow';
 
@@ -71,7 +71,7 @@ export class ArgController {
 
   @Flow([loginForTest])
   @Get('/user')
-  async user(@User() user: any) {
+  async user(@CurrentUser() user: any) {
     return user;
   }
 

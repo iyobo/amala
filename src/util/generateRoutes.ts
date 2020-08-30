@@ -47,8 +47,8 @@ const argumentInjectorTranslations = {
   query: async (ctx: any, injectOptions: any) => {
     return _argumentInjectorProcessor('query', ctx.query, injectOptions);
   },
-  user: async (ctx: any, injectOptions: any) => {
-    return _argumentInjectorProcessor('user', ctx.state.user, injectOptions);
+  currentUser: async (ctx: any, injectOptions: any) => {
+    return _argumentInjectorProcessor('currentUser', ctx.state.user, injectOptions);
   },
   body: async (ctx: any, injectOptions: any) => {
     return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
