@@ -51,7 +51,7 @@ const argumentInjectorMap = {
 async function _determineArgument(
   ctx: Context,
   index,
-  { injectSource, injectOptions },
+  { injectSource, injectSecondarySource, injectOptions },
   type
 ) {
   let result;

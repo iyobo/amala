@@ -158,9 +158,21 @@ export class FooController {
 
         // POST /api/v.../lead
         // leadData injected with all POST data
+ 
+        //store it...
 
-        return leadData;
     }
+
+    @Post('/lead')
+    @Flow([authMiddleware])
+    async createFooForAuthenticatedUser( @Body() leadData: any, @User() user) {
+    
+        leadData.creatorId = user.id
+
+        //store it...
+    
+    }
+
 
     @Post('/specific')
     async createFooSpecific( @Body('foo') fooParam: string) {
@@ -337,6 +349,24 @@ Injects ctx.request.body or ctx.request.body[name]
 ### @State() or @State(name)
 
 Injects ctx.state object or ctx.state[name]
+
+### @User()
+
+This is a shortcut to access `ctx.state.user`.
+That is the standard location for storing the currently logged in user object. e.g when using koa-passport.
+Consider using this along with an authentication guard middleware e.g 
+
+```
+@Post('/lead')
+@Flow([authMiddleware])
+async createFoo( @Body() leadData: any, @User() user) {
+
+    leadData.userId = user.id
+
+    return leadData;
+}
+
+```
 
 ### @Header() or @Header(name)
 

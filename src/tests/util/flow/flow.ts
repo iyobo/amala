@@ -1,8 +1,8 @@
-import Boom from "@hapi/boom";
+import Boom from '@hapi/boom';
 
 export const unauthorizedFlow = async () => {
   // console.log('running auth flow...')
-  throw Boom.unauthorized("401 for life");
+  throw Boom.unauthorized('401 for life');
 };
 
 export const badFlow = async (ctx, next) => {
@@ -11,13 +11,18 @@ export const badFlow = async (ctx, next) => {
 };
 
 export const setSomethingStateFlow = async (ctx, next) => {
-  ctx.state.something = "hahaha";
+  ctx.state.something = 'hahaha';
+  await next();
+};
+
+export const userLoggedInFlow = async (ctx, next) => {
+  ctx.state.user = {id: 'avenger1', firstname: 'Tony', lastName: 'Stark'};
   await next();
 };
 
 export const setSomethingSessionFlow = async (ctx, next) => {
   if (ctx.session) {
-    ctx.session.amala = "ewedu";
+    ctx.session.amala = 'ewedu';
   }
   await next();
 };

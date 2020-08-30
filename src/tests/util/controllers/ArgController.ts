@@ -1,5 +1,5 @@
-import { IsNumber, IsString } from "class-validator";
-import { Request, Response } from "koa";
+import {IsNumber, IsString} from 'class-validator';
+import {Request, Response} from 'koa';
 import {
   Body,
   Controller,
@@ -13,9 +13,9 @@ import {
   Req,
   Res,
   Session,
-  State
-} from "../../../index";
-import { setSomethingSessionFlow, setSomethingStateFlow } from "../flow/flow";
+  State, User
+} from '../../../index';
+import {setSomethingSessionFlow, setSomethingStateFlow} from '../flow/flow';
 
 interface InterfaceInput {
   aString: string;
@@ -31,99 +31,105 @@ class ClassInput {
   aNumber: number;
 }
 
-@Controller("/arg")
+@Controller('/arg')
 export class ArgController {
-  @Post("/:model/:id")
-  async twoParams(@Params() params: any, @Params("id") id: any) {
-    return { params, id };
+  @Post('/:model/:id')
+  async twoParams(@Params() params: any, @Params('id') id: any) {
+    return {params, id};
   }
 
-  @Post("/bodyRequired")
-  async bodyRequired(@Body({ required: true }) body: ClassInput) {
+  @Post('/bodyRequired')
+  async bodyRequired(@Body({required: true}) body: ClassInput) {
     return body;
   }
 
-  @Post("/bodySimple")
+  @Post('/bodySimple')
   async simpleBody(@Body() body: any) {
     return body;
   }
 
-  @Post("/body")
+  @Post('/body')
   async body(@Body() body: ClassInput) {
     return body;
   }
 
-  @Post("/bodySpecific")
-  async bodySpecific(@Body("foo") foo: string) {
+  @Post('/bodySpecific')
+  async bodySpecific(@Body('foo') foo: string) {
     return foo;
   }
 
-  @Post("/interface")
+  @Post('/interface')
   async bodyInterface(@Body() body: InterfaceInput) {
     return body;
   }
 
   @Flow([setSomethingStateFlow])
-  @Post("/state")
+  @Post('/state')
   async state(@State() state: any) {
     return state;
   }
 
-  @Post("/header")
+  @Flow([setSomethingStateFlow])
+  @Get('/user')
+  async user(@User() user: any) {
+    return user.id;
+  }
+
+  @Post('/header')
   async header(@Header() header: any) {
     return header;
   }
 
-  @Get("/query")
+  @Get('/query')
   async query(@Query() q: any) {
     return q;
   }
 
-  @Get("/querySingle")
-  async querySingle(@Query("amala") q: string) {
+  @Get('/querySingle')
+  async querySingle(@Query('amala') q: string) {
     return q;
   }
 
-  @Get("/params/:id")
+  @Get('/params/:id')
   async params(@Params() q: any) {
     return q;
   }
 
-  @Get("/paramsSingle/:id")
-  async paramsSingle(@Params("id") id: string) {
+  @Get('/paramsSingle/:id')
+  async paramsSingle(@Params('id') id: string) {
     return id;
   }
 
   // Argument primitive casting
-  @Get("/paramsCastNumber/:val")
-  async paramsCastNumber(@Params("val") val: number) {
-    return { type: typeof val, val };
+  @Get('/paramsCastNumber/:val')
+  async paramsCastNumber(@Params('val') val: number) {
+    return {type: typeof val, val};
   }
 
   // sessions
-  @Get("/session")
+  @Get('/session')
   @Flow(setSomethingSessionFlow)
   async session(@Session() sess: any) {
     return sess;
   }
 
-  @Get("/sessionSingle")
+  @Get('/sessionSingle')
   @Flow(setSomethingSessionFlow)
-  async sessionSingle(@Session("amala") sess: string) {
+  async sessionSingle(@Session('amala') sess: string) {
     return sess;
   }
 
-  @Post("/req")
+  @Post('/req')
   async req(@Req() req: Request) {
     return req;
   }
 
-  @Post("/res")
+  @Post('/res')
   async res(@Res() res: Response) {
-    return res ? "works" : "did not work";
+    return res ? 'works' : 'did not work';
   }
 
-  @Post("/ctx")
+  @Post('/ctx')
   async ctx(@Ctx() ctx: any) {
     return ctx;
   }

@@ -1,5 +1,6 @@
 import "reflect-metadata";
 import { metadata } from "./index";
+import {addArgumentInjectMeta} from './util/tools';
 
 export function Controller(baseRoute?: string | string[]) {
   return function(classDefinition: Function): void {
@@ -126,36 +127,13 @@ export function Flow(flow: Function | Array<Function>) {
   };
 }
 
-// argument injection decorators
-function _addArgumentInjectMeta({
-  index,
-  injectSource,
-  injectOptions,
-  methodName,
-  object
-}) {
-  // console.log('argument', stackConfig, injectSource, injectOptions, object, methodName);
-  const controller = metadata.controllers[object.constructor.name] || {};
-  controller.actions = controller.actions || {};
-  controller.actions[methodName] = controller.actions[methodName] || {};
-
-  controller.actions[methodName].arguments =
-    controller.actions[methodName].arguments || {};
-  controller.actions[methodName].arguments[index] = {
-    injectSource,
-    injectOptions
-  };
-
-  metadata.controllers[object.constructor.name] = controller;
-}
-
 export function Header(injectOptions?: string | Record<string, any>) {
   return function(
     object: Record<string, any>,
     methodName: string,
     index: number
   ) {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "header",
       injectOptions,
@@ -177,7 +155,7 @@ export function Body(injectOptions?: string | ValidationDecoratorOptions) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "body",
       injectOptions,
@@ -193,9 +171,26 @@ export function Session(injectOptions?: string | Record<string, any>) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "session",
+      injectOptions,
+      methodName,
+      object
+    });
+  };
+}
+
+export function User(injectOptions?: string | Record<string, any>) {
+  return function(
+    object: Record<string, any>,
+    methodName: string,
+    index: number
+  ): void {
+    addArgumentInjectMeta({
+      index,
+      injectSource: "state",
+      injectSecondarySource: 'user',
       injectOptions,
       methodName,
       object
@@ -209,7 +204,7 @@ export function State(injectOptions?: string | Record<string, any>) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "state",
       injectOptions,
@@ -225,7 +220,7 @@ export function Req(injectOptions?: string | Record<string, any>) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "req",
       injectOptions,
@@ -241,7 +236,7 @@ export function Res(injectOptions?: string | Record<string, any>) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "res",
       injectOptions,
@@ -257,7 +252,7 @@ export function Params(injectOptions?: string | Record<string, any>) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "params",
       injectOptions,
@@ -273,7 +268,7 @@ export function Query(injectOptions?: string | ValidationDecoratorOptions) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "query",
       injectOptions,
@@ -293,7 +288,7 @@ export function Ctx(injectOptions?: string | Record<string, any>) {
     methodName: string,
     index: number
   ): void {
-    _addArgumentInjectMeta({
+    addArgumentInjectMeta({
       index,
       injectSource: "ctx",
       injectOptions,
