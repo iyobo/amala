@@ -15,7 +15,7 @@ import {
   Session,
   State, User
 } from '../../../index';
-import {setSomethingSessionFlow, setSomethingStateFlow} from '../flow/flow';
+import {setSomethingSessionFlow, setSomethingStateFlow, loginForTest} from '../flow/flow';
 
 interface InterfaceInput {
   aString: string;
@@ -69,10 +69,10 @@ export class ArgController {
     return state;
   }
 
-  @Flow([setSomethingStateFlow])
+  @Flow([loginForTest])
   @Get('/user')
   async user(@User() user: any) {
-    return user.id;
+    return user;
   }
 
   @Post('/header')

@@ -118,6 +118,13 @@ describe("Arguments", () => {
     });
   });
 
+  describe("user", () => {
+    it("works", async () => {
+      const response = await testServer.get("/api/v2/arg/user").expect(200);
+      expect(response.body.id).toEqual("avenger1");
+    });
+  });
+
   describe("header", () => {
     it("works", async () => {
       const response = await testServer

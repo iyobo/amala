@@ -189,8 +189,7 @@ export function User(injectOptions?: string | Record<string, any>) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "state",
-      injectSecondarySource: 'user',
+      injectSource: "user",
       injectOptions,
       methodName,
       object

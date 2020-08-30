@@ -8,6 +8,7 @@ export const unauthorizedFlow = async () => {
 export const badFlow = async (ctx, next) => {
   const a: any = {};
   a.hello.world = 'whoo';
+  await next();
 };
 
 export const setSomethingStateFlow = async (ctx, next) => {
@@ -15,7 +16,7 @@ export const setSomethingStateFlow = async (ctx, next) => {
   await next();
 };
 
-export const userLoggedInFlow = async (ctx, next) => {
+export const loginForTest = async (ctx, next) => {
   ctx.state.user = {id: 'avenger1', firstname: 'Tony', lastName: 'Stark'};
   await next();
 };

@@ -9,7 +9,6 @@ export function isClass(type) {
 export function addArgumentInjectMeta({
                                         index,
                                         injectSource,
-                                        injectSecondarySource=null,
                                         injectOptions,
                                         methodName,
                                         object
@@ -23,7 +22,6 @@ export function addArgumentInjectMeta({
     controller.actions[methodName].arguments || {};
   controller.actions[methodName].arguments[index] = {
     injectSource,
-    injectSecondarySource,
     injectOptions
   };
 

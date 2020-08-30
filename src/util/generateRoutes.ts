@@ -1,22 +1,22 @@
-import boom from "@hapi/boom";
-import { plainToClass } from "class-transformer";
-import { validate } from "class-validator";
-import { Context } from "koa";
-import _ from "lodash";
-import { KoaControllerOptions } from "../";
-import { isClass } from "./tools";
+import boom from '@hapi/boom';
+import {plainToClass} from 'class-transformer';
+import {validate} from 'class-validator';
+import {Context} from 'koa';
+import _ from 'lodash';
+import {KoaControllerOptions} from '../';
+import {isClass} from './tools';
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
   if (!injectOptions) {
     return body;
   }
 
-  if (typeof injectOptions === "string") {
+  if (typeof injectOptions === 'string') {
     return body[injectOptions];
-  } else if (typeof injectOptions === "object") {
+  } else if (typeof injectOptions === 'object') {
     // is required
     if (injectOptions.required && (!body || _.isEmpty(body))) {
-      throw boom.badData("Body: is required and cannot be null");
+      throw boom.badData('Body: is required and cannot be null');
     }
 
     return body;
@@ -27,39 +27,48 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
   );
 }
 
-const argumentInjectorMap = {
+/**
+ * Acts as a special override for non-simple injections.
+ * e.g "query" should be searched for in ctx.request, not ctx.
+ */
+const argumentInjectorTranslations = {
   session: async (ctx: any, injectOptions: any) => {
     if (!ctx.session)
       throw boom.failedDependency(
-        "Sessions have not been activated on this server"
+        'Sessions have not been activated on this server'
       );
 
-    if (typeof injectOptions === "string") {
+    if (typeof injectOptions === 'string') {
       return ctx.session[injectOptions];
     }
     return ctx.session;
   },
   ctx: async (ctx: any) => ctx,
   query: async (ctx: any, injectOptions: any) => {
-    return _argumentInjectorProcessor("query", ctx.query, injectOptions);
+    return _argumentInjectorProcessor('query', ctx.query, injectOptions);
+  },
+  user: async (ctx: any, injectOptions: any) => {
+    return _argumentInjectorProcessor('user', ctx.state.user, injectOptions);
   },
   body: async (ctx: any, injectOptions: any) => {
-    return _argumentInjectorProcessor("body", ctx.request.body, injectOptions);
+    return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
   }
 };
 
 async function _determineArgument(
   ctx: Context,
   index,
-  { injectSource, injectSecondarySource, injectOptions },
+  {injectSource, injectOptions},
   type
 ) {
   let result;
 
-  if (argumentInjectorMap[injectSource]) {
-    result = await argumentInjectorMap[injectSource](ctx, injectOptions);
+  if (argumentInjectorTranslations[injectSource]) {
+
+    result = await argumentInjectorTranslations[injectSource](ctx, injectOptions);
+
   } else {
-    // not a special arg injector? Try to pull argument from ctx
+    // not a special arg injector? No special translation exists so just use CTX.
     result = ctx[injectSource];
     if (result && injectOptions) {
       result = result[injectOptions];
@@ -72,9 +81,9 @@ async function _determineArgument(
     const errors = await validate(result); // TODO: wrap around this to trap runtime errors
     if (errors.length > 0) {
       throw boom.badData(
-        "validation error for argument type: " + injectSource,
+        'validation error for argument type: ' + injectSource,
         errors.map(it => {
-          return { field: it.property, violations: it.constraints };
+          return {field: it.property, violations: it.constraints};
         })
       );
     }
@@ -94,10 +103,10 @@ async function _generateEndPoints(
 ) {
   const actions = controller.actions;
 
-  let deprecationMessage = "";
+  let deprecationMessage = '';
   if (
     options.versions &&
-    typeof options.versions[generatingForVersion] === "string"
+    typeof options.versions[generatingForVersion] === 'string'
   ) {
     deprecationMessage = options.versions[generatingForVersion];
   }
@@ -119,7 +128,7 @@ async function _generateEndPoints(
           willAddEndpoint = false;
         }
         // but if current endpoint version being generated DOES exist in the constraint and it is a string...
-        else if (typeof endpointLimit === "string") {
+        else if (typeof endpointLimit === 'string') {
           // ...this is a deprecation message
           deprecationMessage += ` ${endpointLimit}`;
         }
@@ -135,11 +144,11 @@ async function _generateEndPoints(
 
     if (willAddEndpoint) {
       const path =
-        "/" +
+        '/' +
         (parentPath + action.path)
-          .split("/")
+          .split('/')
           .filter(i => i.length)
-          .join("/");
+          .join('/');
 
       // console.log('adding', path)
       const flow = [
@@ -148,12 +157,12 @@ async function _generateEndPoints(
         ...(action.flow || [])
       ];
 
-      flow.push(async function(ctx) {
+      flow.push(async function (ctx) {
 
         const targetArguments = [];
 
         if (deprecationMessage) {
-          ctx.set({ deprecation: deprecationMessage });
+          ctx.set({deprecation: deprecationMessage});
         }
 
         // inject data into arguments
@@ -191,7 +200,7 @@ export async function generateRoutes(
   options: KoaControllerOptions,
   metadata
 ) {
-  const basePath = options.basePath || ""; // e.g /api
+  const basePath = options.basePath || ''; // e.g /api
   const controllers: any[] = Object.values(metadata.controllers);
 
   for (const controller of controllers) {
