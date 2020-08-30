@@ -51,15 +51,19 @@
     "@types/lodash": "^4.14.149",
     "@types/node": "^13.7.1",
     "@types/supertest": "^2.0.8",
+    "@typescript-eslint/eslint-plugin": "^2.19.2",
     "@typescript-eslint/parser": "^2.19.2",
-    "class-validator": "^0.11.0",
+    "class-validator": "^0.x",
     "eslint": "^6.8.0",
     "jest": "^25.1.0",
     "koa": "^2.11.0",
     "koa-bodyparser": "^4.2.1",
     "koa-router": "^8.0.8",
+    "koa-session": "^5.13.1",
     "supertest": "^4.0.2",
     "ts-jest": "^25.2.0",
-    "typescript": "^3.7.5"
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5",
+    "typescript-eslint": "0.0.1-alpha.0"
   }
 }
