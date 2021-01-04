@@ -14,7 +14,7 @@ It also makes your endpoint actions easier to test.
 the support of these awesome backers. If koa-ts-controllers is helping you build
 awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Becoming a Patron</a>.
 
-If you would like to contrinute in other ways, Pull requests are also welcome!
+If you would like to contribute in other ways, Pull requests are also welcome!
 
 ### :heart: Platinum Sponsors :heart:
 
@@ -23,12 +23,13 @@ If you would like to contrinute in other ways, Pull requests are also welcome!
     <tr>
       <td align="center" valign="middle">
         <a href="https://github.com/notemate" target="_blank" alt="notemate">
-          <img width="222px" src="https://static1.squarespace.com/static/5da7b755ae0a807795a1b5a5/t/5dba0838a2475c67d1956996/1574017118733/?format=1500w">
+          <img width="222px" src="https://avatars2.githubusercontent.com/u/55332250?s=200&v=4">
         </a>
       </td>
     </tr>
   </tbody>
 </table>
+
 
 ## How to Use
 
