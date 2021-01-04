@@ -248,7 +248,7 @@ class FooCreateInput {
 
 ```
 
-See tests for more detailed examples.
+See tests in `src/tests` for more detailed examples.
 
 Koa-ts-controllers is more native to Koa than other Typescript controller systems (e.g routing-controllers) as it does not aim to be an abstraction layer for other API frameworks.
 
