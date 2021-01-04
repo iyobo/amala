@@ -56,7 +56,7 @@ const router = new Router();
 await bootstrapControllers(app, {
     router, // required
     basePath: '/api',
-    controllers: [MyOtherController, __dirname + '/controllers/**/*.ts'], // It is recommended to add controllers classes directly to this array, but you can also add glob strings
+    controllers: [MyOtherController, __dirname + '/controllers/**/*.ts'], // It is recommended to add controller classes directly to this array, but you can also add glob strings
     versions:{
         1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP',
         2: true,
@@ -76,10 +76,12 @@ app.use(router.allowedMethods());
 ...
 ```
 
-It all begins from the `bootstrapControllers` function. This accepts a koa app, and generates endpoints as defines in the controller classes inserted into the `controllers` option.
+It all begins from the `bootstrapControllers` function. 
+
+The bootstrap function accepts a koa app, and generates endpoints as defined in the controller classes inserted into the `controllers` option.
 
 The `controllers` array option is required and can include actual Controller classes (preferred) or glut strings describing where controller classes exist.
-Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`.
+Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`. This is to avoid any issues that might arise regarding JS vs TS files.
 
 Below is an example of a controller class, displaying many endpoint scenarios:
 
