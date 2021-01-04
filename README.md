@@ -211,7 +211,7 @@ export class FooController {
 
         // POST /api/v.../foo/orDie2
 
-        // providing a class as an type to an object-level argument
+        // providing a class as a type to an object-level argument
         // (i.e not a primitive) means you want
         // that object to be validated by that class-validator class.
         // See definition of FooCreateInput validation class below.
@@ -247,6 +247,8 @@ class FooCreateInput {
 }
 
 ```
+
+See tests for more detailed examples.
 
 Koa-ts-controllers is more native to Koa than other Typescript controller systems (e.g routing-controllers) as it does not aim to be an abstraction layer for other API frameworks.
 
