@@ -168,7 +168,7 @@ export class FooController {
 
     @Post('/lead')
     @Flow([authMiddleware])
-    async createFooForAuthenticatedUser( @Body() leadData: any, @User() user) {
+    async createFooForAuthenticatedUser( @Body() leadData: any, @CurrentUser() user) {
     
         leadData.creatorId = user.id
 
@@ -355,7 +355,7 @@ Injects ctx.request.body or ctx.request.body[name]
 
 Injects ctx.state object or ctx.state[name]
 
-### @User()
+### @CurrentUser()
 
 This is a shortcut to access `ctx.state.user`.
 That is the standard location for storing the currently logged in user object. e.g when using koa-passport.
@@ -364,7 +364,7 @@ Consider using this along with an authentication guard middleware e.g
 ```
 @Post('/lead')
 @Flow([authMiddleware])
-async createFoo( @Body() leadData: any, @User() user) {
+async createFoo( @Body() leadData: any, @CurrentUser() user) {
 
     leadData.userId = user.id
 
