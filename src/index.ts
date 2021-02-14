@@ -1,5 +1,7 @@
 import {generateRoutes} from './util/generateRoutes';
 import {importClassesFromDirectories} from './util/importClasses';
+import Boom from '@hapi/boom';
+import {ValidatorOptions} from 'class-validator';
 
 export interface KoaControllerOptions {
     controllers: Array<string | Function>;
@@ -9,6 +11,14 @@ export interface KoaControllerOptions {
     router: any;
     flow?: Array<Function>;
     errorHandler?: Function;
+
+    // if true, will attach generated routes to the koa app
+    attachRoutes?: boolean;
+
+    // options for class-validator
+    validatorOptions?: ValidatorOptions
+
+    // attempt to convert number strings to numbers
 }
 
 export let options: KoaControllerOptions;
@@ -64,6 +74,7 @@ export const bootstrapControllers = async (
     options = params;
     options.versions = options.versions || {1: true};
     options.flow = options.flow || [];
+    options.validatorOptions = options.validatorOptions || {};
     options.errorHandler = options.errorHandler || defaultErrorHandler;
 
     /**
@@ -104,6 +115,16 @@ export const bootstrapControllers = async (
     }
 
     await generateRoutes(options.router, options, metadata);
+
+    if (options.attachRoutes) {
+        // Combine routes
+        app.use(options.router.routes());
+        app.use(options.router.allowedMethods({
+            methodNotAllowed: () => Boom.notFound(),
+            notImplemented: () => Boom.notImplemented(),
+            throw: true,
+        }));
+    }
 };
 
 export * from 'class-validator';

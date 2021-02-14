@@ -32,14 +32,16 @@ If you would like to contrinute in other ways, Pull requests are also welcome!
 
 ## How to Use
 
-First you want to install it:
+First you want to install some core dependencies, along with koa-ts-controllers:
 
-`yarn add koa-ts-controllers` or `npm i koa-ts-controllers`
+`yarn add koa koa-router koa-bodyparser class-validator koa-ts-controllers`
+or
+`npm i koa koa-router koa-bodyparser class-validator koa-ts-controllers`
 
 Now have a look at the usage below.
 
 ```typescript
---- main.ts
+---main.ts
 
 import {bootstrapControllers} from 'koa-ts-controllers';
 import Koa from 'koa';
@@ -59,20 +61,25 @@ await bootstrapControllers(app, {
     versions:{
         1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP',
         2: true,
-        dangote: true // great for custom, business client specific endpoint versions
+      dangote: true // great for custom, business client specific endpoint versions
     },
-    errorHandler: async (err, ctx) { // optional error handler
-        console.log('err', err);
-        ctx.body = { error: err}
-        ctx.status = 500
-    }
-});
+  errorHandler: async(err, ctx)
+{ // optional error handler
+  console.log('err', err);
+  ctx.body = {error: err}
+  ctx.status = 500
+}
+})
+;
 
 app.use(bodyParser());
+
+// ignore this block by setting attachRoutes: true in bootstrapControllers options
 app.use(router.routes());
 app.use(router.allowedMethods());
 
 ...
+app.start(3000)
 ```
 
 It all begins from the `bootstrapControllers` function. This accepts a koa app, and generates endpoints as defines in the controller classes inserted into the `controllers` option.
@@ -267,26 +274,37 @@ Call this in your main file to initialize your controllers.
 `options` is an object of type
 
 ```typescript
+import validationOptions from 'jest-validate/build/defaultConfig';
+
 {
-    router?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
-    controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
-    basePath?: string; // prefix for API URI
+  router ? : KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
+  controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
+  basePath ? : string; // prefix for API URI
 
-    // default: {1: true} The active versions of this API. default is {'1': true} meaning all routes will take
-    the form /base/v1/controller/action.
-    versions?: Array<number | string> | object;
+  // default: {1: true} The active versions of this API. default is {'1': true} meaning all routes will take
+  // the form /base/v1/controller/action.
+  versions ? : Array<number | string> | object;
 
-    // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action.
-    // Not recommended unless you wish to handle versioning manually in each controller's basePath.
-    disableVersioning?: boolean
+  // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action.
+  // Not recommended unless you wish to handle versioning manually in each controller's basePath.
+  disableVersioning ? : boolean
 
-    // Default: false. set to true to attach a default koa-body middleware to your koa app.
-    // If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before
-    // bootstrapserver is called.
-    initBodyParser?: boolean;
+  // Default: false. set to true to attach a default koa-body middleware to your koa app.
+  // If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before
+  // bootstrapserver is called.
+  initBodyParser ? : boolean;
 
-    // Default: true. Makes your boom errors better received downstream.
-    boomifyErrors?: boolean;
+  // Default: true. Makes your boom errors better received downstream.
+  boomifyErrors ? : boolean;
+
+  // Default: false. If true, will attach the routes to your koa app for you automatically as opposed to doing it manually
+  // app.use(router.routes());
+  // app.use(router.allowedMethods());
+  attachRoutes ? : boolean
+
+  //Default: empty. Here you can set validation options for class-validator which is optionally used to validate endpoint arguments.
+  // To see options, visit: https://github.com/typestack/class-validator#passing-options
+  validationOptions ?: ValidatorOptions
 }
 ```
 

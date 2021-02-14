@@ -55,11 +55,21 @@ const argumentInjectorTranslations = {
   }
 };
 
+/**
+ * Processes an endpoint-function argument and validates it etc
+ * @param ctx
+ * @param index
+ * @param injectSource
+ * @param injectOptions
+ * @param type
+ * @param options
+ */
 async function _determineArgument(
   ctx: Context,
   index,
   {injectSource, injectOptions},
-  type
+  type,
+  options: KoaControllerOptions
 ) {
   let result;
 
@@ -78,7 +88,9 @@ async function _determineArgument(
   // validate if this is a class
   if (result && isClass(type)) {
     result = await plainToClass(type, result);
-    const errors = await validate(result); // TODO: wrap around this to trap runtime errors
+
+    const errors = await validate(result, options.validatorOptions); // TODO: wrap around this to trap runtime errors
+
     if (errors.length > 0) {
       throw boom.badData(
         'validation error for argument type: ' + injectSource,
@@ -174,7 +186,8 @@ async function _generateEndPoints(
               ctx,
               index,
               argumentMeta,
-              action.argumentTypes[index]
+              action.argumentTypes[index],
+              options
             );
           }
         }

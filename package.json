@@ -36,11 +36,15 @@
   "dependencies": {
     "@hapi/boom": "^9.0.0",
     "class-transformer": "^0.2.3",
+    "class-transformer-validator": "^0.9.1",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13"
   },
   "peerDependencies": {
-    "class-validator": "^0.x"
+    "class-validator": "^0.x",
+    "koa": "^2.11.0",
+    "koa-bodyparser": "^4.2.1",
+    "koa-router": "^8.0.8"
   },
   "devDependencies": {
     "@types/boom": "^7.3.0",

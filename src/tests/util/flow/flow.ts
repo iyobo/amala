@@ -5,8 +5,14 @@ export const unauthorizedFlow = async () => {
   throw Boom.unauthorized('401 for life');
 };
 
+/**
+ * Test middleware that throws an unexpected error
+ * @param ctx
+ * @param next
+ */
 export const badFlow = async (ctx, next) => {
   const a: any = {};
+  // should fail and throw error.
   a.hello.world = 'whoo';
   await next();
 };
