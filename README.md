@@ -14,7 +14,7 @@ It also makes your endpoint actions easier to test.
 the support of these awesome backers. If koa-ts-controllers is helping you build
 awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Becoming a Patron</a>.
 
-If you would like to contrinute in other ways, Pull requests are also welcome!
+If you would like to contribute in other ways, Pull requests are also welcome!
 
 ### :heart: Platinum Sponsors :heart:
 
@@ -23,12 +23,13 @@ If you would like to contrinute in other ways, Pull requests are also welcome!
     <tr>
       <td align="center" valign="middle">
         <a href="https://github.com/notemate" target="_blank" alt="notemate">
-          <img width="222px" src="https://static1.squarespace.com/static/5da7b755ae0a807795a1b5a5/t/5dba0838a2475c67d1956996/1574017118733/?format=1500w">
+          <img width="222px" src="https://avatars2.githubusercontent.com/u/55332250?s=200&v=4">
         </a>
       </td>
     </tr>
   </tbody>
 </table>
+
 
 ## How to Use
 
@@ -57,7 +58,7 @@ const router = new Router();
 await bootstrapControllers(app, {
     router, // required
     basePath: '/api',
-    controllers: [MyOtherController, __dirname + '/controllers/**/*.ts'], // It is recommended to add controllers classes directly to this array, but you can also add glob strings
+    controllers: [MyOtherController, __dirname + '/controllers/**/*.ts'], // It is recommended to add controller classes directly to this array, but you can also add glob strings
     versions:{
         1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP',
         2: true,
@@ -82,10 +83,12 @@ app.use(router.allowedMethods());
 app.start(3000)
 ```
 
-It all begins from the `bootstrapControllers` function. This accepts a koa app, and generates endpoints as defines in the controller classes inserted into the `controllers` option.
+It all begins from the `bootstrapControllers` function. 
+
+The bootstrap function accepts a koa app, and generates endpoints as defined in the controller classes inserted into the `controllers` option.
 
 The `controllers` array option is required and can include actual Controller classes (preferred) or glut strings describing where controller classes exist.
-Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`.
+Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`. This is to avoid any issues that might arise regarding JS vs TS files.
 
 Below is an example of a controller class, displaying many endpoint scenarios:
 
@@ -215,7 +218,7 @@ export class FooController {
 
         // POST /api/v.../foo/orDie2
 
-        // providing a class as an type to an object-level argument
+        // providing a class as a type to an object-level argument
         // (i.e not a primitive) means you want
         // that object to be validated by that class-validator class.
         // See definition of FooCreateInput validation class below.
@@ -251,6 +254,8 @@ class FooCreateInput {
 }
 
 ```
+
+See tests in `src/tests` for more detailed examples.
 
 Koa-ts-controllers is more native to Koa than other Typescript controller systems (e.g routing-controllers) as it does not aim to be an abstraction layer for other API frameworks.
 
