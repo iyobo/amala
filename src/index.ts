@@ -128,6 +128,7 @@ export const bootstrapControllers = async (
 };
 
 export * from 'class-validator';
+export * from 'class-transformer';
 export {
     Body,
     Controller,
