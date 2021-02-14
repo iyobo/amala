@@ -34,9 +34,9 @@ If you would like to contrinute in other ways, Pull requests are also welcome!
 
 First you want to install some core dependencies, along with koa-ts-controllers:
 
-`yarn add koa koa-router koa-bodyparser class-validator koa-ts-controllers`
+`yarn add koa koa-router koa-bodyparser class-validator class-transformer koa-ts-controllers`
 or
-`npm i koa koa-router koa-bodyparser class-validator koa-ts-controllers`
+`npm i koa koa-router koa-bodyparser class-validator class-transformer koa-ts-controllers`
 
 Now have a look at the usage below.
 
