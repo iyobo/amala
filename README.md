@@ -8,6 +8,8 @@
 This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere.
 It also makes your endpoint actions easier to test.
 
+OpenAPI export feature is in progress and very incomplete, but you can see where it is by hitting 'GET /api/docs' by default.
+
 ## Supporting Koa-ts-controllers
 
 **Koa-ts-controllers** is an MIT-licensed open source project with its ongoing development made possible entirely by
