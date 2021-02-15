@@ -1,0 +1,67 @@
+{
+  "components": {
+    "schemas": {}
+  },
+  "info": {
+    "title": "",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/users/{userId}": {
+      "get": {
+        "operationId": "UsersController.getUser",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "List users",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/": {
+      "post": {
+        "operationId": "UsersController.createUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserBody"
+              }
+            }
+          },
+          "description": "CreateUserBody",
+          "required": false
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Successful response"
+          }
+        },
+        "summary": "Create user",
+        "tags": [
+          "Users"
+        ]
+      }
+    }
+  }
+}
