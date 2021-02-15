@@ -64,12 +64,6 @@ await bootstrapControllers(app, {
         2: true,
       dangote: true // great for custom, business client specific endpoint versions
     },
-  errorHandler: async(err, ctx)
-{ // optional error handler
-  console.log('err', err);
-  ctx.body = {error: err}
-  ctx.status = 500
-}
 })
 ;
 
@@ -310,6 +304,20 @@ import validationOptions from 'jest-validate/build/defaultConfig';
   //Default: empty. Here you can set validation options for class-validator which is optionally used to validate endpoint arguments.
   // To see options, visit: https://github.com/typestack/class-validator#passing-options
   validationOptions ?: ValidatorOptions
+
+  //openApi
+  // Default: true
+  enableOpenApi?: boolean;
+  
+  // What path to access the openAPI output
+  //Default: /api/docs
+  openApiPath?: string; 
+  
+  //Use this to specify your app's title and version that gets used when generating the openAPI spec
+  openApiInfo?:{
+    title: string,
+    version: string
+  }
 }
 ```
 
