@@ -1,6 +1,6 @@
-# koa-ts-controllers
+# amala
 
-**koa-ts-controllers** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
+**amala** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
 
 - Define your REST API endpoints using ES8 _classes_ and _decorators_.
 - Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
@@ -10,10 +10,10 @@ It also makes your endpoint actions easier to test.
 
 OpenAPI export feature is in progress and very incomplete, but you can see where it is by hitting 'GET /api/docs' by default.
 
-## Supporting Koa-ts-controllers
+## Supporting Amala
 
-**Koa-ts-controllers** is an MIT-licensed open source project with its ongoing development made possible entirely by
-the support of these awesome backers. If koa-ts-controllers is helping you build
+**Amala** is an MIT-licensed open source project with its ongoing development made possible entirely by
+the support of these awesome backers. If amala is helping you build
 awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Becoming a Patron</a>.
 
 If you would like to contribute in other ways, Pull requests are also welcome!
@@ -35,18 +35,18 @@ If you would like to contribute in other ways, Pull requests are also welcome!
 
 ## How to Use
 
-First you want to install some core dependencies, along with koa-ts-controllers:
+First you want to install some core dependencies, along with amala:
 
-`yarn add koa koa-router koa-bodyparser class-validator class-transformer koa-ts-controllers`
+`yarn add koa koa-router koa-bodyparser class-validator class-transformer amala`
 or
-`npm i koa koa-router koa-bodyparser class-validator class-transformer koa-ts-controllers`
+`npm i koa koa-router koa-bodyparser class-validator class-transformer amala`
 
 Now have a look at the usage below.
 
 ```typescript
 ---main.ts
 
-import {bootstrapControllers} from 'koa-ts-controllers';
+import {bootstrapControllers} from 'amala';
 import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
@@ -91,7 +91,7 @@ Below is an example of a controller class, displaying many endpoint scenarios:
 ```typescript
 --- constrollers/FooController.ts
 
-import {Controller, Ctx, Req, Body, Get, Post, Delete, Query, Flow, Params, Version} from 'koa-ts-controllers';
+import {Controller, Ctx, Req, Body, Get, Post, Delete, Query, Flow, Params, Version} from 'amala';
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
 import {IsNumber, IsString} from 'class-validator';
 
@@ -253,7 +253,7 @@ class FooCreateInput {
 
 See tests in `src/tests` for more detailed examples.
 
-Koa-ts-controllers is more native to Koa than other Typescript controller systems (e.g routing-controllers) as it does not aim to be an abstraction layer for other API frameworks.
+Amala is more native to Koa than other Typescript controller systems (e.g routing-controllers) as it does not aim to be an abstraction layer for other API frameworks.
 
 All it cares about is KoaJS.
 
@@ -261,7 +261,7 @@ The result is more dependable behavior and better error handling e.g you can now
 actions (or from anywhere down the execution stack of said actions) and those errors will make it back to the client
 with exact status codes.
 
-Also, Koa-ts-controllers supports **API versioning**. You won't find that anywhere else in a hurry.
+Also, Amala supports **API versioning**. You won't find that anywhere else in a hurry.
 
 This library is used heavily in [JollofStack](https://github.com/iyobo/jollofstack) (WIP), which is the typescript-centered re-architecture of [JollofJS](https://github.com/iyobo/jollofjs).
 
@@ -433,14 +433,14 @@ Injects the whole koa context. For a more descriptive endpoint handler/action, a
 # How to programmatically access controller actions
 
 ```typescript
-import { getControllers } from "koa-ts-controllers";
+import { getControllers } from "amala";
 const codex = getControllers(); //codex is now an index of all the controller functions and their classes.
 ```
 
 # Upcoming Features
 
 - Support for Open API 3
-  - Koa-TS-Controllers will soon be able to generate Open API 3 spec files (JSON) based on your controller definitions.
+  - Amala will soon be able to generate Open API 3 spec files (JSON) based on your controller definitions.
 
 # Troubleshooting
 
