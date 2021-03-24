@@ -1,4 +1,3 @@
-import bodyParser from "koa-bodyparser";
 import {bootstrapControllers, getControllers} from "../index";
 
 let nativeServer;
@@ -10,7 +9,6 @@ beforeAll(async () => {
     versions: ["1", "2"]
   });
 
-  app.use(bodyParser());
   app.use(router.routes());
   app.use(router.allowedMethods());
 

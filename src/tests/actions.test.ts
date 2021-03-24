@@ -1,4 +1,3 @@
-import bodyParser from "koa-bodyparser";
 import request from "supertest";
 import {bootstrapControllers} from "../index";
 
@@ -11,7 +10,6 @@ beforeAll(async () => {
     versions: ["1", "2"],
   });
 
-  app.use(bodyParser());
   app.use(router.routes());
   app.use(router.allowedMethods());
 

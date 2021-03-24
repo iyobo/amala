@@ -1,4 +1,3 @@
-import bodyParser from "koa-bodyparser";
 import request from "supertest";
 import {bootstrapControllers} from "../index";
 
@@ -13,7 +12,7 @@ beforeAll(async () => {
     versions: ["1", "2"],
     disableVersioning: true, // overwrites and cancels versions if present => /apiBase/controller/action
   });
-  app.use(bodyParser());
+
   app.use(router.routes());
 
   app.use(router.allowedMethods());

@@ -1,4 +1,3 @@
-import bodyParser from "koa-bodyparser";
 import request from "supertest";
 import {bootstrapControllers} from "../index";
 import {setSomethingStateFlow} from "./util/flow/flow";
@@ -15,9 +14,8 @@ beforeAll(async () => {
     versions: ["1", "2"],
     flow: [setSomethingStateFlow],
   });
-  app.use(bodyParser());
-  app.use(router.routes());
 
+  app.use(router.routes());
   app.use(router.allowedMethods());
 
   nativeServer = app.listen();

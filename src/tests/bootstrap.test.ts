@@ -1,4 +1,3 @@
-import bodyParser from "koa-bodyparser";
 import request from "supertest";
 import {bootstrapControllers} from "../index";
 import {ActionController} from "./util/controllers/ActionController";
@@ -14,7 +13,7 @@ beforeAll(async () => {
     controllers: [ActionController, ArgController, ProtectedController],
     versions: ["1", "2"]
   });
-  app.use(bodyParser());
+
   app.use(router.routes());
 
   app.use(router.allowedMethods());
