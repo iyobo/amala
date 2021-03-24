@@ -18,20 +18,6 @@ awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=196619
 
 If you would like to contribute in other ways, Pull requests are also welcome!
 
-### :heart: Platinum Sponsors :heart:
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="middle">
-        <a href="https://github.com/notemate" target="_blank" alt="notemate">
-          <img width="222px" src="https://avatars2.githubusercontent.com/u/55332250?s=200&v=4">
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
 
 ## How to Use
 
