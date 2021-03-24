@@ -41,7 +41,8 @@
     "class-transformer": "*",
     "koa": "^2.x",
     "koa-bodyparser": "*",
-    "koa-router": "*"
+    "koa-router": "*",
+    "koa-session": "*"
   },
   "devDependencies": {
     "@types/boom": "^7.3.0",
@@ -57,10 +58,6 @@
     "class-validator": "^0.x",
     "eslint": "^6.8.0",
     "jest": "^25.1.0",
-    "koa": "^2.11.0",
-    "koa-bodyparser": "^4.2.1",
-    "koa-router": "^8.0.8",
-    "koa-session": "^5.13.1",
     "supertest": "^4.0.2",
     "ts-jest": "^25.2.0",
     "ts-node": "^8.6.2",
