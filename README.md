@@ -47,20 +47,20 @@ Now have a look at the usage below.
 ---main.ts
 
 import {bootstrapControllers} from 'amala';
-import Koa from 'koa';
-import Router from 'koa-router';
+
 import bodyParser from 'koa-bodyparser';
 import MyOtherController from './otherController/MyOtherController'
 
-const app = new Koa();
-const router = new Router();
 
 ...
 
-await bootstrapControllers(app, {
+const {app, router} = await bootstrapControllers({
     router, // required
     basePath: '/api',
-    controllers: [MyOtherController, __dirname + '/controllers/**/*.ts'], // It is recommended to add controller classes directly to this array, but you can also add glob strings
+    controllers: [
+      MyOtherController, 
+      __dirname + '/controllers/**/*.ts' // It is recommended to add controller classes directly to this array, but you can also add glob strings
+    ], 
     versions:{
         1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP',
         2: true,
@@ -70,8 +70,6 @@ await bootstrapControllers(app, {
 ;
 
 app.use(bodyParser());
-
-// ignore this block by setting attachRoutes: true in bootstrapControllers options
 app.use(router.routes());
 app.use(router.allowedMethods());
 
@@ -89,7 +87,7 @@ Though this library allows gluts, it is generally better for typescript that the
 Below is an example of a controller class, displaying many endpoint scenarios:
 
 ```typescript
---- constrollers/FooController.ts
+--- controllers/FooController.ts
 
 import {Controller, Ctx, Req, Body, Get, Post, Delete, Query, Flow, Params, Version} from 'amala';
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
@@ -278,30 +276,30 @@ Call this in your main file to initialize your controllers.
 import validationOptions from 'jest-validate/build/defaultConfig';
 
 {
-  router ? : KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
+  router ?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
   controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
-  basePath ? : string; // prefix for API URI
+  basePath ?: string; // prefix for API URI
 
   // default: {1: true} The active versions of this API. default is {'1': true} meaning all routes will take
   // the form /base/v1/controller/action.
-  versions ? : Array<number | string> | object;
+  versions ?: Array<number | string> | object;
 
   // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action.
   // Not recommended unless you wish to handle versioning manually in each controller's basePath.
-  disableVersioning ? : boolean
+  disableVersioning ?: boolean
 
   // Default: false. set to true to attach a default koa-body middleware to your koa app.
   // If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before
   // bootstrapserver is called.
-  initBodyParser ? : boolean;
+  initBodyParser ?: boolean;
 
   // Default: true. Makes your boom errors better received downstream.
-  boomifyErrors ? : boolean;
+  boomifyErrors ?: boolean;
 
   // Default: false. If true, will attach the routes to your koa app for you automatically as opposed to doing it manually
   // app.use(router.routes());
   // app.use(router.allowedMethods());
-  attachRoutes ? : boolean
+  attachRoutes ?: boolean
 
   //Default: empty. Here you can set validation options for class-validator which is optionally used to validate endpoint arguments.
   // To see options, visit: https://github.com/typestack/class-validator#passing-options
@@ -316,7 +314,7 @@ import validationOptions from 'jest-validate/build/defaultConfig';
   openApiPath?: string; 
   
   //Use this to specify your app's title and version that gets used when generating the openAPI spec
-  openApiInfo?:{
+  openApiInfo?: {
     title: string,
     version: string
   }

@@ -3,13 +3,17 @@ import {importClassesFromDirectories} from './util/importClasses';
 import Boom from '@hapi/boom';
 import {ValidatorOptions} from 'class-validator';
 import {openApi, openApiSpec} from './openapi/OpenApi';
+import Application from 'koa';
+import Koa from 'koa';
+import Router from 'koa-router';
 
 export interface KoaControllerOptions {
+  app?: Application;
   controllers: Array<string | Function>;
   basePath?: string;
   versions?: Array<number | string> | { [key: string]: string | boolean };
   disableVersioning?: boolean;
-  router: any;
+  router?: any;
   flow?: Array<Function>;
   errorHandler?: Function;
 
@@ -19,13 +23,16 @@ export interface KoaControllerOptions {
   // options for class-validator
   validatorOptions?: ValidatorOptions;
 
+  // domain context AsyncLocalStorage per request
+  contextPerRequest?: Record<string, any>;
+
   //openApi
   enableOpenApi?: boolean;
   openApiPath?: string;
-  openApiInfo?:{
-    title: string,
-    version: string
-  }
+  openApiInfo?: {
+    title: string;
+    version: string;
+  };
 }
 
 export let options: KoaControllerOptions;
@@ -76,10 +83,12 @@ export const controllers = {};
  * @param params - KoaControllerOptions
  */
 export const bootstrapControllers = async (
-  app,
   params: KoaControllerOptions
-) => {
+): Promise<{ app: Application; router: Router }> => {
   options = params;
+  const app = options.app = options.app || new Koa();
+  options.router = options.router || new Router();
+
   options.versions = options.versions || {1: true};
   options.flow = options.flow || [];
   options.validatorOptions = options.validatorOptions || {};
@@ -151,6 +160,8 @@ export const bootstrapControllers = async (
       throw: true,
     }));
   }
+
+  return {app, router: options.router};
 };
 
 export * from 'class-validator';

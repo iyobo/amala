@@ -1,20 +1,13 @@
-import Koa from "koa";
 import bodyParser from "koa-bodyparser";
-import Router from "koa-router";
-import { bootstrapControllers, getControllers } from "../index";
+import {bootstrapControllers, getControllers} from "../index";
 
-let app: Koa;
-let router: Router;
 let nativeServer;
 beforeAll(async () => {
-  app = new Koa();
-  router = new Router();
 
-  await bootstrapControllers(app, {
+  const {app, router} = await bootstrapControllers({
     basePath: "/api",
     controllers: [__dirname + "/util/controllers/**/*.ts"],
-    versions: ["1", "2"],
-    router: router
+    versions: ["1", "2"]
   });
 
   app.use(bodyParser());

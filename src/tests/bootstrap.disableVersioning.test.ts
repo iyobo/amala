@@ -1,29 +1,22 @@
-import Koa from "koa";
 import bodyParser from "koa-bodyparser";
-import Router from "koa-router";
 import request from "supertest";
-import { bootstrapControllers } from "../index";
+import {bootstrapControllers} from "../index";
 
-let app: Koa;
-let router: Router;
 let nativeServer;
 let testServer: request.SuperTest<request.Test>;
 
 beforeAll(async () => {
-  app = new Koa();
-  router = new Router();
 
-  app.use(bodyParser());
-  app.use(router.routes());
-  app.use(router.allowedMethods());
-
-  await bootstrapControllers(app, {
+  const {app, router} = await bootstrapControllers({
     basePath: "/api",
     controllers: [__dirname + "/util/controllers/**/*.ts"],
     versions: ["1", "2"],
     disableVersioning: true, // overwrites and cancels versions if present => /apiBase/controller/action
-    router: router
   });
+  app.use(bodyParser());
+  app.use(router.routes());
+
+  app.use(router.allowedMethods());
 
   nativeServer = app.listen();
   testServer = request(nativeServer);
