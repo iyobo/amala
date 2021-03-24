@@ -37,9 +37,9 @@ If you would like to contribute in other ways, Pull requests are also welcome!
 
 First you want to install some core dependencies, along with amala:
 
-`yarn add koa koa-router koa-bodyparser class-validator class-transformer amala`
+`yarn add amala`
 or
-`npm i koa koa-router koa-bodyparser class-validator class-transformer amala`
+`npm i amala`
 
 Now have a look at the usage below.
 
@@ -47,9 +47,7 @@ Now have a look at the usage below.
 ---main.ts
 
 import {bootstrapControllers} from 'amala';
-
-import bodyParser from 'koa-bodyparser';
-import MyOtherController from './otherController/MyOtherController'
+import MyOtherController from './otherController/MyOtherController';
 
 
 ...
@@ -66,10 +64,9 @@ const {app, router} = await bootstrapControllers({
         2: true,
       dangote: true // great for custom, business client specific endpoint versions
     },
-})
-;
+});
 
-app.use(bodyParser());
+// or bootstrapOptions.attachRoutes = true
 app.use(router.routes());
 app.use(router.allowedMethods());
 
@@ -265,17 +262,18 @@ This library is used heavily in [JollofStack](https://github.com/iyobo/jollofsta
 
 ## Docs
 
-### bootstrapControllers(app, options)
+### bootstrapControllers(options)
 
 Call this in your main file to initialize your controllers.
-
-`app` is an instance of Koa.
-`options` is an object of type
+#### Returns
+`Promise<{ app: Application; router: Router }>`
+Returns a promise of the koa app, and the router used in the bootstrap function.
 
 ```typescript
-import validationOptions from 'jest-validate/build/defaultConfig';
 
+// bootstrap options
 {
+  app?: Application; // a koa application. It not provided, a koa app will be created.
   router ?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
   controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
   basePath ?: string; // prefix for API URI
@@ -318,6 +316,15 @@ import validationOptions from 'jest-validate/build/defaultConfig';
     title: string,
     version: string
   }
+  
+  // middleware queue to run for each endpoint
+  flow?: Array<Function>;
+  
+  // in case you wish to specify your own error handler.
+  errorHandler?: Function;
+
+  // body parser options
+  bodyParserOptions?: any;
 }
 ```
 

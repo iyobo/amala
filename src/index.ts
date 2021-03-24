@@ -6,6 +6,11 @@ import {openApi, openApiSpec} from './openapi/OpenApi';
 import Application from 'koa';
 import Koa from 'koa';
 import Router from 'koa-router';
+import bodyParser from 'koa-bodyparser';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { AsyncLocalStorage } = require("async_hooks");
+
+export const amalaContext = new AsyncLocalStorage();
 
 export interface KoaControllerOptions {
   app?: Application;
@@ -17,14 +22,11 @@ export interface KoaControllerOptions {
   flow?: Array<Function>;
   errorHandler?: Function;
 
-  // if true, will attach generated routes to the koa app
+  // if true, will attach generated routes to the koa app. Don't set to true if you need to use app.use(...)
   attachRoutes?: boolean;
 
   // options for class-validator
   validatorOptions?: ValidatorOptions;
-
-  // domain context AsyncLocalStorage per request
-  contextPerRequest?: Record<string, any>;
 
   //openApi
   enableOpenApi?: boolean;
@@ -33,6 +35,9 @@ export interface KoaControllerOptions {
     title: string;
     version: string;
   };
+
+  // body parser options
+  bodyParserOptions?: any;
 }
 
 export let options: KoaControllerOptions;
@@ -97,6 +102,7 @@ export const bootstrapControllers = async (
   options.enableOpenApi = options.enableOpenApi || true;
   options.openApiPath = options.openApiPath || '/api/docs';
 
+
   /**
    * Versions can be defined in multiple ways.
    * If an array, it's just a list of active versions.
@@ -113,6 +119,7 @@ export const bootstrapControllers = async (
     options.versions = versions;
   }
 
+  // error handling middleware
   app.use(async (ctx, next) => {
     try {
       await next();
@@ -150,6 +157,8 @@ export const bootstrapControllers = async (
     });
   }
 
+  //body parer
+  app.use(bodyParser(options.bodyParserOptions))
 
   if (options.attachRoutes) {
     // Combine routes
