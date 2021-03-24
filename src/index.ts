@@ -7,10 +7,7 @@ import Application from 'koa';
 import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { AsyncLocalStorage } = require("async_hooks");
 
-export const amalaContext = new AsyncLocalStorage();
 
 export interface KoaControllerOptions {
   app?: Application;
