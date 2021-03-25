@@ -1,6 +1,6 @@
-# amala
+# Amala
 
-**amala** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
+**Amala** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
 
 - Define your REST API endpoints using ES8 _classes_ and _decorators_.
 - Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
