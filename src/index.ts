@@ -16,8 +16,8 @@ export interface KoaControllerOptions {
   versions?: Array<number | string> | { [key: string]: string | boolean };
   disableVersioning?: boolean;
   router?: any;
-  flow?: Array<(ctx, next) => void>;
-  errorHandler?: (err, ctx) => void;
+  flow?: Array<(ctx, next) => Promise<void>>;
+  errorHandler?: (err, ctx) => Promise<void>;
 
   // if true, will attach generated routes to the koa app. Don't set to true if you need to use app.use(...)
   attachRoutes?: boolean;
