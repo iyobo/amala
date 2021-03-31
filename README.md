@@ -28,6 +28,9 @@ or
 `npm i amala`
 
 Now have a look at the usage below.
+PLEASE NOTE: This project initially existed as `koa-ts-controllers`. It is now named `amala`.
+No further updates will be made under `koa-ts-controllers`.
+Please replace `koa-ts-controllers` with `amala` in your code base.
 
 ```typescript
 ---main.ts
