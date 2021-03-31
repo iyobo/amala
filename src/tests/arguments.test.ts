@@ -199,7 +199,8 @@ describe("Arguments", () => {
   });
 
   describe("ctx", () => {
-    it("works", async () => {
+
+    it("injects itself", async () => {
       const response = await testServer
         .post("/api/v2/arg/ctx")
         .set("foo", "bar")
@@ -208,6 +209,26 @@ describe("Arguments", () => {
       // returns a serialized ctx object
       expect(response.body.app).toBeDefined();
       expect(response.body.app.env).toBeDefined();
+    });
+
+    it("injects child fields", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/ctx2?jollof=rice")
+        .expect(200);
+
+      // returns a serialized ctx object
+      expect(response.body).toBeDefined();
+      expect(response.body.jollof).toEqual('rice');
+    });
+
+    it("Can be used to make custom decorators", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/custom?jollof=rice")
+        .expect(200);
+
+      // returns a serialized ctx object
+      expect(response.body).toBeDefined();
+      expect(response.body.jollof).toEqual('rice');
     });
   });
 });

@@ -28,9 +28,14 @@ or
 `npm i amala`
 
 #### Important Notice about previous project name: `koa-ts-controllers`
-PLEASE NOTE: This project initially existed under the generic name `koa-ts-controllers`. It is now named `amala`.
+PLEASE NOTE: This project initially existed under the generic name `koa-ts-controllers`. It has since been renamed to `amala`.
 No further npm updates will be made under `koa-ts-controllers`.
 If you installed this project under the previous name, Please replace `koa-ts-controllers` with `amala` in your code base.
+So:
+
+1) `yarn remove koa-ts-controllers`
+2) `yarn add amala`
+3)  Replace all string instances of "koa-ts-controllers" to "amala" in your codebase
 
 ## How to Use
 ```typescript
@@ -38,7 +43,6 @@ If you installed this project under the previous name, Please replace `koa-ts-co
 
 import {bootstrapControllers} from 'amala';
 import MyOtherController from './otherController/MyOtherController';
-
 
 ...
 
@@ -49,7 +53,7 @@ const {app, router} = await bootstrapControllers({
       __dirname + '/controllers/**/*.ts' // It is recommended to add controller classes directly to this array, but you can also add glob strings
     ], 
     versions:{
-        1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP',
+        1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP', // see Version decorator doc below
         2: true,
       dangote: true // great for custom, business client specific endpoint versions
     },
@@ -358,7 +362,7 @@ Specifies this class as a controller class i.e a container of controller actions
 
 ### @Flow([...middlewares])
 
-Flow is JollofJS terminology for "middleware chain".
+Flow is the Amala terminology for "middleware chain".
 Define the series of koa middleware that must run (and not throw an error) before any action in this class can satisfy the request.
 
 ## Action Decorators
@@ -388,6 +392,7 @@ Specifies a function as a handler to the given DELETE `path` route. See above ex
 ### @Version(v)
 
 specify that this route handler only handles version `v` paths. And only if bootstrap options.version contains `v`, otherwise 404.
+
 
 ### @Flow([...middlewares])
 
@@ -459,6 +464,25 @@ Injects the whole koa context. For a more descriptive endpoint handler/action, a
 import { getControllers } from "amala";
 const codex = getControllers(); //codex is now an index of all the controller functions and their classes.
 ```
+
+# How to make custom decorators
+
+Making custom decorators is easy! Just create a wrapper function around the Ctx decorator or any other decorator and you are done.
+Decorators are currently limited to simply referencing fields from koa's ctx.
+
+E.g If we wanted to pull something that some middleware has attached to ctx, we can simply say
+```typescript
+export const Something = ()=>Ctx('something');
+
+```
+and then use that in a controller 
+```typescript
+    @Get('/')
+    async myEndpointHandler(@Something() theThing: any) {
+      // theThing lives
+    }
+```
+
 
 # Upcoming Features
 

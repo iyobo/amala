@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { metadata } from "./index";
+import {metadata} from "./index";
 import {addArgumentInjectMeta} from './util/tools';
 
 export function Controller(baseRoute?: string | string[]) {
@@ -276,23 +276,26 @@ export function Query(injectOptions?: string | ValidationDecoratorOptions) {
     });
   };
 }
+
 /**
- * Injects the full Koa context. Try not to do this if you don't have to.
+ * Injects the full Koa context.
  * @param injectOptions
  * @constructor
  */
-export function Ctx(injectOptions?: string | Record<string, any>) {
-  return function(
+export function Ctx(ctxfield?: string, injectOptions?: string | ValidationDecoratorOptions) {
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "ctx",
+      injectSource: ctxfield || "ctx",
       injectOptions,
       methodName,
       object
     });
   };
 }
+
+

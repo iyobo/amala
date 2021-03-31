@@ -4,6 +4,7 @@ import {
   Body,
   Controller,
   Ctx,
+  CurrentUser,
   Flow,
   Get,
   Header,
@@ -13,9 +14,9 @@ import {
   Req,
   Res,
   Session,
-  State, CurrentUser
+  State
 } from '../../../index';
-import {setSomethingSessionFlow, setSomethingStateFlow, loginForTest} from '../flow/flow';
+import {loginForTest, setSomethingSessionFlow, setSomethingStateFlow} from '../flow/flow';
 
 interface InterfaceInput {
   aString: string;
@@ -30,6 +31,8 @@ class ClassInput {
   @IsNumber()
   aNumber: number;
 }
+
+const CustomDeco = ()=>Ctx('query');
 
 @Controller('/arg')
 export class ArgController {
@@ -133,4 +136,15 @@ export class ArgController {
   async ctx(@Ctx() ctx: any) {
     return ctx;
   }
+
+  @Get('/ctx2')
+  async ctx2(@Ctx('query') query: any) {
+    return query;
+  }
+
+  @Get('/custom')
+  async custom(@CustomDeco() query: any) {
+    return query;
+  }
+
 }

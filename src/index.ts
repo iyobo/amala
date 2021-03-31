@@ -7,6 +7,7 @@ import Application from 'koa';
 import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-bodyparser';
+import {addArgumentInjectMeta} from './util/tools';
 
 
 export interface KoaControllerOptions {
@@ -130,7 +131,7 @@ export const bootstrapControllers = async (
   // The Controller class files just need to be touched and they will handle their own registration in metadata
   for (const controllerDef of options.controllers) {
     if (typeof controllerDef === 'string') {
-      importClassesFromDirectories(controllerDef);
+      importClassesFromDirectories(controllerDef); //this is a string glob path. Load controllers from path
     } else {
       // if it is not a string, it means it is a class that has already been imported/required/loaded. No need to
       // do anything else. Encourage users to still add the controller classes here even though the
@@ -192,3 +193,8 @@ export {
   State,
   Version
 } from './decorators';
+
+/**
+ * Allows for custom Decorators to be created by developers.
+ */
+export const addArgumentDecorator = addArgumentInjectMeta;
