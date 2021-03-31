@@ -13,7 +13,7 @@ OpenAPI export feature is in progress and very incomplete, but you can see where
 ## Supporting Amala
 
 **Amala** is an MIT-licensed open source project with its ongoing development made possible entirely by
-the support of these awesome backers. If amala is helping you build
+community support. If Amala is helping you build
 awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Becoming a Patron</a>.
 
 If you would like to contribute in other ways, Pull requests are also welcome!
@@ -21,14 +21,14 @@ If you would like to contribute in other ways, Pull requests are also welcome!
 
 ## How to Use
 
-First you want to install some core dependencies, along with amala:
+First you want to install amala:
 
 `yarn add amala`
 or
 `npm i amala`
 
 Now have a look at the usage below.
-PLEASE NOTE: This project initially existed as `koa-ts-controllers`. It is now named `amala`.
+PLEASE NOTE: This project initially existed under the generic name `koa-ts-controllers`. It is now named `amala`.
 No further updates will be made under `koa-ts-controllers`.
 Please replace `koa-ts-controllers` with `amala` in your code base.
 
@@ -42,7 +42,6 @@ import MyOtherController from './otherController/MyOtherController';
 ...
 
 const {app, router} = await bootstrapControllers({
-    router, // required
     basePath: '/api',
     controllers: [
       MyOtherController, 
@@ -55,6 +54,8 @@ const {app, router} = await bootstrapControllers({
     },
 });
 
+
+
 // or bootstrapOptions.attachRoutes = true
 app.use(router.routes());
 app.use(router.allowedMethods());
@@ -63,12 +64,45 @@ app.use(router.allowedMethods());
 app.start(3000)
 ```
 
+Let's unpack some things here.
 It all begins from the `bootstrapControllers` function. 
 
-The bootstrap function accepts a koa app, and generates endpoints as defined in the controller classes inserted into the `controllers` option.
+The bootstrap function will return an object containing a Koa instance `app` and a Koa-Router instance `router`.
+
+You could optionally bring your own koa app instance or koa-router instance and put that into the bootstrap options, 
+but the goal of Amala is to get you up and running as quickly and simply as possible. 
+
+
+```typescript
+
+const {app, router} = await bootstrapControllers({
+  app,
+  router,
+  basePath: '/api',
+  controllers: [
+    MyOtherController,
+    __dirname + '/controllers/**/*.ts' // It is recommended to add controller classes directly to this array, but you can also add glob strings
+  ],
+  versions:{
+    1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP',
+    2: true,
+    dangote: true // great for custom, business client specific endpoint versions
+  },
+});
+
+// ...
+
+```
+
+Either way, the `bootstrapControllers` function will always return the bare minimum you need (app, router) to get your Koa API running.
 
 The `controllers` array option is required and can include actual Controller classes (preferred) or glut strings describing where controller classes exist.
 Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`. This is to avoid any issues that might arise regarding JS vs TS files.
+
+You definitely want to attach the router to the app as shown above before you start the app.
+The reason we leave that to you is so just in case you want to do add other middleware before your routes.
+If you want to truly use the bootstrap function for everything, you can use the `flow` (array of middleware) and `attachRoutes`(boolean) options.
+
 
 Below is an example of a controller class, displaying many endpoint scenarios:
 
@@ -275,11 +309,6 @@ Returns a promise of the koa app, and the router used in the bootstrap function.
   // Not recommended unless you wish to handle versioning manually in each controller's basePath.
   disableVersioning ?: boolean
 
-  // Default: false. set to true to attach a default koa-body middleware to your koa app.
-  // If you leave this as false, you must ensure you are attaching a body parser to your koa app somewhere before
-  // bootstrapserver is called.
-  initBodyParser ?: boolean;
-
   // Default: true. Makes your boom errors better received downstream.
   boomifyErrors ?: boolean;
 
@@ -307,7 +336,7 @@ Returns a promise of the koa app, and the router used in the bootstrap function.
   }
   
   // middleware queue to run for each endpoint
-  flow?: Array<Function>;
+  flow?: Array<(ctx, next: Function)=>Promise<void>>;
   
   // in case you wish to specify your own error handler.
   errorHandler?: Function;
@@ -389,7 +418,6 @@ Consider using this along with an authentication guard middleware e.g
 async createFoo( @Body() leadData: any, @CurrentUser() user) {
 
     leadData.userId = user.id
-
     return leadData;
 }
 
@@ -434,11 +462,11 @@ const codex = getControllers(); //codex is now an index of all the controller fu
 # Upcoming Features
 
 - Support for Open API 3
-  - Amala will soon be able to generate Open API 3 spec files (JSON) based on your controller definitions.
+  - Amala will soon be able to generate Open API 3 specs (JSON) based on your controller definitions.
 
 # Troubleshooting
 
-- If you get errors like
+- If you get TS errors like
 
 ```
 node_modules/class-validator/decorator/decorators.d.ts:161:45 - error TS2503: Cannot find namespace 'ValidatorJS'.
@@ -446,7 +474,7 @@ node_modules/class-validator/decorator/decorators.d.ts:161:45 - error TS2503: Ca
 ```
 
 (e.g if using `sequelize-typescript`),  
-Then means you are experiencing dependency clashes.
+Then this means you are likely experiencing dependency clashes.
 We recommend using yarn for much improved dependency resolution or, if you must use npm, consider adding the following to your `tsconfig.json`:
 
 `"typeRoots": ["./node_modules/*/node_modules/@types/"]`
