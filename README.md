@@ -19,7 +19,7 @@ awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=196619
 If you would like to contribute in other ways, Pull requests are also welcome!
 
 
-## How to Use
+## Installation
 
 First you want to install amala:
 
@@ -27,11 +27,12 @@ First you want to install amala:
 or
 `npm i amala`
 
-Now have a look at the usage below.
+#### Important Notice about previous project name: `koa-ts-controllers`
 PLEASE NOTE: This project initially existed under the generic name `koa-ts-controllers`. It is now named `amala`.
-No further updates will be made under `koa-ts-controllers`.
-Please replace `koa-ts-controllers` with `amala` in your code base.
+No further npm updates will be made under `koa-ts-controllers`.
+If you installed this project under the previous name, Please replace `koa-ts-controllers` with `amala` in your code base.
 
+## How to Use
 ```typescript
 ---main.ts
 
