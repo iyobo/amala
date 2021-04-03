@@ -147,7 +147,7 @@ class OpenApi {
           'operationId': `${controllerClassName}.${actionName}`,
           parameters,
           'responses': {
-            '200': { //TODO: more details
+            '2xx': { //TODO: more details
               'content': {
                 'application/json': {}
               },

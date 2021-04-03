@@ -6,7 +6,7 @@ import {openApi, openApiSpec} from './openapi/OpenApi';
 import Application from 'koa';
 import Koa from 'koa';
 import Router from 'koa-router';
-import bodyParser from 'koa-bodyparser';
+import bodyParser from 'koa-better-body';
 import {addArgumentInjectMeta} from './util/tools';
 
 
@@ -34,8 +34,8 @@ export interface KoaControllerOptions {
     version: string;
   };
 
-  // body parser options
-  bodyParserOptions?: any;
+  // body parser options. See https://www.npmjs.com/package/koa-better-body#options
+  bodyParser?: boolean | any;
 }
 
 export let options: KoaControllerOptions;
@@ -99,6 +99,7 @@ export const bootstrapControllers = async (
 
   options.enableOpenApi = options.enableOpenApi || true;
   options.openApiPath = options.openApiPath || '/api/docs';
+  options.bodyParser = options.bodyParser === false ? false : options.bodyParser || true;
 
 
   /**
@@ -146,7 +147,7 @@ export const bootstrapControllers = async (
     //Generate OpenAPI/Swagger spec
     await openApi.init(metadata);
 
-    if(options.openApiInfo) {
+    if (options.openApiInfo) {
       openApiSpec.info = options.openApiInfo;
     }
 
@@ -156,7 +157,9 @@ export const bootstrapControllers = async (
   }
 
   //body parer
-  app.use(bodyParser(options.bodyParserOptions))
+  if (options.bodyParser) {
+    app.use(bodyParser(options.bodyParser));
+  }
 
   if (options.attachRoutes) {
     // Combine routes

@@ -346,8 +346,10 @@ Returns a promise of the koa app, and the router used in the bootstrap function.
   // in case you wish to specify your own error handler.
   errorHandler?: Function;
 
-  // body parser options
-  bodyParserOptions?: any;
+  //Set to false to disable default body parser. 
+  // Set to true to enable default body parser
+  // Set to an object of type https://www.npmjs.com/package/koa-better-body#options to enable body parser with options
+  bodyParser?: Boolean | Record<string,any>;
 }
 ```
 
