@@ -79,11 +79,14 @@ but the goal of Amala is to get you up and running as quickly and simply as poss
 
 
 ```typescript
+const koaApp = new Koa();
+const koarouter = new KoaRouter()
 
 const {app, router} = await bootstrapControllers({
-  app,
-  router,
+  app: koaApp,
+  router: koarouter,
   basePath: '/api',
+  attachRoutes: true,
   controllers: [
     MyOtherController,
     __dirname + '/controllers/**/*.ts' // It is recommended to add controller classes directly to this array, but you can also add glob strings
@@ -300,57 +303,85 @@ Returns a promise of the koa app, and the router used in the bootstrap function.
 ```typescript
 
 // bootstrap options
-{
-  app?: Application; // a koa application. It not provided, a koa app will be created.
-  router ?: KoaRouter; // an instance of koa-router. if not supplied, will create and add its own router to app.
-  controllers: Array<string>; // glob to load all controllers e.g [__dirname + '/controllers/**/*.ts']
-  basePath ?: string; // prefix for API URI
 
-  // default: {1: true} The active versions of this API. default is {'1': true} meaning all routes will take
-  // the form /base/v1/controller/action.
-  versions ?: Array<number | string> | object;
+export interface AmalaOptions {
+  // For If you want to supply your own koa application instance.
+  // If this is not provided, amala will create a koa application for you.
+  // Either way, an app is returned within the result of running the bootstrap function.
+  app?: Application;
 
-  // default: false. Set to true to prevent your API from enjoying versioning. i.e path: /api/controller/action.
-  // Not recommended unless you wish to handle versioning manually in each controller's basePath.
-  disableVersioning ?: boolean
+  // For if you want to supply tour own Koa-Router instance.
+  // If this is not provided, amala will create a koa-router for you and load it up with endpoints
+  // Either way, a router is returned within the result of running the bootstrap function.
+  // The router is not attached by default to the app. If you want that, be sure to set options.attachRoutes to true.
+  router?: any;
 
-  // Default: true. Makes your boom errors better received downstream.
-  boomifyErrors ?: boolean;
+  // An array used to register all controllers to be routed. Can take Classes or glob path strings of where the classes exist.
+  // It is recommended to statically register each controller Classes here instead of using path strings.
+  controllers: Array<string | Function>;
 
-  // Default: false. If true, will attach the routes to your koa app for you automatically as opposed to doing it manually
-  // app.use(router.routes());
-  // app.use(router.allowedMethods());
-  attachRoutes ?: boolean
+  // Your base API path. default:  "/api"
+  basePath?: string;
 
-  //Default: empty. Here you can set validation options for class-validator which is optionally used to validate endpoint arguments.
-  // To see options, visit: https://github.com/typestack/class-validator#passing-options
-  validationOptions ?: ValidatorOptions
+  // The versions you want to actively run for your API.
+  // Default is [1] which means /api/v1/*. See docs for details.
+  versions?: Array<number | string> | { [key: string]: string | boolean };
 
-  //openApi
-  // Default: true
+  // Set this to true to disable versioning. E.g /api/v1/* becomes /api/*
+  disableVersioning?: boolean;
+
+  // Define the sequence of middleware to per request.
+  flow?: Array<(ctx, next) => Promise<void>>;
+
+  /*
+   Amala simplifies error handling for you using Boom errors.
+   You can throw boom errors from within your endpoints and middleware and the will be nicely handled and
+   sent back to the requester based on status code.
+
+   If you must change this, be sure to reference the default implementation for context. See below:
+
+   
+    const defaultErrorHandler = async (err: any, ctx: any) => {
+      if (err.isBoom) {
+        const error = err.output.payload;
+        error.errorDetails = error.statusCode >= 500 ? undefined : err.data;
+        ctx.body = error;
+        ctx.status = error.statusCode;
+        if (error.statusCode >= 500) console.error(err);
+      } else {
+        ctx.body = {error: 'Internal Server Error'};
+        ctx.status = 500;
+        console.error(err);
+      }
+    };
+   
+   */
+  errorHandler?: (err, ctx) => Promise<void>;
+
+  // if true, will attach generated routes to the koa app. Don't set to true if you need to use app.use(...)
+  attachRoutes?: boolean;
+
+  // Options for class-validator. Used to validate endpoint injectables. See docs.
+  validatorOptions?: ValidatorOptions;
+
+  //EXPERIMENTAL / INCOMPLETE: enables openAPI through the path defined in options.openApiPath (default: /api/docs )
   enableOpenApi?: boolean;
-  
-  // What path to access the openAPI output
-  //Default: /api/docs
-  openApiPath?: string; 
-  
-  //Use this to specify your app's title and version that gets used when generating the openAPI spec
-  openApiInfo?: {
-    title: string,
-    version: string
-  }
-  
-  // middleware queue to run for each endpoint
-  flow?: Array<(ctx, next: Function)=>Promise<void>>;
-  
-  // in case you wish to specify your own error handler.
-  errorHandler?: Function;
 
-  //Set to false to disable default body parser. 
-  // Set to true to enable default body parser
-  // Set to an object of type https://www.npmjs.com/package/koa-better-body#options to enable body parser with options
-  bodyParser?: Boolean | Record<string,any>;
+  // open API path. Default: /api/docs
+  openApiPath?: string;
+
+  // A place to define general information about your openAPI export
+  openApiInfo?: {
+    title: string;
+    version: string;
+  };
+
+  // body parser options. See https://www.npmjs.com/package/koa-body#options
+  // Set to false to prevent amala from attaching koa-body middleware to all endpoints.
+  // Useful if you prefer to use something else for body parsing in your koa app or to disable it altogether.
+  bodyParser?: false | KoaBodyOptions;
 }
+
 ```
 
 ## Class Decorators

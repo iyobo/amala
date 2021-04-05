@@ -10,6 +10,9 @@ beforeAll(async () => {
     basePath: "/api",
     controllers: [__dirname + "/util/controllers/**/*.ts"],
     versions: ["1", "2"],
+    bodyParser: {
+      multipart: true
+    }
   });
 
   app.use(router.routes());

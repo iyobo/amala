@@ -3,7 +3,7 @@ import {plainToClass} from 'class-transformer';
 import {validate} from 'class-validator';
 import {Context} from 'koa';
 import _ from 'lodash';
-import {KoaControllerOptions} from '../';
+import {AmalaOptions} from '../';
 import {isClass} from './tools';
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
@@ -69,7 +69,7 @@ async function _determineArgument(
   index,
   {injectSource, injectOptions},
   type,
-  options: KoaControllerOptions
+  options: AmalaOptions
 ) {
   let result;
 
@@ -108,7 +108,7 @@ async function _determineArgument(
 
 async function _generateEndPoints(
   router,
-  options: KoaControllerOptions,
+  options: AmalaOptions,
   controller,
   parentPath: string,
   generatingForVersion: string | number
@@ -211,7 +211,7 @@ async function _generateEndPoints(
  */
 export async function generateRoutes(
   router,
-  options: KoaControllerOptions,
+  options: AmalaOptions,
   metadata
 ) {
   const basePath = options.basePath || ''; // e.g /api
