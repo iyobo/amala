@@ -83,9 +83,11 @@ async function _determineArgument(
     if (result && injectOptions) {
       result = result[injectOptions];
     }
+
+    //TODO: implement custom function capability here for arg injectors
   }
 
-  // validate if this is a class
+  // validate if this is a class. If it is a class, validate it
   if (result && isClass(type)) {
     result = await plainToClass(type, result);
 
@@ -183,11 +185,13 @@ async function _generateEndPoints(
           for (const index of Object.keys(action.arguments)) {
             const argumentMeta = action.arguments[index];
 
-            targetArguments[index] = await _determineArgument(
+            const numIndex = Number(index)
+
+            targetArguments[numIndex] = await _determineArgument(
               ctx,
               index,
               argumentMeta,
-              action.argumentTypes[index],
+              action.argumentTypes[numIndex],
               options
             );
           }
