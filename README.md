@@ -38,6 +38,8 @@ So:
 3)  Replace all string instances of "koa-ts-controllers" to "amala" in your codebase
 
 ## How to Use
+
+### Bootstrapping the API 
 ```typescript
 ---main.ts
 
@@ -74,43 +76,53 @@ It all begins from the `bootstrapControllers` function.
 
 The bootstrap function will return an object containing a Koa instance `app` and a Koa-Router instance `router`.
 
-You could optionally bring your own koa app instance or koa-router instance and put that into the bootstrap options, 
-but the goal of Amala is to get you up and running as quickly and simply as possible. 
+The `controllers` array option is required and can include actual Controller classes (preferred) or glut strings describing where controller classes exist.
+Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`. This is to avoid any issues that might arise regarding JS vs TS files.
+
+You definitely want to attach the router to the app as shown above before you start the app.
+The reason we leave that to you is just in case you want to do other things and add other middleware before your routes.
+If you want to truly use the amala bootstrap function for everything, you can use the `flow` (array/order of middleware executed per request) and `attachRoutes`(boolean) options (See below).
 
 
 ```typescript
 const koaApp = new Koa();
-const koarouter = new KoaRouter()
+const koarouter = new KoaRouter();
+import someOtherMiddleware from './someOtherMiddleware'
+
+const someMiddleware = (ctx, next)=>{
+    ctx.state.foo = "bar";
+    next();
+}
 
 const {app, router} = await bootstrapControllers({
   app: koaApp,
   router: koarouter,
   basePath: '/api',
+  flow: [someMiddlewareFunction, someOtherMiddleware] // in order of execution!
   attachRoutes: true,
   controllers: [
     MyOtherController,
     __dirname + '/controllers/**/*.ts' // It is recommended to add controller classes directly to this array, but you can also add glob strings
-  ],
-  versions:{
-    1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP',
-    2: true,
-    dangote: true // great for custom, business client specific endpoint versions
-  },
+  ]
 });
 
-// ...
 
 ```
 
+As seen above, You could also optionally bring your own koa app instance or koa-router instance and put that into the bootstrap options, 
+but the goal of Amala is to get you up and running as quickly and simply as possible. 
+
 Either way, the `bootstrapControllers` function will always return the bare minimum you need (app, router) to get your Koa API running.
 
-The `controllers` array option is required and can include actual Controller classes (preferred) or glut strings describing where controller classes exist.
-Though this library allows gluts, it is generally better for typescript that the Class objects are declaratively referenced in the array as is done with `MyOtherController`. This is to avoid any issues that might arise regarding JS vs TS files.
+### API Versioning
 
-You definitely want to attach the router to the app as shown above before you start the app.
-The reason we leave that to you is so just in case you want to do add other middleware before your routes.
-If you want to truly use the bootstrap function for everything, you can use the `flow` (array of middleware) and `attachRoutes`(boolean) options.
+API versioning is enabled by default with Amala i.e /api/v1/controller/endpoint.
+The `versions` config option is an array of active versions for your API. Default is `version: [1]`, which puts all endpoints under /api/v1/....
+To disable this behavior, simple set the config option `disableVersioning` to `true`.
 
+See examples below for working with multiple versions of your API.
+
+## Defining Controllers
 
 Below is an example of a controller class, displaying many endpoint scenarios:
 
@@ -291,7 +303,8 @@ Also, Amala supports **API versioning**. You won't find that anywhere else in a 
 
 This library is used heavily in [JollofStack](https://github.com/iyobo/jollofstack) (WIP), which is the typescript-centered re-architecture of [JollofJS](https://github.com/iyobo/jollofjs).
 
-## Docs
+
+## API SPEC
 
 ### bootstrapControllers(options)
 
@@ -327,7 +340,7 @@ export interface AmalaOptions {
   // Default is [1] which means /api/v1/*. See docs for details.
   versions?: Array<number | string> | { [key: string]: string | boolean };
 
-  // Set this to true to disable versioning. E.g /api/v1/* becomes /api/*
+  // default: false. Set this to true to disable versioning. E.g /api/v1/* becomes /api/*
   disableVersioning?: boolean;
 
   // Define the sequence of middleware to per request.
@@ -384,68 +397,71 @@ export interface AmalaOptions {
 
 ```
 
-## Class Decorators
+## Decorators
+
+
+### Class Decorators
 
 These decorators can be used on Classes i.e controllers
 
-### @Controller(basePath?)
+#### @Controller(basePath?)
 
 Specifies this class as a controller class i.e a container of controller actions.
 `basepath` is prefixed to all action paths within this class.
 
-### @Flow([...middlewares])
+#### @Flow([...middlewares])
 
 Flow is the Amala terminology for "middleware chain".
 Define the series of koa middleware that must run (and not throw an error) before any action in this class can satisfy the request.
 
-## Action Decorators
+### Action Decorators
 
 These decorators wrap functions of controller classes.
 
-### @Get(path)
+#### @Get(path)
 
 Specifies a function as a handler to the given GET `path` route. See above examples.
 
-### @Post(path)
+#### @Post(path)
 
 Specifies a function as a handler to the given POST `path` route. See above examples.
 
-### @Patch(path)
+#### @Patch(path)
 
 Specifies a function as a handler to the given PATCH `path` route. See above examples.
 
-### @Put(path)
+#### @Put(path)
 
 Specifies a function as a handler to the given PUT `path` route. See above examples.
 
-### @Delete(path)
+#### @Delete(path)
 
 Specifies a function as a handler to the given DELETE `path` route. See above examples.
 
-### @Version(v)
+#### @Version(v)
 
 specify that this route handler only handles version `v` paths. And only if bootstrap options.version contains `v`, otherwise 404.
 
 
-### @Flow([...middlewares])
+#### @Flow([...middlewares])
 
 Flow is JollofJS terminology for "middleware chain".
 Define the series of middleware that must run (and not throw an error) before this function can satisfy the enpoint. See above example.
 
-## Argument Decorators
+### Argument Decorators
 
 These decorators are used to inject contextual request data into your controller action's arguments.
 Try to be as specific as possible with what you inject so that your endpoint handlers can be more easily tested.
 
-### @Body() or @Body({required}) or @Body(name)
+#### @Body() or @Body({required}) or @Body(name)
 
 Injects ctx.request.body or ctx.request.body[name]
 
-### @State() or @State(name)
+#### @State() or @State(name)
 
 Injects ctx.state object or ctx.state[name]
 
-### @CurrentUser()
+#### @CurrentUser()
 
 This is a shortcut to access `ctx.state.user`.
 That is the standard location for storing the currently logged in user object. e.g when using koa-passport.
@@ -462,43 +478,63 @@ async createFoo( @Body() leadData: any, @CurrentUser() user) {
 
 ```
 
-### @Header() or @Header(name)
+#### @Header() or @Header(name)
 
 Injects ctx.header object or ctx.header[name]
 
-### @Params() or @Params(name)
+#### @Params() or @Params(name)
 
 Injects ctx.params object or ctx.params[name]
 
-### @Query() or @Query(name)
+#### @Query() or @Query(name)
 
 Injects ctx.query object or ctx.query[name]
 
-### @Session() or @Session(name)
+#### @Session() or @Session(name)
 
 This works only if you have a session handler defined in ctx.session e.g koa-session.
 Injects ctx.session object or ctx.session[name]
 
-### @Req()
+#### @Req()
 
 Injects the koa request object. useful when streaming data up to server
 
-### @Res()
+#### @Res()
 
 Injects the koa response object. useful when streaming data down to client.
 
-### @Ctx()
+#### @Ctx()
 
 Injects the whole koa context. For a more descriptive endpoint handler/action, avoid doing this if you can. Opt for more specific injections.
 
-# How to programmatically access controller actions
+## How to programmatically access controller actions
 
 ```typescript
 import { getControllers } from "amala";
-const codex = getControllers(); //codex is now an index of all the controller functions and their classes.
+const codex: Record<string,Controller> = getControllers(); //codex is now an index of all the controller functions and their classes.
 ```
 
-# How to make custom decorators
+To access the controller with the class name `UserController`, you can use `codex.UserController` or `codex['UserController']`.
+Because amala has you defining your endpoints using the equivalent of async service actions, you could essentially run these async service actions directly e.g
+
+Given the action definition:
+```
+@Controller('/user')
+class UserController {
+    ...
+    @Post('/')
+    async createUser(@Body() userParams: UserParams){
+        // create and return some new user
+    }
+    ...
+}
+```
+You could directly run the function that the endpoint url `POST /api/v1/user` also runs by simply:
+`const newUser = await codex.userController.createUser(userParams)` assuming the function doesn't require any koa context specific parameters.
+
+This becomes somewhat of a useful and clean way to unit-test your endpoint functions.
+
+## How to make custom decorators
 
 Making custom decorators is easy! Just create a wrapper function around the Ctx decorator or any other decorator and you are done.
 Decorators are currently limited to simply referencing fields from koa's ctx.
@@ -517,12 +553,12 @@ and then use that in a controller
 ```
 
 
-# Upcoming Features
+## Upcoming Features
 
 - Support for Open API 3
   - Amala will soon be able to generate Open API 3 specs (JSON) based on your controller definitions.
 
-# Troubleshooting
+## Troubleshooting
 
 - If you get TS errors like
 
