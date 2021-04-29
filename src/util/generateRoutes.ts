@@ -183,13 +183,13 @@ async function _generateEndPoints(
         // inject data into arguments
         if (action.arguments) {
           for (const index of Object.keys(action.arguments)) {
-            const argumentMeta = action.arguments[index];
-
             const numIndex = Number(index)
+
+            const argumentMeta = action.arguments[numIndex];
 
             targetArguments[numIndex] = await _determineArgument(
               ctx,
-              index,
+              numIndex,
               argumentMeta,
               action.argumentTypes[numIndex],
               options
