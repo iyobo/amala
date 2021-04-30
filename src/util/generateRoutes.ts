@@ -66,7 +66,7 @@ const argumentInjectorTranslations = {
  */
 async function _determineArgument(
   ctx: Context,
-  index,
+  index: number,
   {injectSource, injectOptions},
   type,
   options: AmalaOptions

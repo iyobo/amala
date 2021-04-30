@@ -2,8 +2,7 @@ import {metadata} from '../index';
 import {ValidationDecoratorOptions} from '../decorators';
 
 export function isClass(type) {
-  const str = type.toString();
-  return str.indexOf('class ') > -1;
+  return type?.prototype?.constructor;
 }
 
 interface AddArgumentProps {
