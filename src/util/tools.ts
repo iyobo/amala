@@ -2,7 +2,7 @@ import {metadata} from '../index';
 import {ValidationDecoratorOptions} from '../decorators';
 
 export function isClass(type) {
-  return type?.prototype?.constructor;
+  return type?.prototype?.constructor && type?.prototype?.constructor?.name !== 'Object';
 }
 
 interface AddArgumentProps {

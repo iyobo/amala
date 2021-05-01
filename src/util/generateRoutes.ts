@@ -87,8 +87,10 @@ async function _determineArgument(
     //TODO: implement custom function capability here for arg injectors
   }
 
-  // validate if this is a class. If it is a class, validate it
-  if (values && isClass(type)) {
+  // validate if this is a class and if this is a body, params, or query injection
+  const shouldValidate = values && isClass(type) && ['body','params','query'].includes(injectSource)
+
+  if (shouldValidate) {
     values = await plainToClass(type, values);
 
     const errors = await validate(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
