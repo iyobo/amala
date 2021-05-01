@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import {generateRoutes} from './util/generateRoutes';
 import {importClassesFromDirectories} from './util/importClasses';
 import Boom from '@hapi/boom';

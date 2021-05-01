@@ -71,27 +71,27 @@ async function _determineArgument(
   type,
   options: AmalaOptions
 ) {
-  let result;
+  let values;
 
   if (argumentInjectorTranslations[injectSource]) {
 
-    result = await argumentInjectorTranslations[injectSource](ctx, injectOptions);
+    values = await argumentInjectorTranslations[injectSource](ctx, injectOptions);
 
   } else {
     // not a special arg injector? No special translation exists so just use CTX.
-    result = ctx[injectSource];
-    if (result && injectOptions) {
-      result = result[injectOptions];
+    values = ctx[injectSource];
+    if (values && injectOptions) {
+      values = values[injectOptions];
     }
 
     //TODO: implement custom function capability here for arg injectors
   }
 
   // validate if this is a class. If it is a class, validate it
-  if (result && isClass(type)) {
-    result = await plainToClass(type, result);
+  if (values && isClass(type)) {
+    values = await plainToClass(type, values);
 
-    const errors = await validate(result, options.validatorOptions); // TODO: wrap around this to trap runtime errors
+    const errors = await validate(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
 
     if (errors.length > 0) {
       throw boom.badData(
@@ -102,10 +102,10 @@ async function _determineArgument(
       );
     }
   } else if (type === Number) {
-    result = Number(result);
+    values = Number(values);
   }
 
-  return result;
+  return values;
 }
 
 async function _generateEndPoints(

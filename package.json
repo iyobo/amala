@@ -43,7 +43,7 @@
     "koa-router": "*",
     "koa-session": "*",
     "lodash": "^4.17.15",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "*"
   },
   "devDependencies": {
     "@types/boom": "^7.3.0",
