@@ -1,19 +1,21 @@
 import "reflect-metadata";
-import {metadata} from "./index";
+import {metadata, options} from "./index";
 import {addArgumentInjectMeta} from './util/tools';
 
 export function Controller(baseRoute?: string | string[]) {
-  return function(classDefinition: Function): void {
+  return function (classDefinition: Function): void {
     const controller = metadata.controllers[classDefinition.name] || {};
     controller.path = baseRoute;
     controller.class = classDefinition;
 
     metadata.controllers[classDefinition.name] = controller;
+
+    if (options.diagnostics) console.info(`Amala: Registering controller ${classDefinition.name} at "../${baseRoute}"`);
   };
 }
 
 // Function decorators
-function _addVerbFunctionMeta({ verb, path, object, methodName }: any): void {
+function _addVerbFunctionMeta({verb, path, object, methodName}: any): void {
   const controller = metadata.controllers[object.constructor.name] || {};
   controller.actions = controller.actions || {};
   controller.actions[methodName] = controller.actions[methodName] || {};
@@ -33,11 +35,11 @@ function _addVerbFunctionMeta({ verb, path, object, methodName }: any): void {
 }
 
 function _addVersionFunctionMeta({
-  version,
-  methodName,
-  object,
-  endpointDeprecationWarning
-}: any): void {
+                                   version,
+                                   methodName,
+                                   object,
+                                   endpointDeprecationWarning
+                                 }: any): void {
   const controller = metadata.controllers[object.constructor.name] || {};
   controller.actions = controller.actions || {};
   controller.actions[methodName] = controller.actions[methodName] || {};
@@ -52,7 +54,7 @@ function _addVersionFunctionMeta({
   metadata.controllers[object.constructor.name] = controller;
 }
 
-function _addFlowFunctionMeta({ flow, methodName, object }: any): void {
+function _addFlowFunctionMeta({flow, methodName, object}: any): void {
   const flowArray = Array.isArray(flow) ? flow : [flow];
 
   const controller = metadata.controllers[object.constructor.name] || {};
@@ -65,37 +67,37 @@ function _addFlowFunctionMeta({ flow, methodName, object }: any): void {
 }
 
 export function Get(path: string | RegExp) {
-  return function(object: Record<string, any>, methodName: string): void {
-    _addVerbFunctionMeta({ verb: "get", methodName, path, object });
+  return function (object: Record<string, any>, methodName: string): void {
+    _addVerbFunctionMeta({verb: "get", methodName, path, object});
   };
 }
 
 export function Post(path: string | RegExp) {
-  return function(object: Record<string, any>, methodName: string): void {
-    _addVerbFunctionMeta({ verb: "post", methodName, path, object });
+  return function (object: Record<string, any>, methodName: string): void {
+    _addVerbFunctionMeta({verb: "post", methodName, path, object});
   };
 }
 
 export function Put(path: string | RegExp) {
-  return function(object: Record<string, any>, methodName: string): void {
-    _addVerbFunctionMeta({ verb: "put", methodName, path, object });
+  return function (object: Record<string, any>, methodName: string): void {
+    _addVerbFunctionMeta({verb: "put", methodName, path, object});
   };
 }
 
 export function Patch(path: string | RegExp) {
-  return function(object: Record<string, any>, methodName: string): void {
-    _addVerbFunctionMeta({ verb: "patch", methodName, path, object });
+  return function (object: Record<string, any>, methodName: string): void {
+    _addVerbFunctionMeta({verb: "patch", methodName, path, object});
   };
 }
 
 export function Delete(path: string | RegExp) {
-  return function(object: Record<string, any>, methodName: string): void {
-    _addVerbFunctionMeta({ verb: "delete", methodName, path, object });
+  return function (object: Record<string, any>, methodName: string): void {
+    _addVerbFunctionMeta({verb: "delete", methodName, path, object});
   };
 }
 
 export function Version(version: string, endpointDeprecationWarning?: string) {
-  return function(object: Record<string, any>, methodName: string): void {
+  return function (object: Record<string, any>, methodName: string): void {
     _addVersionFunctionMeta({
       object,
       methodName,
@@ -112,11 +114,11 @@ export function Version(version: string, endpointDeprecationWarning?: string) {
  * @constructor
  */
 export function Flow(flow: Function | Array<Function>) {
-  return function(object: Function | Record<string, any>, methodName?: string) {
+  return function (object: Function | Record<string, any>, methodName?: string) {
     if (typeof object === "object") {
       // action
 
-      _addFlowFunctionMeta({ flow, methodName, object });
+      _addFlowFunctionMeta({flow, methodName, object});
     } else if (typeof object === "function") {
       // controller
 
@@ -128,7 +130,7 @@ export function Flow(flow: Function | Array<Function>) {
 }
 
 export function Header(injectOptions?: string | Record<string, any>) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -150,7 +152,7 @@ export interface ValidationDecoratorOptions {
 }
 
 export function Body(injectOptions?: string | ValidationDecoratorOptions) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -166,7 +168,7 @@ export function Body(injectOptions?: string | ValidationDecoratorOptions) {
 }
 
 export function Session(injectOptions?: string | Record<string, any>) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -182,7 +184,7 @@ export function Session(injectOptions?: string | Record<string, any>) {
 }
 
 export function CurrentUser(injectOptions?: string | Record<string, any>) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -198,7 +200,7 @@ export function CurrentUser(injectOptions?: string | Record<string, any>) {
 }
 
 export function State(injectOptions?: string | Record<string, any>) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -214,7 +216,7 @@ export function State(injectOptions?: string | Record<string, any>) {
 }
 
 export function Req(injectOptions?: string | Record<string, any>) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -230,7 +232,7 @@ export function Req(injectOptions?: string | Record<string, any>) {
 }
 
 export function Res(injectOptions?: string | Record<string, any>) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -246,7 +248,7 @@ export function Res(injectOptions?: string | Record<string, any>) {
 }
 
 export function Params(injectOptions?: string | Record<string, any>) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number
@@ -262,7 +264,7 @@ export function Params(injectOptions?: string | Record<string, any>) {
 }
 
 export function Query(injectOptions?: string | ValidationDecoratorOptions) {
-  return function(
+  return function (
     object: Record<string, any>,
     methodName: string,
     index: number

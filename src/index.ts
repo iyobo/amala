@@ -1,4 +1,4 @@
-import 'reflect-metadata'
+import 'reflect-metadata';
 import {generateRoutes} from './util/generateRoutes';
 import {importClassesFromDirectories} from './util/importClasses';
 import Boom from '@hapi/boom';
@@ -137,6 +137,11 @@ export interface AmalaOptions {
   // Set to false to prevent amala from attaching koa-body middleware to all endpoints.
   // Useful if you prefer to use something else for body parsing in your koa app or to disable it altogether.
   bodyParser?: false | KoaBodyOptions;
+
+  /**
+   * Logs more processed for diagnostics.
+   */
+  diagnostics?: boolean;
 }
 
 export let options: AmalaOptions;
@@ -201,6 +206,7 @@ export const bootstrapControllers = async (
   options.enableOpenApi = options.enableOpenApi || true;
   options.openApiPath = options.openApiPath || '/api/docs';
   options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
+  options.diagnostics = options.diagnostics || false;
 
 
   /**
@@ -233,6 +239,7 @@ export const bootstrapControllers = async (
   // The Controller class files just need to be touched and they will handle their own registration in metadata
   for (const controllerDef of options.controllers) {
     if (typeof controllerDef === 'string') {
+      if (options.diagnostics) console.info(`Amala: munching controllers in path ${controllerDef}`);
       importClassesFromDirectories(controllerDef); //this is a string glob path. Load controllers from path
     } else {
       // if it is not a string, it means it is a class that has already been imported/required/loaded. No need to
