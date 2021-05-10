@@ -3,7 +3,7 @@ import {plainToClass} from 'class-transformer';
 import {validate} from 'class-validator';
 import {Context} from 'koa';
 import _ from 'lodash';
-import {AmalaOptions} from '../';
+import {AmalaOptions, options} from '../';
 import {isClass} from './tools';
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
@@ -204,6 +204,7 @@ async function _generateEndPoints(
 
       });
 
+      if (options.diagnostics) console.info(`Amala: generating ${action.verb} ${path}`);
       router[action.verb](path, ...flow);
     }
   }

@@ -10,7 +10,7 @@ export function Controller(baseRoute?: string | string[]) {
 
     metadata.controllers[classDefinition.name] = controller;
 
-    if (options.diagnostics) console.info(`Amala: Registering controller ${classDefinition.name} at "../${baseRoute}"`);
+    if (options.diagnostics) console.info(`Amala: Registering controller ${classDefinition.name} at "${options.basePath}${options.disableVersioning ? '' : '/v...'}${baseRoute}"`);
   };
 }
 
