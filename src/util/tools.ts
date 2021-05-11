@@ -34,3 +34,7 @@ export function addArgumentInjectMeta({
 
   metadata.controllers[object.constructor.name] = controller;
 }
+
+export function ensureArray(item) {
+  return Array.isArray(item) ? item : [item];
+}

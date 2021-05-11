@@ -168,13 +168,14 @@ async function _generateEndPoints(
 
       // Add defined middlewares
       const flow = [
-        ...(options.flow || []),
-        ...(controller.flow || []),
-        ...(action.flow || [])
+        ...(options?.flow || []),
+        ...(controller?.flow || []),
+        ...(action?.flow || [])
       ];
 
+
       // And finally add leaf-level endpoint
-      flow.push(async function (ctx) {
+      flow.push(async function endpoint (ctx) {
 
         const targetArguments = [];
 

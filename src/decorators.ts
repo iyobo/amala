@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {metadata, options} from "./index";
-import {addArgumentInjectMeta} from './util/tools';
+import {addArgumentInjectMeta, ensureArray} from './util/tools';
 
 export function Controller(baseRoute?: string | string[]) {
   return function (classDefinition: Function): void {
@@ -10,7 +10,7 @@ export function Controller(baseRoute?: string | string[]) {
 
     metadata.controllers[classDefinition.name] = controller;
 
-    if (options.diagnostics) console.info(`Amala: Registering controller ${classDefinition.name} at "${options.basePath}${options.disableVersioning ? '' : '/v...'}${baseRoute}"`);
+    if (options?.diagnostics) console.info(`Amala: Registering controller ${classDefinition.name} at "${options.basePath}${options.disableVersioning ? '' : '/v...'}${baseRoute}"`);
   };
 }
 
@@ -123,7 +123,7 @@ export function Flow(flow: Function | Array<Function>) {
       // controller
 
       const controller = metadata.controllers[object.name] || {};
-      controller.flow = flow;
+      controller.flow = ensureArray(flow);
       metadata.controllers[object.name] = controller;
     }
   };
