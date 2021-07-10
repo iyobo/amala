@@ -3,7 +3,7 @@
 **Amala** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
 
 - Define your REST API endpoints using ES8 _classes_ and _decorators_.
-- Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
+- Inject arguments into your endpoint handlers, effectively turning your controller actions into standalone, testable service actions.
 
 This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere.
 It also makes your endpoint actions easier to test.
