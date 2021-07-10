@@ -3,7 +3,7 @@ import {plainToClass} from 'class-transformer';
 import {validate} from 'class-validator';
 import {Context} from 'koa';
 import _ from 'lodash';
-import {AmalaOptions, options} from '../';
+import {AmalaOptions} from '../';
 import {isClass} from './tools';
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
@@ -88,7 +88,7 @@ async function _determineArgument(
   }
 
   // validate if this is a class and if this is a body, params, or query injection
-  const shouldValidate = values && isClass(type) && ['body','params','query'].includes(injectSource)
+  const shouldValidate = values && isClass(type) && ['body', 'params', 'query'].includes(injectSource);
 
   if (shouldValidate) {
     values = await plainToClass(type, values);
@@ -110,6 +110,8 @@ async function _determineArgument(
   return values;
 }
 
+const controllerInstancesForBinding = {};
+
 async function _generateEndPoints(
   router,
   options: AmalaOptions,
@@ -118,6 +120,10 @@ async function _generateEndPoints(
   generatingForVersion: string | number
 ) {
   const actions = controller.actions;
+  const controllerInstanceName = controller.class.name + '__' + controller.path;
+  if (!controllerInstancesForBinding[controllerInstanceName]) {
+    controllerInstancesForBinding[controllerInstanceName] = new controller.class();
+  }
 
   let deprecationMessage = '';
   if (
@@ -128,7 +134,9 @@ async function _generateEndPoints(
   }
 
   const mappedActions = Object.keys(actions).map(action => actions[action]);
+  // debugger;
 
+  //for each endpoint
   for (const action of mappedActions) {
     let willAddEndpoint = true;
 
@@ -175,7 +183,7 @@ async function _generateEndPoints(
 
 
       // And finally add leaf-level endpoint
-      flow.push(async function endpoint (ctx) {
+      flow.push(async function endpoint(ctx) {
 
         const targetArguments = [];
 
@@ -186,7 +194,7 @@ async function _generateEndPoints(
         // inject data into arguments
         if (action.arguments) {
           for (const index of Object.keys(action.arguments)) {
-            const numIndex = Number(index)
+            const numIndex = Number(index);
 
             const argumentMeta = action.arguments[numIndex];
 
@@ -201,7 +209,12 @@ async function _generateEndPoints(
         }
 
         // run target endpoint handler
-        ctx.body = await action.target(...targetArguments);
+        // ctx.body = await action.target(...targetArguments);
+
+        // bind to controller instance to allow for "this" within class when
+        // accessing other class actions. e.g this.getOne
+        ctx.body = await action.target
+          .bind(controllerInstancesForBinding[controllerInstanceName])(...targetArguments);
 
       });
 
@@ -225,13 +238,14 @@ export async function generateRoutes(
   const basePath = options.basePath || ''; // e.g /api
   const controllers: any[] = Object.values(metadata.controllers);
 
+  // for each found controller
   for (const controller of controllers) {
     const paths = Array.isArray(controller.path)
       ? controller.path
       : [controller.path];
 
     if (options.disableVersioning) {
-      // e.g /api/users
+      // enter endpoint without versioning e.g /api/users
 
       for (const path of paths) {
         await _generateEndPoints(
@@ -243,7 +257,7 @@ export async function generateRoutes(
         );
       }
     } else {
-      // e.g /api/v1/user
+      // enter endpoint with versioning e.g /api/v1/user
 
       const versions = _.isArray(options.versions)
         ? options.versions

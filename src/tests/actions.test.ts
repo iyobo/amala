@@ -83,9 +83,25 @@ describe("Controller actions", () => {
   });
 
   it("can have multiple paths", async () => {
-    Promise.all([
+    await Promise.all([
       await testServer.get("/api/v2/multiple1").expect(200),
       await testServer.get("/api/v2/multiple2").expect(200)
     ]);
+  });
+
+  it("respects 'this' in controller instance", async () => {
+    const response = await testServer
+      .get("/api/v2/action/this")
+      .expect(200);
+
+    expect(response.body).toEqual(123);
+  });
+
+  it("respects 'this' in controller instance 2", async () => {
+    const response = await testServer
+      .get("/api/v2/action/this2")
+      .expect(200);
+
+    expect(response.body).toEqual({res: 456});
   });
 });

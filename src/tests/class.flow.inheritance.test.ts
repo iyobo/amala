@@ -32,6 +32,10 @@ describe("Controller class", () => {
   });
 
   it("Flow should throw unexpected errors", async () => {
+    const originalHandler = console.error;
+    console.error = jest.fn();
     await testServer.get("/api/v2/action/badFlow").expect(500);
+    console.error = originalHandler;
+
   });
 });

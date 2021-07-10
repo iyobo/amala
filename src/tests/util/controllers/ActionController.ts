@@ -2,7 +2,7 @@ import {
   Controller,
   Delete,
   Flow,
-  Get,
+  Get, Params,
   Patch,
   Post,
   Put,
@@ -76,5 +76,25 @@ export class ActionController {
   @Get("/staten")
   async staten(@State() state: any) {
     return state;
+  }
+
+  //---
+  @Get("/usedByThis")
+  async usedByThis(@Params() p) {
+    return p;
+  }
+  @Get("/usedByThis2")
+  async usedByThis2(p) {
+    return {res:p};
+  }
+
+  @Get("/this")
+  async usingThis() {
+    return await this.usedByThis(123);
+  }
+
+  @Get("/this2")
+  async usingThis2() {
+    return await this.usedByThis2(456);
   }
 }
