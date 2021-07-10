@@ -4,7 +4,7 @@ import {
   Body,
   Controller,
   Ctx,
-  CurrentUser, Files,
+  CurrentUser, File,
   Flow,
   Get,
   Header,
@@ -134,7 +134,7 @@ export class ArgController {
   }
 
   @Post('/uploadFile')
-  async uploadFile(@Ctx() ctx, @Files() files: Record<string,File>) {
+  async uploadFile(@Ctx() ctx, @File() files: Record<string,File>) {
     return files;
   }
 

@@ -296,7 +296,7 @@ export {
   Flow,
   Get,
   Header,
-  Files,
+  File,
   CurrentUser,
   Params,
   Patch,

@@ -231,7 +231,7 @@ export function Req(injectOptions?: string | Record<string, any>) {
   };
 }
 
-export function Files() {
+export function File() {
   return function (
     object: Record<string, any>,
     methodName: string,

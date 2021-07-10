@@ -263,7 +263,7 @@ export class FooController {
   @Post('/fieldsAndFiles')
   async createWithFiles( 
     @Body({required: true}) body: FooCreateInput, 
-    @Files() files: Record<string,File>) {
+    @File() files: Record<string,File>) {
 
     // POST /api/v.../foo/orDie2
 
@@ -515,7 +515,7 @@ Injects the koa request object. useful when streaming data up to server
 
 Injects the koa response object. useful when streaming data down to client.
 
-#### @Files()
+#### @File()
 
 Injects the request files object. All files uploaded during the request can be found here, indexed by file field name.
 
