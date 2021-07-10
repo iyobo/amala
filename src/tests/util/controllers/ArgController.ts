@@ -4,7 +4,7 @@ import {
   Body,
   Controller,
   Ctx,
-  CurrentUser,
+  CurrentUser, Files,
   Flow,
   Get,
   Header,
@@ -124,7 +124,23 @@ export class ArgController {
 
   @Post('/req')
   async req(@Req() req: Request) {
-    return req;
+
+    return req.header;
+  }
+
+  @Post('/uploadBuffer')
+  async uploadBuffer(@Ctx() ctx, @Req() req: Request) {
+    return req.body;
+  }
+
+  @Post('/uploadFile')
+  async uploadFile(@Ctx() ctx, @Files() files: Record<string,File>) {
+    return files;
+  }
+
+  @Post('/uploadFile2')
+  async uploadFile2(@Ctx() ctx, @Req() req: Request) {
+    return req.files;
   }
 
   @Post('/res')

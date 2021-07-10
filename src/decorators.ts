@@ -223,8 +223,24 @@ export function Req(injectOptions?: string | Record<string, any>) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "req",
+      injectSource: "request",
       injectOptions,
+      methodName,
+      object
+    });
+  };
+}
+
+export function Files() {
+  return function (
+    object: Record<string, any>,
+    methodName: string,
+    index: number
+  ): void {
+    addArgumentInjectMeta({
+      index,
+      injectSource: "request",
+      injectOptions: "files",
       methodName,
       object
     });

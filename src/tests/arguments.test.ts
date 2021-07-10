@@ -5,7 +5,6 @@ let nativeServer;
 let testServer: request.SuperTest<request.Test>;
 beforeAll(async () => {
 
-
   const {app, router} = await bootstrapControllers({
     basePath: "/api",
     controllers: [__dirname + "/util/controllers/**/*.ts"],
@@ -49,7 +48,7 @@ describe("Arguments", () => {
 
   describe("body", () => {
     it("whole object can be injected", async () => {
-      const payload = { foo: "Ijebu garri is the best for soaking" };
+      const payload = {foo: "Ijebu garri is the best for soaking"};
       const response = await testServer
         .post("/api/v2/arg/bodySimple")
         .send(payload)
@@ -57,8 +56,16 @@ describe("Arguments", () => {
       expect(response.body).toEqual(payload);
     });
 
+    it("can be set with field", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/bodySimple")
+        .field({abc: 123})
+        .expect(200);
+      expect(response.body.abc).toEqual("123");
+    });
+
     it("specific subfield can be injected", async () => {
-      const payload = { foo: "Ijebu garri is the best for soaking" };
+      const payload = {foo: "Ijebu garri is the best for soaking"};
       const response = await testServer
         .post("/api/v2/arg/bodySpecific")
         .send(payload)
@@ -178,15 +185,61 @@ describe("Arguments", () => {
   });
 
   describe("req", () => {
-    it("works", async () => {
+
+    it("can set headers", async () => {
       const response = await testServer
         .post("/api/v2/arg/req")
         .set("foo", "bar")
         .expect(200);
 
       // returns a serialized req object
-      expect(Buffer.isBuffer(response.body)).toEqual(true);
+      // expect(Buffer.isBuffer(response.body)).toEqual(true);
+      expect(response.body).toBeDefined();
+      expect(response.body.foo).toEqual('bar');
     });
+
+    it("Buffer can be uploaded", async () => {
+      const buffer = Buffer.from('some file data');
+      const response = await testServer
+        .post("/api/v2/arg/uploadBuffer")
+        .set("foo", "bar")
+        .attach('testFile', buffer)
+        .expect(200);
+
+      // returns a serialized req object
+      expect(response.body).toEqual({testFile: 'some file data'});
+    });
+
+    it("File decorator injects files", async () => {
+
+      const response = await testServer
+        .post("/api/v2/arg/uploadFile")
+        .set("foo", "bar")
+        .attach('testFile', 'src/tests/attachments/image.png')
+        .expect(200);
+
+      // returns a serialized req object
+      expect(response.body.testFile).toBeDefined();
+      expect(response.body.testFile.name).toEqual('image.png');
+      expect(response.body.testFile.type).toEqual('image/png');
+      expect(response.body.testFile.size).toEqual(41569);
+    });
+
+    it("Uploaded files can also be found in @Req.files", async () => {
+
+      const response = await testServer
+        .post("/api/v2/arg/uploadFile2")
+        .set("foo", "bar")
+        .attach('testFile', 'src/tests/attachments/image.png')
+        .expect(200);
+
+      // returns a serialized req object
+      expect(response.body.testFile).toBeDefined();
+      expect(response.body.testFile.name).toEqual('image.png');
+      expect(response.body.testFile.type).toEqual('image/png');
+      expect(response.body.testFile.size).toEqual(41569);
+    });
+
   });
 
   describe("res", () => {

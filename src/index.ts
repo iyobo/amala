@@ -9,6 +9,7 @@ import Koa from 'koa';
 import Router from 'koa-router';
 import bodyParser from 'koa-body';
 import {addArgumentInjectMeta} from './util/tools';
+const unparsed = require('koa-body/unparsed.js');
 
 export type KoaBodyOptions = {
   // Patch request body to Node's ctx.req, default false
@@ -264,9 +265,12 @@ export const bootstrapControllers = async (
     });
   }
 
-  //body parer
+  //body parser
   if (options.bodyParser !== false) {
-    app.use(bodyParser(options.bodyParser as KoaBodyOptions));
+    app.use(bodyParser({...options.bodyParser as KoaBodyOptions,
+      // includeUnparsed: true,
+      multipart: true
+    }));
   }
 
   if (options.attachRoutes) {
@@ -292,6 +296,7 @@ export {
   Flow,
   Get,
   Header,
+  Files,
   CurrentUser,
   Params,
   Patch,
