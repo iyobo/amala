@@ -20,7 +20,7 @@
     "url": "https://github.com/iyobo/amala"
   },
   "scripts": {
-    "install": "npm run build"
+    "install": "npm run build",
     "test": "jest --config jestconfig.json",
     "test:watch": "jest --config jestconfig.json --watch",
     "build": "tsc",
