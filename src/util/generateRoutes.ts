@@ -110,8 +110,6 @@ async function _determineArgument(
   return values;
 }
 
-const controllerInstancesForBinding = {};
-
 async function _generateEndPoints(
   router,
   options: AmalaOptions,
@@ -121,9 +119,6 @@ async function _generateEndPoints(
 ) {
   const actions = controller.actions;
   const controllerInstanceName = controller.class.name + '__' + controller.path;
-  if (!controllerInstancesForBinding[controllerInstanceName]) {
-    controllerInstancesForBinding[controllerInstanceName] = new controller.class();
-  }
 
   let deprecationMessage = '';
   if (
@@ -210,11 +205,14 @@ async function _generateEndPoints(
 
         // run target endpoint handler
         // ctx.body = await action.target(...targetArguments);
-
+        
+        // Each request will create a new controller with the ctx passes as constuctor argument
+        const controllerInstance = new controller.class(ctx);
+        
         // bind to controller instance to allow for "this" within class when
         // accessing other class actions. e.g this.getOne
         ctx.body = await action.target
-          .bind(controllerInstancesForBinding[controllerInstanceName])(...targetArguments);
+          .bind(controllerInstance)(...targetArguments);
 
       });
 
