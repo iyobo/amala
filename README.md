@@ -479,7 +479,7 @@ This is a shortcut to access `ctx.state.user`.
 That is the standard location for storing the currently logged in user object. e.g when using koa-passport.
 Consider using this along with an authentication guard middleware e.g 
 
-```
+```typescript
 @Post('/lead')
 @Flow([authMiddleware])
 async createFoo( @Body() leadData: any, @CurrentUser() user) {
@@ -535,7 +535,7 @@ To access the controller with the class name `UserController`, you can use `code
 Because amala has you defining your endpoints using the equivalent of async service actions, you could essentially run these async service actions directly e.g
 
 Given the action definition:
-```
+```typescript
 @Controller('/user')
 class UserController {
     ...
