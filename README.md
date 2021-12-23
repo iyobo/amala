@@ -311,9 +311,7 @@ The result is more dependable behavior and better error handling e.g you can now
 actions (or from anywhere down the execution stack of said actions) and those errors will make it back to the client
 with exact status codes.
 
-Also, Amala supports **API versioning**. You won't find that anywhere else in a hurry.
-
-This library is used heavily in [JollofStack](https://github.com/iyobo/jollofstack) (WIP), which is the typescript-centered re-architecture of [JollofJS](https://github.com/iyobo/jollofjs).
+Also, Amala supports **API versioning**. You won't find that anywhere else in a hurry. You can also disable versioning if you don't need it.
 
 
 ## API SPEC
