@@ -330,12 +330,12 @@ Returns a promise of the koa app, and the router used in the bootstrap function.
 export interface AmalaOptions {
   // For If you want to supply your own koa application instance.
   // If this is not provided, amala will create a koa application for you.
-  // Either way, an app is returned within the result of running the bootstrap function.
+  // Either way, an app is returned from the bootstrap function.
   app?: Application;
 
-  // For if you want to supply tour own Koa-Router instance.
+  // For if you want to supply your own Koa-Router instance.
   // If this is not provided, amala will create a koa-router for you and load it up with endpoints
-  // Either way, a router is returned within the result of running the bootstrap function.
+  // Either way, a router is returned from the bootstrap function.
   // The router is not attached by default to the app. If you want that, be sure to set options.attachRoutes to true.
   router?: any;
 
