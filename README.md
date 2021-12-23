@@ -117,7 +117,7 @@ Either way, the `bootstrapControllers` function will always return the bare mini
 ### API Versioning
 
 API versioning is enabled by default with Amala i.e /api/v1/controller/endpoint.
-The `versions` config option is an array of active versions for your API. Default is `version: [1]`, which puts all endpoints under /api/v1/....
+The `versions` config option is an array of active versions for your API. Default is `versions: [1]`, which puts all endpoints under /api/v1/....
 To disable this behavior, simple set the config option `disableVersioning` to `true`.
 
 See examples below for working with multiple versions of your API.
