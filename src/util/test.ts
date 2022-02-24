@@ -28,6 +28,5 @@ export const startTestServer = async ()=> {
 
   app.listen(port);
 }
-console.log(Reflect.get)
 
 startTestServer()
