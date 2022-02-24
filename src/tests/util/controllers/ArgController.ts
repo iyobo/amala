@@ -37,7 +37,7 @@ const CustomDeco = ()=>Ctx('query');
 @Controller('/arg')
 export class ArgController {
   @Post('/:model/:id')
-  async twoParams(@Params() params: any, @Params('id') id: any) {
+  async twoParams(@Params() params, @Params('id') id: string) {
     return {params, id};
   }
 

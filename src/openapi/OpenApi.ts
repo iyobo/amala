@@ -24,7 +24,7 @@ export interface AmalaMetadata {
 export let openApiSpec: OpenAPIV3_1.Document = {
   openapi: '3.0.1',
   info: {
-    'title': '',
+    'title': 'API',
     description: 'powered by AmalaJS (https://github.com/iyobo/amala)',
     'version': '1.0.0'
   },
@@ -37,6 +37,28 @@ export let openApiSpec: OpenAPIV3_1.Document = {
   tags: [],
   externalDocs: undefined
 };
+
+function convertRegexpToSwagger(path) {
+  const swaggerPath = [];
+
+  let paramMode = false;
+  for (const c of path) {
+
+    if (c === ':') {
+      paramMode = true;
+      swaggerPath.push('{');
+    } else if (paramMode && c === '/') {
+      paramMode = false;
+      swaggerPath.push('}/');
+    } else {
+      swaggerPath.push(c);
+    }
+  }
+
+  if (paramMode) swaggerPath.push('}');
+
+  return swaggerPath.join('');
+}
 
 export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) {
 
@@ -124,7 +146,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
     for (const actionName in controllerMeta.actions) {
       // e.g getUsers
       const actionMeta = controllerMeta.actions[actionName];
-      const fullPath = basePath + (actionMeta.path === '/' ? '' : actionMeta.path);
+      const fullPath = convertRegexpToSwagger(basePath + (actionMeta.path === '/' ? '' : actionMeta.path));
       const verb = actionMeta.verb;
 
       paths[fullPath] = paths[fullPath] || {};
@@ -167,7 +189,8 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
         }
 
         // eslint-disable-next-line new-cap
-        const f = new argType();
+        // const refl = argType.name;
+        // console.log(refl);
         parameters.push({
           in: argExistsIn,
           name,
@@ -178,6 +201,12 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
         });
       }
 
+      // console.log(
+      //   'meta-'+actionMeta.target.name,
+      //   Reflect.getMetadata('design:type', actionMeta.target()),
+      //   Reflect.getMetadata('design:paramtypes',  actionMeta.target),
+      //   Reflect.getMetadata('design:returntype', actionMeta.target)
+      // );
 
       // finalize iteration changes of path
       paths[fullPath][verb] = {
@@ -195,7 +224,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
               // @ts-ignore //????
               'application/json': {
                 schema: {
-                  $ref: `#/components/schemas/Error`
+                  $ref: `#/components/schemas/${actionMeta.target.name}`
                 }
               }
             }
