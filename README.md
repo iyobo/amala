@@ -389,17 +389,33 @@ export interface AmalaOptions {
   // Options for class-validator. Used to validate endpoint injectables. See docs.
   validatorOptions?: ValidatorOptions;
 
-  //EXPERIMENTAL / INCOMPLETE: enables openAPI through the path defined in options.openApiPath (default: /api/docs )
-  enableOpenApi?: boolean;
+  
+  openAPI?: {
+    enabled: boolean;
+    /**
+     * URL path to serve openAPi spec. Default: "/api/docs"
+     */
+    path?: string,
 
-  // open API path. Default: /api/docs
-  openApiPath?: string;
+    /**
+     * What is the public URL for this API?
+     */
+    publicURL: string,
 
-  // A place to define general information about your openAPI export
-  openApiInfo?: {
-    title: string;
-    version: string;
+    /**
+     * Use this to Pre-fill certain aspects of the OpenAPI spec e.g to define "info" segment.
+     */
+    spec?: Partial<{
+      info: Partial<OpenAPIV3_1.InfoObject>;
+      servers?: OpenAPIV3_1.ServerObject[];
+      paths: Partial<OpenAPIV3_1.PathsObject>;
+      components?: Partial<OpenAPIV3_1.ComponentsObject>;
+      security?: Partial<OpenAPIV3_1.SecurityRequirementObject>[];
+      tags?: Partial<OpenAPIV3_1.TagObject[]>;
+      externalDocs?: Partial<OpenAPIV3_1.ExternalDocumentationObject>;
+    }>
   };
+
 
   // body parser options. See https://www.npmjs.com/package/koa-body#options
   // Set to false to prevent amala from attaching koa-body middleware to all endpoints.
