@@ -3,7 +3,7 @@
 **Amala** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
 
 - Define your REST API endpoints using ES8 _classes_ and _decorators_.
-- Inject arguments into your endpoint handlers, effectively turning your controller actions into service actions.
+- Inject arguments into your endpoint handlers, effectively turning your controller actions into standalone, testable service actions.
 
 This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere.
 It also makes your endpoint actions easier to test.
@@ -117,7 +117,7 @@ Either way, the `bootstrapControllers` function will always return the bare mini
 ### API Versioning
 
 API versioning is enabled by default with Amala i.e /api/v1/controller/endpoint.
-The `versions` config option is an array of active versions for your API. Default is `version: [1]`, which puts all endpoints under /api/v1/....
+The `versions` config option is an array of active versions for your API. Default is `versions: [1]`, which puts all endpoints under /api/v1/....
 To disable this behavior, simple set the config option `disableVersioning` to `true`.
 
 See examples below for working with multiple versions of your API.
@@ -311,9 +311,7 @@ The result is more dependable behavior and better error handling e.g you can now
 actions (or from anywhere down the execution stack of said actions) and those errors will make it back to the client
 with exact status codes.
 
-Also, Amala supports **API versioning**. You won't find that anywhere else in a hurry.
-
-This library is used heavily in [JollofStack](https://github.com/iyobo/jollofstack) (WIP), which is the typescript-centered re-architecture of [JollofJS](https://github.com/iyobo/jollofjs).
+Also, Amala supports **API versioning**. You won't find that anywhere else in a hurry. You can also disable versioning if you don't need it.
 
 
 ## API SPEC
@@ -332,12 +330,12 @@ Returns a promise of the koa app, and the router used in the bootstrap function.
 export interface AmalaOptions {
   // For If you want to supply your own koa application instance.
   // If this is not provided, amala will create a koa application for you.
-  // Either way, an app is returned within the result of running the bootstrap function.
+  // Either way, an app is returned from the bootstrap function.
   app?: Application;
 
-  // For if you want to supply tour own Koa-Router instance.
+  // For if you want to supply your own Koa-Router instance.
   // If this is not provided, amala will create a koa-router for you and load it up with endpoints
-  // Either way, a router is returned within the result of running the bootstrap function.
+  // Either way, a router is returned from the bootstrap function.
   // The router is not attached by default to the app. If you want that, be sure to set options.attachRoutes to true.
   router?: any;
 
@@ -495,7 +493,7 @@ This is a shortcut to access `ctx.state.user`.
 That is the standard location for storing the currently logged in user object. e.g when using koa-passport.
 Consider using this along with an authentication guard middleware e.g 
 
-```
+```typescript
 @Post('/lead')
 @Flow([authMiddleware])
 async createFoo( @Body() leadData: any, @CurrentUser() user) {
@@ -551,7 +549,7 @@ To access the controller with the class name `UserController`, you can use `code
 Because amala has you defining your endpoints using the equivalent of async service actions, you could essentially run these async service actions directly e.g
 
 Given the action definition:
-```
+```typescript
 @Controller('/user')
 class UserController {
     ...
