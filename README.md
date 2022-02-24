@@ -546,7 +546,7 @@ class UserController {
     ...
 }
 ```
-You could directly run the function that the endpoint url `POST /api/v1/user` also runs by simply:
+You could directly run the function that the endpoint path `POST /api/v1/user` also runs by simply:
 `const newUser = await codex.userController.createUser(userParams)` assuming the function doesn't require any koa context specific parameters.
 
 This becomes somewhat of a useful and clean way to unit-test your endpoint functions.

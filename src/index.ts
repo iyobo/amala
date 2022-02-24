@@ -3,69 +3,71 @@ import {generateRoutes} from './util/generateRoutes';
 import {importClassesFromDirectories} from './util/importClasses';
 import Boom from '@hapi/boom';
 import {ValidatorOptions} from 'class-validator';
-import {openApi, openApiSpec} from './openapi/OpenApi';
-import Application from 'koa';
-import Koa from 'koa';
+import {generateOpenApi, openApiSpec} from './openapi/OpenApi';
 import Router from 'koa-router';
 import bodyParser from 'koa-body';
 import {addArgumentInjectMeta} from './util/tools';
+import Application from 'koa';
+import {OpenAPIV3_1} from 'openapi-types';
+
 const unparsed = require('koa-body/unparsed.js');
 
 export type KoaBodyOptions = {
   // Patch request body to Node's ctx.req, default false
   patchNode?: boolean;
-  //Patch request body to Koa's ctx.request, default true
+  // Patch request body to Koa's ctx.request, default true
   patchKoa?: boolean;
-  //The byte (if integer) limit of the JSON body, default 1mb
+  // The byte (if integer) limit of the JSON body, default 1mb
   jsonLimit?: string | number;
-  //The byte (if integer) limit of the form body, default 56kb
+  // The byte (if integer) limit of the form body, default 56kb
   formLimit?: string | number;
-  //The byte (if integer) limit of the text body, default 56kb
+  // The byte (if integer) limit of the text body, default 56kb
   textLimit?: string | number;
-  //Sets encoding for incoming form fields, default utf-8
+  // Sets encoding for incoming form fields, default utf-8
   encoding?: string;
-  //Parse multipart bodies, default false
+  // Parse multipart bodies, default false
   multipart?: boolean;
-  //Parse urlencoded bodies, default true
+  // Parse urlencoded bodies, default true
   urlencoded?: boolean;
-  //Parse text bodies, such as XML, default true
+  // Parse text bodies, such as XML, default true
   text?: boolean;
-  //Parse JSON bodies, default true
+  // Parse JSON bodies, default true
   json?: boolean;
-  //Toggles co-body strict mode; if set to true - only parses arrays or objects, default true
+  // Toggles co-body strict mode; if set to true - only parses arrays or objects, default true
   jsonStrict?: boolean;
-  //Toggles co-body returnRawBody option; if set to true, for form encodedand and JSON requests the raw, unparsed requesty body will be attached to ctx.request.body using a Symbol, default false
+  // Toggles co-body returnRawBody option; if set to true, for form encodedand and JSON requests the raw, unparsed requesty body will be attached to ctx.request.body using a Symbol, default false
   includeUnparsed?: boolean;
 
   // See formidable for options
   formidable?: {
-    //Limits the number of fields that the querystring parser will decode, default 1000
+    // Limits the number of fields that the querystring parser will decode, default 1000
     maxFields?: number;
-    //Limits the amount of memory all fields together (except files) can allocate in bytes. If this value is exceeded, an 'error' event is emitted, default 2mb (2 * 1024 * 1024)
+    // Limits the amount of memory all fields together (except files) can allocate in bytes. If this value is exceeded, an 'error' event is emitted, default 2mb (2 * 1024 * 1024)
     maxFieldsSize?: number;
-    //Sets the directory for placing file uploads in, default os.tmpDir()
+    // Sets the directory for placing file uploads in, default os.tmpDir()
     uploadDir?: string;
-    //Files written to uploadDir will include the extensions of the original files, default false
+    // Files written to uploadDir will include the extensions of the original files, default false
     keepExtensions?: boolean;
-    //If you want checksums calculated for incoming files, set this to either 'sha1' or 'md5', default false
+    // If you want checksums calculated for incoming files, set this to either 'sha1' or 'md5', default false
     hash?: string;
-    //Multiple file uploads or no, default true
+    // Multiple file uploads or no, default true
     multiples?: boolean;
-    //Special callback on file begin. The function is executed directly by formidable. It can be used to rename files before saving them to disk. See the docs
+    // Special callback on file begin. The function is executed directly by formidable. It can be used to rename files before saving them to disk. See the docs
     onFileBegin?: (name: string, file: any) => void;
   };
-  //Custom error handle, if throw an error, you can customize the response - onError(error, context), default will throw
+  // Custom error handle, if throw an error, you can customize the response - onError(error, context), default will throw
   onError?: (error, context) => any;
-  //DEPRECATED If enabled, don't parse GET, HEAD, DELETE requests, default true
+  // DEPRECATED If enabled, don't parse GET, HEAD, DELETE requests, default true
   strict?: boolean;
-  //Declares the HTTP methods where bodies will be parsed, default ['POST', 'PUT', 'PATCH']. Replaces strict option.
+  // Declares the HTTP methods where bodies will be parsed, default ['POST', 'PUT', 'PATCH']. Replaces strict option.
   parsedMethods?: string[];
 }
 
 export interface AmalaOptions {
-  // For If you want to supply your own koa application instance.
-  // If this is not provided, amala will create a koa application for you.
-  // Either way, an app is returned within the result of running the bootstrap function.
+  /** For If you want to supply your own koa application instance.
+   * If this is not provided, amala will create a koa application for you.
+   * Either way, an app is returned within the result of running the bootstrap function.
+   **/
   app?: Application;
 
   // For if you want to supply tour own Koa-Router instance.
@@ -122,16 +124,33 @@ export interface AmalaOptions {
   // Options for class-validator. Used to validate endpoint injectables. See docs.
   validatorOptions?: ValidatorOptions;
 
-  //EXPERIMENTAL / INCOMPLETE: enables openAPI through the path defined in options.openApiPath (default: /api/docs )
-  enableOpenApi?: boolean;
+  /**
+   * OpenAPI options
+   */
+  openAPI?: {
+    enabled: boolean;
+    /**
+     * URL path to serve openAPi spec. Default: "/api/docs"
+     */
+    path?: string,
 
-  // open API path. Default: /api/docs
-  openApiPath?: string;
+    /**
+     * What is the public URL for this API?
+     */
+    publicURL: string,
 
-  // A place to define general information about your openAPI export
-  openApiInfo?: {
-    title: string;
-    version: string;
+    /**
+     * Use this to Pre-fill certain aspects of the OpenAPI spec e.g to define "info" segment.
+     */
+    spec?: Partial<{
+      info: Partial<OpenAPIV3_1.InfoObject>;
+      servers?: OpenAPIV3_1.ServerObject[];
+      paths: Partial<OpenAPIV3_1.PathsObject>;
+      components?: Partial<OpenAPIV3_1.ComponentsObject>;
+      security?: Partial<OpenAPIV3_1.SecurityRequirementObject>[];
+      tags?: Partial<OpenAPIV3_1.TagObject[]>;
+      externalDocs?: Partial<OpenAPIV3_1.ExternalDocumentationObject>;
+    }>
   };
 
   // body parser options. See https://www.npmjs.com/package/koa-body#options
@@ -186,7 +205,6 @@ const defaultErrorHandler = async (err: any, ctx: any) => {
 
 export const controllers = {};
 
-
 /**
  *
  * @param app - Koa instance
@@ -196,7 +214,7 @@ export const bootstrapControllers = async (
   params: AmalaOptions
 ): Promise<{ app: Application; router: Router }> => {
   options = params;
-  const app = options.app = options.app || new Koa();
+  const app = options.app = options.app || new Application();
   options.router = options.router || new Router();
 
   options.versions = options.versions || {1: true};
@@ -204,8 +222,10 @@ export const bootstrapControllers = async (
   options.validatorOptions = options.validatorOptions || {};
   options.errorHandler = options.errorHandler || defaultErrorHandler;
 
-  options.enableOpenApi = options.enableOpenApi || true;
-  options.openApiPath = options.openApiPath || '/api/docs';
+  options.openAPI = options.openAPI || {enabled: true, publicURL: 'http://[publicURl]'};
+  options.openAPI.path = options.openAPI.path || '/api/docs';
+  options.openAPI.spec = options.openAPI.spec || openApiSpec;
+
   options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
   options.diagnostics = options.diagnostics || false;
 
@@ -241,7 +261,7 @@ export const bootstrapControllers = async (
   for (const controllerDef of options.controllers) {
     if (typeof controllerDef === 'string') {
       if (options.diagnostics) console.info(`Amala: munching controllers in path ${controllerDef}`);
-      importClassesFromDirectories(controllerDef); //this is a string glob path. Load controllers from path
+      importClassesFromDirectories(controllerDef); // this is a string glob path. Load controllers from path
     } else {
       // if it is not a string, it means it is a class that has already been imported/required/loaded. No need to
       // do anything else. Encourage users to still add the controller classes here even though the
@@ -251,23 +271,20 @@ export const bootstrapControllers = async (
 
   await generateRoutes(options.router, options, metadata);
 
-  //open api
-  if (options.enableOpenApi) {
-    //Generate OpenAPI/Swagger spec
-    await openApi.init(metadata);
+  // open api
+  if (options.openAPI.enabled) {
+    // Generate OpenAPI/Swagger spec
+    await generateOpenApi(metadata, options);
 
-    if (options.openApiInfo) {
-      openApiSpec.info = options.openApiInfo;
-    }
-
-    options.router.get(options.openApiPath, (ctx) => {
+    options.router.get(options.openAPI.path, (ctx) => {
       ctx.body = openApiSpec;
     });
   }
 
-  //body parser
+  // body parser
   if (options.bodyParser !== false) {
-    app.use(bodyParser({...options.bodyParser as KoaBodyOptions,
+    app.use(bodyParser({
+      ...options.bodyParser as KoaBodyOptions,
       // includeUnparsed: true,
       multipart: true
     }));

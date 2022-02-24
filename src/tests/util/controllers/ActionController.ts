@@ -78,11 +78,12 @@ export class ActionController {
     return state;
   }
 
-  //---
+  // ---
   @Get("/usedByThis")
   async usedByThis(@Params() p) {
     return p;
   }
+
   @Get("/usedByThis2")
   async usedByThis2(p) {
     return {res:p};
