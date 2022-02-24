@@ -224,7 +224,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
               // @ts-ignore //????
               'application/json': {
                 schema: {
-                  $ref: `#/components/schemas/${actionMeta.target.name}`
+                  $ref: `#/components/schemas/Object`
                 }
               }
             }
