@@ -174,6 +174,6 @@ export {
  */
 export const addArgumentDecorator = addArgumentInjectMeta;
 
-export const errors = Boom
+export * from './util/errors'
 
 export type Context = KoaApplication.Context
