@@ -2,7 +2,7 @@ import Boom from '@hapi/boom';
 
 export const boom = require('@hapi/boom');
 
-export type AmalaError = (message: string, data?: any) => any
+export type AmalaError = (message: string, data?: any) => Error
 // 400s
 export const errorBadRequest: AmalaError = boom.badRequest;
 
