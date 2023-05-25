@@ -28,7 +28,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "changelog": "auto-changelog -p",
-    "release:minor": "tsc && npm version minor && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish"
+    "release:minor": "tsc && npm version minor && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push --tags"
   },
   "files": [
     "dist/**/*"
