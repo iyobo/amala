@@ -27,7 +27,8 @@
     "dev": "tsc -w",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "changelog": "auto-changelog -p"
+    "changelog": "auto-changelog -p",
+    "release": "npm "
   },
   "files": [
     "dist/**/*"
