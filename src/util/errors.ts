@@ -1,20 +1,22 @@
+import Boom from '@hapi/boom';
+
 export const boom = require('@hapi/boom');
 
-
+export type AmalaError = (message: string, data?: any) => any
 // 400s
-export const errorBadRequest: typeof boom.badRequest = boom.badRequest;
+export const errorBadRequest: AmalaError = boom.badRequest;
 
-export const errorNotLoggedIn: typeof boom.unauthorized = boom.unauthorized;
+export const errorNotLoggedIn: AmalaError = boom.unauthorized;
 
-export const errorForbidden: typeof boom.forbidden = boom.forbidden;
+export const errorForbidden: AmalaError = boom.forbidden;
 
-export const errorNotFound: typeof boom.notFound = boom.notFound;
+export const errorNotFound: AmalaError = boom.notFound;
 
-export const errorBadInput: typeof boom.badData = boom.badData;
+export const errorBadInput: AmalaError = boom.badData;
 
 // 500s
-export const errorInternal: typeof boom.internal = boom.internal;
+export const errorInternal: AmalaError = boom.internal;
 
-export const errorDependencyFailed: typeof boom.failedDependency = boom.failedDependency;
+export const errorDependencyFailed: AmalaError = boom.failedDependency;
 
 
