@@ -28,8 +28,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "changelog": "auto-changelog -p",
-    "release:patch": "tsc && npm version patch && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push --tags",
-    "release:minor": "tsc && npm version minor && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push --tags"
+    "release:patch": "tsc && npm version patch && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master --tags",
+    "release:minor": "tsc && npm version minor && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master--tags"
   },
   "files": [
     "dist/**/*"
@@ -45,7 +45,6 @@
     "koa-body": "*",
     "koa-helmet": "^7.0.2",
     "koa-router": "*",
-    "koa-session": "*",
     "lodash": "^4.17.21",
     "openapi-types": "^10.0.0",
     "reflect-metadata": "*",
@@ -56,7 +55,6 @@
     "@types/jest": "^25.1.2",
     "@types/koa": "^2.11.1",
     "@types/koa-router": "^7.4.0",
-    "@types/koa-session": "^5.10.1",
     "@types/lodash": "^4.14.149",
     "@types/node": "^13.7.1",
     "@types/supertest": "^2.0.8",
