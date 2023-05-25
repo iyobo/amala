@@ -173,3 +173,5 @@ export {
  * Allows for custom Decorators to be created by developers.
  */
 export const addArgumentDecorator = addArgumentInjectMeta;
+
+export const errors = Boom
