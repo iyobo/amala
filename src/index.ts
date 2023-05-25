@@ -6,7 +6,7 @@ import {generateOpenApi, openApiSpec} from './openapi/OpenApi';
 import Router from 'koa-router';
 import bodyParser from 'koa-body';
 import {addArgumentInjectMeta} from './util/tools';
-import Application from 'koa';
+import KoaApplication from 'koa';
 import koaHelmet from 'koa-helmet';
 import {AmalaOptions} from './types/AmalaOptions';
 import {KoaBodyOptions} from './types/KoaBodyOptions';
@@ -47,9 +47,9 @@ export const controllers = {};
  */
 export const bootstrapControllers = async (
   params: AmalaOptions
-): Promise<{ app: Application; router: Router }> => {
+): Promise<{ app: KoaApplication; router: Router }> => {
   options = params;
-  const app = options.app = options.app || new Application();
+  const app = options.app = options.app || new KoaApplication();
   options.router = options.router || new Router();
 
   options.versions = options.versions || {1: true};
@@ -175,3 +175,5 @@ export {
 export const addArgumentDecorator = addArgumentInjectMeta;
 
 export const errors = Boom
+
+export type Context = KoaApplication.Context
