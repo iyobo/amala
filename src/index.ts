@@ -14,8 +14,6 @@ import {ControllerCodex} from './types/ControllerCodex';
 import {HelmetOptions} from 'helmet';
 
 
-const unparsed = require('koa-body/unparsed.js');
-
 export let options: AmalaOptions;
 export const metadata = {
   controllers: {}
