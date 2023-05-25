@@ -26,7 +26,8 @@
     "prepublish": "tsc && npm test",
     "dev": "tsc -w",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "changelog": "auto-changelog -p"
   },
   "files": [
     "dist/**/*"
@@ -59,6 +60,7 @@
     "@types/supertest": "^2.0.8",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
+    "auto-changelog": "^2.4.0",
     "class-validator": "^0.x",
     "eslint": "7.29.0",
     "eslint-config-prettier": "8.3.0",
