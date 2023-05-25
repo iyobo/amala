@@ -3,8 +3,8 @@ import {plainToClass} from 'class-transformer';
 import {validate} from 'class-validator';
 import {Context} from 'koa';
 import _ from 'lodash';
-import {AmalaOptions} from '../';
 import {isClass} from './tools';
+import {AmalaOptions} from '../types/AmalaOptions';
 
 async function _argumentInjectorProcessor(name, body, injectOptions) {
   if (!injectOptions) {

@@ -1,6 +1,6 @@
 import {OpenAPIV3_1} from 'openapi-types';
-import {AmalaOptions} from '../index';
 import * as _ from 'lodash';
+import {AmalaOptions} from '../types/AmalaOptions';
 
 
 export interface AmalaMetadataAction {
