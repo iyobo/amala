@@ -13,6 +13,7 @@ import {KoaBodyOptions} from './types/KoaBodyOptions';
 import {ControllerCodex} from './types/ControllerCodex';
 import {HelmetOptions} from 'helmet';
 
+
 const unparsed = require('koa-body/unparsed.js');
 
 export let options: AmalaOptions;
@@ -174,6 +175,5 @@ export {
  */
 export const addArgumentDecorator = addArgumentInjectMeta;
 
-export * from './util/errors'
-
+export {errors} from './util/errors';
 export type Context = KoaApplication.Context

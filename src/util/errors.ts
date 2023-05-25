@@ -20,3 +20,12 @@ export const errorInternal: AmalaError = boom.internal;
 export const errorDependencyFailed: AmalaError = boom.failedDependency;
 
 
+export const errors = {
+  badRequest: errorBadRequest,
+  unauthorized: errorNotLoggedIn,
+  forbidden: errorForbidden,
+  notFound: errorNotFound,
+  badInput: errorBadInput,
+  dependencyFailed: errorDependencyFailed,
+  internal: errorInternal
+}
