@@ -1,8 +1,6 @@
 import {bootstrapControllers} from '../index';
-import {ActionController} from '../tests/util/controllers/ActionController';
 import {ArgController} from '../tests/util/controllers/ArgController';
 import {ProtectedController} from '../tests/util/controllers/ProtectedController';
-import request from 'supertest';
 
 export const startTestServer = async ()=> {
   const port = 4050
@@ -13,6 +11,7 @@ export const startTestServer = async ()=> {
     openAPI:{
       enabled: true,
       publicURL: `http://localhost:${port}`,
+      path: 'docs',
       spec: {
         info:{
           title: 'Testic Service',

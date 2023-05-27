@@ -187,14 +187,14 @@ export class FooController {
 
     @Get(['hello/john', 'hello/rick'])
     async multiGet() {
-        // GET /api/v.../foo/john OR /api/v.../foo/rick
+        // GET /api/v.../foo/hello/john OR /api/v.../foo/hello/rick
 
         return 'Hello Gentlemen';
     }
 
 
     @Get('/model/:id')
-    async getFooById( @Params('id') id: string) {
+    async getModelById( @Params('id') id: string) {
         // GET /api/v.../foo/model/123
         // The function argument id has been injected with ctx.params.id, which is the string "123"
     }
@@ -206,11 +206,11 @@ export class FooController {
     }
 
     @Get('/incidents/:region')
-    async getFooById(
+    async getIncidentsByRegion(
         @Params('region') region: string,
         @Query('from') fromTimestamp: number ) {
 
-        // GET /api/v.../incidents/austintx?from=123456
+        // GET /api/v.../foo/incidents/austintx?from=123456
 
         // region === 'austintx' && fromTimestamp === 123456
     }
@@ -222,7 +222,7 @@ export class FooController {
         // POST /api/v.../lead
         // leadData injected with all POST data
  
-        //store it...
+        //maybe store it...
 
     }
 
