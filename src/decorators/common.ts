@@ -60,6 +60,7 @@ type AddVerbProps = {
   object: Record<string, any>,
   methodName: string
 }
+
 export function addVerbFunctionMeta({verb, paths, object, methodName}: AddVerbProps): void {
 
   const controller = metadata.controllers[object.constructor.name] || {};
@@ -81,18 +82,18 @@ export function addVerbFunctionMeta({verb, paths, object, methodName}: AddVerbPr
 } // argument injection decorators
 
 
-type AddArgumentProps ={
+type AddArgumentProps = {
   index: number
-  injectSource: string
-  injectOptions: string | ValidationDecoratorOptions
+  ctxKey: string
+  ctxValueOptions: string | ValidationDecoratorOptions
   methodName: string
-  object: any
+  object: Record<string, any>
 }
 
 export function addArgumentInjectMeta({
                                         index,
-                                        injectSource,
-                                        injectOptions,
+                                        ctxKey,
+                                        ctxValueOptions,
                                         methodName,
                                         object
                                       }: AddArgumentProps) {
@@ -105,8 +106,8 @@ export function addArgumentInjectMeta({
   controller.endpoints[methodName].arguments =
     controller.endpoints[methodName].arguments || {};
   controller.endpoints[methodName].arguments[index] = {
-    ctxKey: injectSource,
-    ctxValueOptions: injectOptions
+    ctxKey: ctxKey,
+    ctxValueOptions: ctxValueOptions
   };
 
   metadata.controllers[object.constructor.name] = controller;

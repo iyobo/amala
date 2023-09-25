@@ -8,8 +8,8 @@ export function Session(injectOptions?: string | Record<string, any>) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "session",
-      injectOptions,
+      ctxKey: "session",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });

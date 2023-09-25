@@ -8,8 +8,8 @@ export function Body(injectOptions?: string | ValidationDecoratorOptions) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "body",
-      injectOptions,
+      ctxKey: "body",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });

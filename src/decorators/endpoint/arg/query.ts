@@ -8,8 +8,8 @@ export function Query(injectOptions?: string | ValidationDecoratorOptions) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "query",
-      injectOptions,
+      ctxKey: "query",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });

@@ -38,8 +38,6 @@ const defaultErrorHandler = async (err: any, ctx: any) => {
   }
 };
 
-export const controllers = {};
-
 /**
  *
  * @param app - Koa instance
@@ -79,6 +77,8 @@ export const bootstrapControllers = async (
    *
    * The object is the native form. Arrays are converted to object.
    */
+
+  // if versions are in array for, convert to object
   if (Array.isArray(options.versions)) {
     const versions = {};
 
@@ -88,26 +88,31 @@ export const bootstrapControllers = async (
     options.versions = versions;
   }
 
-  // error handling middleware
+  // Amala's Error handling middleware
   app.use(async (ctx, next) => {
     try {
       await next();
     } catch (err) {
-      options.errorHandler(err, ctx);
+      await options.errorHandler(err, ctx);
     }
   });
 
-  // We don't need to do anything with the array of Controller classes these
-  // return because the decorators have already loaded up the classes into metadata.
-  // The Controller class files just need to be touched and they will handle their own registration in metadata
+  /**
+   * We don't need to do anything with the array of Controller classes thesse return because the decorators have
+   * already loaded up the classes into metadata.
+   *
+   * The Controller class files just need to be loaded. They will handle their own registration in metadata
+   */
+
   for (const controllerDef of options.controllers) {
     if (typeof controllerDef === 'string') {
       if (options.diagnostics) console.info(`Amala: munching controllers in path ${controllerDef}`);
       importClassesFromDirectories(controllerDef); // this is a string glob path. Load controllers from path
     } else {
-      // if it is not a string, it means it is a class that has already been imported/required/loaded. No need to
-      // do anything else. Encourage users to still add the controller classes here even though the
-      // decorators already load things up, for possible future needs.
+      /**
+       * These are actual classes so Nothing to do here.
+       * Their decorators have already registered them in the metadata.
+       */
     }
   }
 

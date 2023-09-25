@@ -8,8 +8,8 @@ export function File() {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "request",
-      injectOptions: "files",
+      ctxKey: "request",
+      ctxValueOptions: "files",
       methodName,
       object
     });

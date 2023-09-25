@@ -8,8 +8,8 @@ export function Header(injectOptions?: string | Record<string, any>) {
   ) {
     addArgumentInjectMeta({
       index,
-      injectSource: "header",
-      injectOptions,
+      ctxKey: "header",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });

@@ -8,8 +8,8 @@ export function Res(injectOptions?: string | Record<string, any>) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "res",
-      injectOptions,
+      ctxKey: "res",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });

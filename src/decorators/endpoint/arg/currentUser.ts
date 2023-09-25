@@ -8,8 +8,8 @@ export function CurrentUser(injectOptions?: string | Record<string, any>) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "currentUser",
-      injectOptions,
+      ctxKey: "currentUser",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });

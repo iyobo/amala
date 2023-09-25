@@ -13,8 +13,8 @@ export function Ctx(ctxfield?: string, injectOptions?: string | ValidationDecora
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: ctxfield || "ctx",
-      injectOptions,
+      ctxKey: ctxfield || "ctx",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });

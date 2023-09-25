@@ -8,8 +8,8 @@ export function Req(injectOptions?: string | Record<string, any>) {
   ): void {
     addArgumentInjectMeta({
       index,
-      injectSource: "request",
-      injectOptions,
+      ctxKey: "request",
+      ctxValueOptions: injectOptions,
       methodName,
       object
     });
