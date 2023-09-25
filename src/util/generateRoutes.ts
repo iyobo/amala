@@ -232,8 +232,10 @@ export async function generateRoutes(
   metadata: AmalaMetadata
 ) {
 
-  console.log('generating routes for Amala metadata...', metadata);
-  console.dir(metadata, {depth: null});
+  if (options.diagnostics) {
+    console.log('generating routes for Amala metadata...');
+    console.dir(metadata, {depth: null});
+  }
 
   const basePath = options.basePath || ''; // e.g /api
   const controllers = Object.values(metadata.controllers);
