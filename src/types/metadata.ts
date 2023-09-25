@@ -1,3 +1,5 @@
+
+export type Class<T = any> = new (...args: any[]) => T;
 export type FlowFunction = (ctx, next) => Promise<void>
 
 export type RestVerb = 'get' | 'post' | 'put' | 'patch' | 'delete'
@@ -5,6 +7,12 @@ export type RestVerb = 'get' | 'post' | 'put' | 'patch' | 'delete'
 export type StringOrRegex = string | RegExp
 
 export type ClassMethod = Record<string, any>
+
+export type AmalaMetadataArgument = {
+  ctxKey?: string,
+  ctxValueOptions?: any,
+  argType?: any
+}
 
 export interface AmalaMetadataEndpoint {
 
@@ -28,15 +36,12 @@ export interface AmalaMetadataEndpoint {
    * All argument injection happens from ctx, in order of their definition.
    * ctx[ctxKey](ctxValueOptions)
    */
-  arguments?: Record<number, {
-    ctxKey: string,
-    ctxValueOptions?: any
-  }>,
+  arguments?: Record<number, AmalaMetadataArgument>,
 
   /**
    * The defined types of the injected arguments, as derived from Reflect metadata
    */
-  argumentTypes?: any[], // ??? returns?
+  returnType?: any,
 
   /**
    * The async class method that serves as this endpoint
@@ -53,7 +58,7 @@ export interface AmalaMetadataController {
   /**
    * The class that serves as this controller
    */
-  targetClass?: Function;
+  targetClass?: Class;
 
   /**
    * List of middleware to be run, in order, before entering this controller's endpoints.

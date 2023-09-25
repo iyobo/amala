@@ -67,16 +67,21 @@ export function addVerbFunctionMeta({verb, paths, object, methodName}: AddVerbPr
   controller.endpoints = controller.endpoints || {};
   controller.endpoints[methodName] = controller.endpoints[methodName] || {};
 
-  const argumentTypes = Reflect.getMetadata(
+  const argumentTypes: any[] = Reflect.getMetadata(
     "design:paramtypes",
     object,
     methodName
   );
+  controller.endpoints[methodName].arguments = controller.endpoints[methodName].arguments || {} // this shouldn't exist but whatever
+  argumentTypes.forEach((argType, idx)=>{
+    controller.endpoints[methodName].arguments[idx] = controller.endpoints[methodName].arguments[idx] || {}
+    controller.endpoints[methodName].arguments[idx].argType = argType
+  })
+
 
   controller.endpoints[methodName].verb = verb;
   controller.endpoints[methodName].paths = paths;
   controller.endpoints[methodName].targetMethod = object[methodName];
-  controller.endpoints[methodName].argumentTypes = argumentTypes;
 
   metadata.controllers[object.constructor.name] = controller;
 } // argument injection decorators

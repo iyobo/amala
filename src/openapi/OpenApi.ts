@@ -153,20 +153,18 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
 
           // TODO: build parameter/ argument specs
           for (const argId in endpoint.arguments) {
-            const argInjectionDetails = endpoint.arguments[argId];
-
-            const argType = endpoint.argumentTypes?.[argId];
+            const argumentMeta = endpoint.arguments[argId];
 
             // register unregistered schemas
-            if (argType) registerSchema(argType);
+            if (argumentMeta.argType) registerSchema(argumentMeta.argType);
 
-            const injectSource = argInjectionDetails.ctxKey;
-            const injectOptions = argInjectionDetails.ctxValueOptions;
-            const injectOptionsType = typeof argInjectionDetails.ctxValueOptions;
+            const injectSource = argumentMeta.ctxKey;
+            const injectOptions = argumentMeta.ctxValueOptions;
+            const injectOptionsType = typeof argumentMeta.ctxValueOptions;
             let required = false;
             const name = injectOptions;
 
-            const argExistsIn = convertInjectSource(argInjectionDetails.ctxKey);
+            const argExistsIn = convertInjectSource(argumentMeta.ctxKey);
 
             if (injectOptions && injectOptionsType !== 'string') {
               // injection object
@@ -186,7 +184,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
               name,
               required,
               schema: {
-                type: argType?.name || 'unknown'
+                type: argumentMeta.argType?.name || 'unknown'
               }
             });
           }

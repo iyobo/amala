@@ -4,6 +4,7 @@ import {OpenAPIV3_1} from 'openapi-types';
 
 import {KoaBodyOptions} from './KoaBodyOptions';
 import {HelmetOptions} from 'helmet';
+import {FlowFunction} from './metadata';
 
 export interface AmalaOptions {
   /** For If you want to supply your own koa application instance.
@@ -33,7 +34,7 @@ export interface AmalaOptions {
   disableVersioning?: boolean;
 
   // Define the sequence of middleware to per request.
-  flow?: Array<(ctx, next) => Promise<void>>;
+  flow?: FlowFunction[];
 
   /*
    Amala simplifies error handling for you using Boom errors.

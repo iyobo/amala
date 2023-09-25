@@ -6,7 +6,7 @@ import _ from 'lodash';
 import {isClass} from './tools';
 import {AmalaOptions} from '../types/AmalaOptions';
 import Router from 'koa-router';
-import {AmalaMetadata} from '../types/metadata';
+import {AmalaMetadata, AmalaMetadataArgument, AmalaMetadataController} from '../types/metadata';
 
 async function _argumentInjectorProcessor(name: string, body, injectOptions) {
   if (!injectOptions) {
@@ -60,52 +60,48 @@ const argumentInjectorTranslations = {
 /**
  * Processes an endpoint-function argument and validates it etc
  * @param ctx
- * @param index
- * @param injectSource
- * @param injectOptions
- * @param type
+ * @param argument
  * @param options
  */
 async function _determineArgument(
   ctx: Context,
-  index: number,
-  {injectSource, injectOptions},
-  type,
+  argument: AmalaMetadataArgument,
   options: AmalaOptions
 ) {
   let values;
+  const {ctxKey, ctxValueOptions, argType} = argument;
 
-  if (argumentInjectorTranslations[injectSource]) {
+  if (argumentInjectorTranslations[ctxKey]) {
 
-    values = await argumentInjectorTranslations[injectSource](ctx, injectOptions);
+    values = await argumentInjectorTranslations[ctxKey](ctx, ctxValueOptions);
 
   } else {
     // not a special arg injector? No special translation exists so just use CTX.
-    values = ctx[injectSource];
-    if (values && injectOptions) {
-      values = values[injectOptions];
+    values = ctx[ctxKey];
+    if (values && ctxValueOptions) {
+      values = values[ctxValueOptions];
     }
 
     // TODO: implement custom function capability here for arg injectors
   }
 
   // validate if this is a class and if this is a body, params, or query injection
-  const shouldValidate = values && isClass(type) && ['body', 'params', 'query'].includes(injectSource);
+  const shouldValidate = values && isClass(argType) && ['body', 'params', 'query'].includes(ctxKey);
 
   if (shouldValidate) {
-    values = await plainToClass(type, values);
+    values = await plainToClass(argType, values);
 
     const errors = await validate(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
 
     if (errors.length > 0) {
       throw boom.badData(
-        'validation error for argument type: ' + injectSource,
+        'validation error for argument type: ' + ctxKey,
         errors.map(it => {
           return {field: it.property, violations: it.constraints};
         })
       );
     }
-  } else if (type === Number) {
+  } else if (argType === Number) {
     values = Number(values);
   }
 
@@ -113,14 +109,14 @@ async function _determineArgument(
 }
 
 async function _generateEndPoints(
-  router,
+  router: Router,
   options: AmalaOptions,
-  controller,
+  controller: AmalaMetadataController,
   parentPath: string,
   generatingForVersion: string | number
 ) {
-  const endpoints = controller.endpoints;
-  const controllerInstanceName = controller.class.name + '__' + controller.path;
+  // const controllerInstanceName = controller.targetClass.name + '__' + parentPath;
+
 
   let deprecationMessage = '';
   if (
@@ -130,11 +126,10 @@ async function _generateEndPoints(
     deprecationMessage = options.versions[generatingForVersion];
   }
 
-  const mappedEndpoints = Object.keys(endpoints).map(endpoint => endpoints[endpoint]);
-  // debugger;
+  const endpoints = Object.values(controller.endpoints);
 
-  // for each endpoint
-  for (const endpoint of mappedEndpoints) {
+  // for each endpoint...
+  for (const endpoint of endpoints) {
     let willAddEndpoint = true;
 
     // If API versioning mode is active...
@@ -164,63 +159,63 @@ async function _generateEndPoints(
     }
 
     if (willAddEndpoint) {
-      const path =
-        '/' +
-        (parentPath + endpoint.path)
+
+      endpoint.paths.forEach(endpointPath => {
+        const path = '/' + (parentPath + '/'+ endpointPath)
           .split('/')
           .filter(i => i.length)
           .join('/');
 
-      // Add defined middlewares
-      const flow = [
-        ...(options?.flow || []),
-        ...(controller?.flow || []),
-        ...(endpoint?.flow || [])
-      ];
+        // Add defined middlewares
+        const flow = [
+          ...(options?.flow || []),
+          ...(controller?.flow || []),
+          ...(endpoint?.flow || [])
+        ];
 
 
-      // And finally add leaf-level endpoint
-      flow.push(async function endpointFunc(ctx) {
+        // And finally add leaf-level endpoint
+        flow.push(async function endpointFunc(ctx) {
 
-        const targetArguments = [];
+          const targetArguments = [];
 
-        if (deprecationMessage) {
-          ctx.set({deprecation: deprecationMessage});
-        }
-
-        // inject data into arguments
-        if (endpoint.arguments) {
-          for (const index of Object.keys(endpoint.arguments)) {
-            const numIndex = Number(index);
-
-            const argumentMeta = endpoint.arguments[numIndex];
-
-            targetArguments[numIndex] = await _determineArgument(
-              ctx,
-              numIndex,
-              argumentMeta,
-              endpoint.argumentTypes[numIndex],
-              options
-            );
+          if (deprecationMessage) {
+            ctx.set({deprecation: deprecationMessage});
           }
-        }
 
-        // run target endpoint handler
-        // ctx.body = await endpoint.target(...targetArguments);
+          // inject data into arguments
+          if (endpoint.arguments) {
+            for (const index of Object.keys(endpoint.arguments)) {
+              const numIndex = Number(index);
 
-        // Each request will create a new controller with the ctx passes as constuctor argument
-        // eslint-disable-next-line new-cap
-        const controllerInstance = new controller.class(ctx);
+              const argumentMeta = endpoint.arguments[numIndex];
 
-        // bind to controller instance to allow for "this" within class when
-        // accessing other class endpoints. e.g this.getOne
-        ctx.body = await endpoint.target
-          .bind(controllerInstance)(...targetArguments);
+              targetArguments[numIndex] = await _determineArgument(
+                ctx,
+                argumentMeta,
+                options
+              );
+            }
+          }
 
+          // run target endpoint handler
+          // ctx.body = await endpoint.target(...targetArguments);
+
+          // Each request will create a new controller with the ctx passes as constuctor argument
+          // eslint-disable-next-line new-cap
+          const controllerInstance = new controller.targetClass(ctx);
+
+          // bind to controller instance to allow for "this" within class when
+          // accessing other class endpoints. e.g this.getOne
+          ctx.body = await endpoint.targetMethod
+            .bind(controllerInstance)(...targetArguments);
+
+        });
+
+        if (options.diagnostics) console.info(`Amala: generating ${endpoint.verb} ${path}`);
+        router[endpoint.verb](path, ...flow);
       });
 
-      if (options.diagnostics) console.info(`Amala: generating ${endpoint.verb} ${path}`);
-      router[endpoint.verb](path, ...flow);
     }
   }
 }
@@ -237,22 +232,19 @@ export async function generateRoutes(
   metadata: AmalaMetadata
 ) {
 
-  console.log('generating routes for Amala metadata...', metadata)
-  console.dir(metadata, { depth: null });
+  console.log('generating routes for Amala metadata...', metadata);
+  console.dir(metadata, {depth: null});
 
   const basePath = options.basePath || ''; // e.g /api
-  const controllers: any[] = Object.values(metadata.controllers);
+  const controllers = Object.values(metadata.controllers);
 
   // for each found controller
   for (const controller of controllers) {
-    const paths = Array.isArray(controller.path)
-      ? controller.path
-      : [controller.path];
 
     if (options.disableVersioning) {
       // enter endpoint without versioning e.g /api/users
 
-      for (const path of paths) {
+      for (const path of controller.paths) {
         await _generateEndPoints(
           router,
           options,
@@ -267,8 +259,11 @@ export async function generateRoutes(
       const versions = _.isArray(options.versions)
         ? options.versions
         : _.keysIn(options.versions);
+
       for (const version of versions) {
-        for (const path of paths) {
+
+        for (const path of controller.paths) {
+
           await _generateEndPoints(
             router,
             options,

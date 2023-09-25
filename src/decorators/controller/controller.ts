@@ -1,9 +1,9 @@
 import {metadata, options} from '../../index';
-import {AmalaMetadataController} from '../../types/metadata';
+import {AmalaMetadataController, Class} from '../../types/metadata';
 import {ensureArray} from '../../util/tools';
 
 export function Controller(baseRoute?: string | string[]) {
-  return function (classDefinition: Function): void {
+  return function (classDefinition: Class): void {
 
     // It is possible to define multiple routes to use the same controller
     const routes = ensureArray(baseRoute);
