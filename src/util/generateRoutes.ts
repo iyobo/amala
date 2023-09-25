@@ -3,7 +3,7 @@ import {plainToClass} from 'class-transformer';
 import {validate} from 'class-validator';
 import {Context} from 'koa';
 import _ from 'lodash';
-import {isClass} from './tools';
+import {isClass, isValidatableClass} from './tools';
 import {AmalaOptions} from '../types/AmalaOptions';
 import Router from 'koa-router';
 import {AmalaMetadata, AmalaMetadataArgument, AmalaMetadataController} from '../types/metadata';
@@ -86,13 +86,12 @@ async function _determineArgument(
   }
 
   // validate if this is a class and if this is a body, params, or query injection
-  const shouldValidate = values && isClass(argType) && ['body', 'params', 'query'].includes(ctxKey);
+  const shouldValidate = values && isValidatableClass(argType) && ['body', 'params', 'query'].includes(ctxKey);
 
   if (shouldValidate) {
     values = await plainToClass(argType, values);
 
     const errors = await validate(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
-
     if (errors.length > 0) {
       throw boom.badData(
         'validation error for argument type: ' + ctxKey,
@@ -101,8 +100,10 @@ async function _determineArgument(
         })
       );
     }
-  } else if (argType === Number) {
-    values = Number(values);
+
+  }
+  else if (argType !== String) {
+    values = argType(values);
   }
 
   return values;
@@ -160,8 +161,8 @@ async function _generateEndPoints(
 
     if (willAddEndpoint) {
 
-      endpoint.paths.forEach(endpointPath => {
-        const path = '/' + (parentPath + '/'+ endpointPath)
+      for (const endpointPath of endpoint.paths) {
+        const path = '/' + (parentPath + '/' + endpointPath)
           .split('/')
           .filter(i => i.length)
           .join('/');
@@ -214,7 +215,8 @@ async function _generateEndPoints(
 
         if (options.diagnostics) console.info(`Amala: generating ${endpoint.verb} ${path}`);
         router[endpoint.verb](path, ...flow);
-      });
+      }
+      ;
 
     }
   }

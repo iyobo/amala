@@ -109,6 +109,12 @@ export class ArgController {
     return {type: typeof val, val};
   }
 
+  @Get('/paramsCastBoolean/:val')
+  async paramsCastBoolean(@Params('val') val: boolean) {
+    return {type: typeof val, val};
+  }
+
+
   // sessions
   @Get('/session')
   @Flow(setSomethingSessionFlow)
@@ -160,6 +166,11 @@ export class ArgController {
 
   @Get('/custom')
   async custom(@CustomDeco() query: any) {
+    return query;
+  }
+
+  @Get(['/multiPath1','/multiPath2'])
+  async multiPath(@Query() query: any) {
     return query;
   }
 

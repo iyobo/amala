@@ -28,9 +28,9 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "changelog": "auto-changelog -p",
-    "release:patch": "tsc && npm version patch && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master --tags",
-    "release:minor": "tsc && npm version minor && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master--tags",
-    "release:major": "tsc && npm version major && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master--tags"
+    "release:patch": "npm test && tsc && npm version patch && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master --tags",
+    "release:minor": "npm test && tsc && npm version minor && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master--tags",
+    "release:major": "npm test && tsc && npm version major && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master--tags"
   },
   "files": [
     "dist/**/*"

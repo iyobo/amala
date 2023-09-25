@@ -7,11 +7,12 @@ beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({
     basePath: "/api",
+    // eslint-disable-next-line node/no-path-concat
     controllers: [__dirname + "/util/controllers/**/*.ts"],
     versions: ["1", "2"],
     bodyParser: {
       multipart: true
-    }
+    },
   });
 
   app.use(router.routes());
@@ -30,12 +31,14 @@ afterAll(done => {
 });
 
 describe("Arguments", () => {
+
   describe("params", () => {
     it("whole object", async () => {
       const response = await testServer
         .post("/api/v2/arg/akara/garri")
         .expect(200);
-      expect(response.body.params).toEqual({ id: "garri", model: "akara" });
+      expect(response.body.params).toEqual({id: "garri", model: "akara"});
+      expect(response.body.id).toEqual("garri");
     });
 
     it("params key-value", async () => {
@@ -73,10 +76,21 @@ describe("Arguments", () => {
       expect(response.text).toEqual(payload.foo);
     });
 
+    it("Validation succeeds", async () => {
+      const payload = {aString: "Ijebu garri is the best for soaking", aNumber: 4};
+      const response = await testServer
+        .post("/api/v2/arg/body")
+        .send(payload)
+        .expect(200);
+      expect(response.body.aString).toEqual(payload.aString);
+      expect(response.body.aNumber).toEqual(payload.aNumber);
+    });
+
     it("validation fails if required but no input", async () => {
       const response = await testServer
         .post("/api/v2/arg/bodyRequired")
         .expect(422);
+
       expect(response.body.message).toEqual(
         "Body: is required and cannot be null"
       );
@@ -85,7 +99,7 @@ describe("Arguments", () => {
     it("validation fails if input not valid", async () => {
       const response = await testServer
         .post("/api/v2/arg/body")
-        .send({ a: 1, b: 2, c: 3 })
+        .send({a: 1, b: 2, c: 3})
         .expect(422);
       expect(response.body.message).toEqual(
         "validation error for argument type: body"
@@ -96,7 +110,7 @@ describe("Arguments", () => {
     it("validation fails if input not valid #2", async () => {
       const response = await testServer
         .post("/api/v2/arg/body")
-        .send({ aString: "Ijebu garri is the best for soaking" })
+        .send({aString: "Ijebu garri is the best for soaking"})
         .expect(422);
       expect(response.body.message).toEqual(
         "validation error for argument type: body"
@@ -108,7 +122,7 @@ describe("Arguments", () => {
     it("Using an interface will not validate. Must use class with field decorators", async () => {
       await testServer
         .post("/api/v2/arg/interface")
-        .send({ aString: "Ijebu garri is the best for soaking" })
+        .send({aString: "Ijebu garri is the best for soaking"})
         .expect(200);
     });
   });
@@ -166,13 +180,23 @@ describe("Arguments", () => {
         .expect(200);
       expect(response.text).toEqual("123");
     });
-    it("Single Field number", async () => {
-      const response = await testServer
-        .get("/api/v2/arg/paramsCastNumber/123")
-        .expect(200);
-      expect(response.body.type).toEqual("number");
-      expect(response.body.val).toEqual(123);
+    describe('get casted to', () => {
+      it("number", async () => {
+        const response = await testServer
+          .get("/api/v2/arg/paramsCastNumber/123")
+          .expect(200);
+        expect(response.body.type).toEqual("number");
+        expect(response.body.val).toEqual(123);
+      });
+      it("boolean", async () => {
+        const response = await testServer
+          .get("/api/v2/arg/paramsCastBoolean/true")
+          .expect(200);
+        expect(response.body.type).toEqual("boolean");
+        expect(response.body.val).toEqual(true);
+      });
     });
+
   });
 
   describe("session", () => {
@@ -286,5 +310,29 @@ describe("Arguments", () => {
       expect(response.body).toBeDefined();
       expect(response.body.jollof).toEqual('rice');
     });
+
   });
+
+  describe("multiple paths", () => {
+    it("work 1", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/multiPath1?jollof=rice")
+        .expect(200);
+
+      // returns a serialized ctx object
+      expect(response.body).toBeDefined();
+      expect(response.body.jollof).toEqual('rice');
+    });
+
+    it("work 2", async () => {
+      const response = await testServer
+        .get("/api/v2/arg/multiPath2?jollof=beans")
+        .expect(200);
+
+      // returns a serialized ctx object
+      expect(response.body).toBeDefined();
+      expect(response.body.jollof).toEqual('beans');
+    });
+  });
+
 });
