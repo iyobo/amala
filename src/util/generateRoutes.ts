@@ -5,8 +5,10 @@ import {Context} from 'koa';
 import _ from 'lodash';
 import {isClass} from './tools';
 import {AmalaOptions} from '../types/AmalaOptions';
+import Router from 'koa-router';
+import {AmalaMetadata} from '../types/metadata';
 
-async function _argumentInjectorProcessor(name, body, injectOptions) {
+async function _argumentInjectorProcessor(name: string, body, injectOptions) {
   if (!injectOptions) {
     return body;
   }
@@ -28,7 +30,7 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
 }
 
 /**
- * Acts as a special override for non-simple injections.
+ * Acts as a special override for non-trivial injections.
  * e.g "query" should be searched for in ctx.request, not ctx.
  */
 const argumentInjectorTranslations = {
@@ -84,7 +86,7 @@ async function _determineArgument(
       values = values[injectOptions];
     }
 
-    //TODO: implement custom function capability here for arg injectors
+    // TODO: implement custom function capability here for arg injectors
   }
 
   // validate if this is a class and if this is a body, params, or query injection
@@ -117,7 +119,7 @@ async function _generateEndPoints(
   parentPath: string,
   generatingForVersion: string | number
 ) {
-  const actions = controller.actions;
+  const endpoints = controller.endpoints;
   const controllerInstanceName = controller.class.name + '__' + controller.path;
 
   let deprecationMessage = '';
@@ -128,18 +130,18 @@ async function _generateEndPoints(
     deprecationMessage = options.versions[generatingForVersion];
   }
 
-  const mappedActions = Object.keys(actions).map(action => actions[action]);
+  const mappedEndpoints = Object.keys(endpoints).map(endpoint => endpoints[endpoint]);
   // debugger;
 
-  //for each endpoint
-  for (const action of mappedActions) {
+  // for each endpoint
+  for (const endpoint of mappedEndpoints) {
     let willAddEndpoint = true;
 
     // If API versioning mode is active...
     if (generatingForVersion) {
       // ...and endpoint has some version constraints defined...
-      if (action.limitToVersions && !_.isEmpty(action.limitToVersions)) {
-        const endpointLimit = action.limitToVersions[generatingForVersion];
+      if (endpoint.limitToVersions && !_.isEmpty(endpoint.limitToVersions)) {
+        const endpointLimit = endpoint.limitToVersions[generatingForVersion];
 
         // ...and current endpoint version being generated does NOT exist in the constraint
         if (!endpointLimit) {
@@ -155,7 +157,7 @@ async function _generateEndPoints(
     } else {
       // else If in-built api versioning mode is disabled...
       // ...and endpoint has some version constraints defined...
-      if (action.limitToVersions && !_.isEmpty(action.limitToVersions)) {
+      if (endpoint.limitToVersions && !_.isEmpty(endpoint.limitToVersions)) {
         // , then ignore any endpoint handler with a @Version decorator. Default to catch-all-remainders
         willAddEndpoint = false;
       }
@@ -164,7 +166,7 @@ async function _generateEndPoints(
     if (willAddEndpoint) {
       const path =
         '/' +
-        (parentPath + action.path)
+        (parentPath + endpoint.path)
           .split('/')
           .filter(i => i.length)
           .join('/');
@@ -173,12 +175,12 @@ async function _generateEndPoints(
       const flow = [
         ...(options?.flow || []),
         ...(controller?.flow || []),
-        ...(action?.flow || [])
+        ...(endpoint?.flow || [])
       ];
 
 
       // And finally add leaf-level endpoint
-      flow.push(async function endpoint(ctx) {
+      flow.push(async function endpointFunc(ctx) {
 
         const targetArguments = [];
 
@@ -187,37 +189,38 @@ async function _generateEndPoints(
         }
 
         // inject data into arguments
-        if (action.arguments) {
-          for (const index of Object.keys(action.arguments)) {
+        if (endpoint.arguments) {
+          for (const index of Object.keys(endpoint.arguments)) {
             const numIndex = Number(index);
 
-            const argumentMeta = action.arguments[numIndex];
+            const argumentMeta = endpoint.arguments[numIndex];
 
             targetArguments[numIndex] = await _determineArgument(
               ctx,
               numIndex,
               argumentMeta,
-              action.argumentTypes[numIndex],
+              endpoint.argumentTypes[numIndex],
               options
             );
           }
         }
 
         // run target endpoint handler
-        // ctx.body = await action.target(...targetArguments);
-        
+        // ctx.body = await endpoint.target(...targetArguments);
+
         // Each request will create a new controller with the ctx passes as constuctor argument
+        // eslint-disable-next-line new-cap
         const controllerInstance = new controller.class(ctx);
-        
+
         // bind to controller instance to allow for "this" within class when
-        // accessing other class actions. e.g this.getOne
-        ctx.body = await action.target
+        // accessing other class endpoints. e.g this.getOne
+        ctx.body = await endpoint.target
           .bind(controllerInstance)(...targetArguments);
 
       });
 
-      if (options.diagnostics) console.info(`Amala: generating ${action.verb} ${path}`);
-      router[action.verb](path, ...flow);
+      if (options.diagnostics) console.info(`Amala: generating ${endpoint.verb} ${path}`);
+      router[endpoint.verb](path, ...flow);
     }
   }
 }
@@ -229,9 +232,9 @@ async function _generateEndPoints(
  * @param metadata
  */
 export async function generateRoutes(
-  router,
+  router: Router,
   options: AmalaOptions,
-  metadata
+  metadata: AmalaMetadata
 ) {
   const basePath = options.basePath || ''; // e.g /api
   const controllers: any[] = Object.values(metadata.controllers);

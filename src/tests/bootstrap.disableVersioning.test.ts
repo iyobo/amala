@@ -10,7 +10,7 @@ beforeAll(async () => {
     basePath: "/api",
     controllers: [__dirname + "/util/controllers/**/*.ts"],
     versions: ["1", "2"],
-    disableVersioning: true, // overwrites and cancels versions if present => /apiBase/controller/action
+    disableVersioning: true, // overwrites and cancels versions if present => /apiBase/controller/endpoint
   });
 
   app.use(router.routes());
@@ -33,7 +33,7 @@ describe("Bootstrap option", () => {
   describe("disableVersioning", () => {
     it("works", async () => {
       const response = await testServer
-        .get("/api/action") // no longer /api/v.../action
+        .get("/api/endpoint") // no longer /api/v.../endpoint
         .expect(200);
 
       expect(response.text).toEqual("okay");
@@ -41,7 +41,7 @@ describe("Bootstrap option", () => {
 
     it("ignores @Version", async () => {
       const response = await testServer
-        .get("/api/action/mmm") // no longer /api/v.../action/mmm
+        .get("/api/endpoint/mmm") // no longer /api/v.../endpoint/mmm
         .expect(200);
 
       expect(response.text).toEqual("mmm");

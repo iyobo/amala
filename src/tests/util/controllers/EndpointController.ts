@@ -11,8 +11,8 @@ import {
 } from "../../../index";
 import { passFlow, unauthorizedFlow, badFlow } from "../flow/flow";
 
-@Controller("/action")
-export class ActionController {
+@Controller("/endpoint")
+export class EndpointController {
   @Get("/")
   async getRoute() {
     return "okay";

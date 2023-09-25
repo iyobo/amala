@@ -34,7 +34,7 @@ describe("Bootstrap function", () => {
   describe("Flow", () => {
     it("works", async () => {
       const response = await testServer
-        .get("/api/v2/action/staten")
+        .get("/api/v2/endpoint/staten")
         .expect(200);
 
       expect(response.body.something).toEqual("hahaha");

@@ -1,6 +1,6 @@
 export interface ControllerCodex {
   [k: string]: {
-    actions: {
+    endpoints: {
       [ak: string]: {
         flow?: Array<Function>;
         verb: string;

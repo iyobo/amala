@@ -23,6 +23,7 @@ function convertInjectSource(source) {
     }
   }
 }
+
 function convertPrimitives(type) {
   switch (type) {
     case 'params': {
@@ -33,7 +34,6 @@ function convertPrimitives(type) {
     }
   }
 }
-
 
 
 class OpenApi {
@@ -64,30 +64,30 @@ class OpenApi {
 
         const properties = {};
 
-        //loop through props
+        // loop through props
         for (const [key, value] of Object.entries(obj)) {
-          properties[key] = typeof value
+          properties[key] = typeof value;
         }
 
         schemas[obj.name] = {
           type: 'object',
           properties
-        }
+        };
       }
     }
 
     for (const controllerClassName in meta.controllers) {
-      //e.g UserController
+      // e.g UserController
       const controller = meta.controllers[controllerClassName];
       const basePath = controller.path;
       const classO = controller.class;
 
 
-      for (const actionName in controller.actions) {
-        //e.g getUsers
-        const actionValue = controller.actions[actionName];
-        const fullPath = basePath + actionValue.path;
-        const verb = actionValue.verb;
+      for (const endpointName in controller.endpoints) {
+        // e.g getUsers
+        const endpointValue = controller.endpoints[endpointName];
+        const fullPath = basePath + endpointValue.path;
+        const verb = endpointValue.verb;
 
         paths[fullPath] = paths[fullPath] || {};
 
@@ -104,18 +104,18 @@ class OpenApi {
 
 
         // TODO: build parameter/ argument specs
-        for (const argId in actionValue.arguments) {
-          const argInjectionDetails = actionValue.arguments[argId];
-          const argType = actionValue.argumentTypes[argId];
+        for (const argId in endpointValue.arguments) {
+          const argInjectionDetails = endpointValue.arguments[argId];
+          const argType = endpointValue.argumentTypes[argId];
 
-          //register unregistered schemas
+          // register unregistered schemas
           registerSchema(argType);
 
           const injectSource = argInjectionDetails.injectSource;
           const injectOptions = argInjectionDetails.injectOptions;
           const injectOptionsType = typeof argInjectionDetails.injectOptions;
           let required = false;
-          let name = injectOptions;
+          const name = injectOptions;
 
           const argExistsIn = convertInjectSource(argInjectionDetails.injectSource);
 
@@ -143,17 +143,17 @@ class OpenApi {
 
         // finalize iteration changes of path
         paths[fullPath][verb] = {
-          'operationId': `${controllerClassName}.${actionName}`,
+          'operationId': `${controllerClassName}.${endpointName}`,
           parameters,
           'responses': {
-            '2xx': { //TODO: more details
+            '2xx': { // TODO: more details
               'content': {
                 'application/json': {}
               },
               'description': 'Successful response'
             }
           },
-          'summary': actionName,
+          'summary': endpointName,
           'tags': [
             controllerClassName
           ]

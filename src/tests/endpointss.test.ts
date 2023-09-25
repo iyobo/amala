@@ -25,59 +25,59 @@ afterAll(done => {
   }
 });
 
-describe("Controller actions", () => {
+describe("Controller endpoints", () => {
   it("Get works", async () => {
-    await testServer.get("/api/v2/action").expect(200);
+    await testServer.get("/api/v2/endpoint").expect(200);
   });
 
   it("Post works", async () => {
-    await testServer.post("/api/v2/action").expect(200);
+    await testServer.post("/api/v2/endpoint").expect(200);
   });
 
   it("Put works", async () => {
-    await testServer.put("/api/v2/action").expect(200);
+    await testServer.put("/api/v2/endpoint").expect(200);
   });
 
   it("Patch works", async () => {
-    await testServer.patch("/api/v2/action").expect(200);
+    await testServer.patch("/api/v2/endpoint").expect(200);
   });
 
   it("Delete works", async () => {
-    await testServer.delete("/api/v2/action").expect(200);
+    await testServer.delete("/api/v2/endpoint").expect(200);
   });
 
   it("current version (v2) of an endpoint works", async () => {
-    const response = await testServer.get("/api/v2/action/mmm").expect(200);
+    const response = await testServer.get("/api/v2/endpoint/mmm").expect(200);
     expect(response.text).toEqual("mmm");
   });
 
   it("old version (v1) of an endpoint works", async () => {
-    const response = await testServer.get("/api/v1/action/mmm").expect(200);
+    const response = await testServer.get("/api/v1/endpoint/mmm").expect(200);
     expect(response.text).toEqual("mmm for v1");
   });
 
   it("old version (v1) of an endpoint with endpoint deprecation message in header", async () => {
-    const response = await testServer.get("/api/v1/action/mmm").expect(200);
+    const response = await testServer.get("/api/v1/endpoint/mmm").expect(200);
     expect(response.header.deprecation).toEqual("Do not use");
   });
 
   it("flows can allow", async () => {
     const response = await testServer
-      .get("/api/v1/action/passFlow")
+      .get("/api/v1/endpoint/passFlow")
       .expect(200);
     expect(response.text).toEqual("I was allowed");
   });
 
   it("flows can reject", async () => {
     const response = await testServer
-      .get("/api/v1/action/unauthorized")
+      .get("/api/v1/endpoint/unauthorized")
       .expect(401);
     expect(response.body.message).toEqual("401 for life");
   });
 
   it("can have multiple flows", async () => {
     const response = await testServer
-      .get("/api/v1/action/multiFlow")
+      .get("/api/v1/endpoint/multiFlow")
       .expect(200);
     expect(response.text).toEqual("multiFlow allowed");
   });
@@ -91,7 +91,7 @@ describe("Controller actions", () => {
 
   it("respects 'this' in controller instance", async () => {
     const response = await testServer
-      .get("/api/v2/action/this")
+      .get("/api/v2/endpoint/this")
       .expect(200);
 
     expect(response.body).toEqual(123);
@@ -99,7 +99,7 @@ describe("Controller actions", () => {
 
   it("respects 'this' in controller instance 2", async () => {
     const response = await testServer
-      .get("/api/v2/action/this2")
+      .get("/api/v2/endpoint/this2")
       .expect(200);
 
     expect(response.body).toEqual({res: 456});

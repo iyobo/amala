@@ -1,6 +1,6 @@
 import request from "supertest";
 import {bootstrapControllers} from "../index";
-import {ActionController} from "./util/controllers/ActionController";
+import {EndpointController} from "./util/controllers/EndpointController";
 import {ArgController} from "./util/controllers/ArgController";
 import {ProtectedController} from "./util/controllers/ProtectedController";
 
@@ -10,7 +10,7 @@ beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({
     basePath: "/api",
-    controllers: [ActionController, ArgController, ProtectedController],
+    controllers: [EndpointController, ArgController, ProtectedController],
     versions: ["1", "2"]
   });
 
@@ -32,19 +32,19 @@ afterAll(done => {
 
 describe("bootstrapping server", () => {
   it("should succeed ", async () => {
-    const response = await testServer.get("/api/v2/action").expect(200);
+    const response = await testServer.get("/api/v2/endpoint").expect(200);
     expect(response.text).toEqual("okay");
   });
 
   it("succeeds with multiple API Versions ", async () => {
-    let response = await testServer.get("/api/v1/action").expect(200);
+    let response = await testServer.get("/api/v1/endpoint").expect(200);
     expect(response.text).toEqual("okay");
 
-    response = await testServer.get("/api/v2/action").expect(200);
+    response = await testServer.get("/api/v2/endpoint").expect(200);
     expect(response.text).toEqual("okay");
   });
 
   it("should fail when trying to access an undefined version", async () => {
-    await testServer.get("/api/v3/action").expect(404);
+    await testServer.get("/api/v3/endpoint").expect(404);
   });
 });

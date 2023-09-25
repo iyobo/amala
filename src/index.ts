@@ -5,21 +5,22 @@ import Boom from '@hapi/boom';
 import {generateOpenApi, openApiSpec} from './openapi/OpenApi';
 import Router from 'koa-router';
 import bodyParser from 'koa-body';
-import {addArgumentInjectMeta} from './util/tools';
 import KoaApplication from 'koa';
 import koaHelmet from 'koa-helmet';
 import {AmalaOptions} from './types/AmalaOptions';
 import {KoaBodyOptions} from './types/KoaBodyOptions';
-import {ControllerCodex} from './types/ControllerCodex';
 import {HelmetOptions} from 'helmet';
+import {AmalaMetadata} from './types/metadata';
+import {addArgumentInjectMeta} from './decorators/common';
 
 
 export let options: AmalaOptions;
-export const metadata = {
+
+export const metadata: AmalaMetadata = {
   controllers: {}
 };
 
-export function getControllers(): ControllerCodex {
+export function getControllers() {
   return metadata.controllers;
 }
 
@@ -146,27 +147,6 @@ export const bootstrapControllers = async (
 
 export * from 'class-validator';
 export * from 'class-transformer';
-export {
-  Body,
-  Controller,
-  Ctx,
-  Delete,
-  Flow,
-  Get,
-  Header,
-  File,
-  CurrentUser,
-  Params,
-  Patch,
-  Post,
-  Put,
-  Query,
-  Req,
-  Res,
-  Session,
-  State,
-  Version
-} from './decorators';
 
 /**
  * Allows for custom Decorators to be created by developers.
@@ -175,3 +155,24 @@ export const addArgumentDecorator = addArgumentInjectMeta;
 
 export {errors} from './util/errors';
 export type Context = KoaApplication.Context
+// export {Ctx} from './decorators/endpoints/args/ctx';
+// export {Query} from './decorators/endpoints/args/query';
+// export {Params} from './decorators/endpoints/args/params';
+// export {Res} from './decorators/endpoints/args/res';
+// export {File} from './decorators/endpoints/args/file';
+// export {Req} from './decorators/endpoints/args/req';
+// export {State} from './decorators/endpoints/args/state';
+// export {CurrentUser} from './decorators/endpoints/args/currentUser';
+// export {Session} from './decorators/endpoints/args/session';
+// export {Body} from './decorators/endpoints/args/body';
+// export {Header} from './decorators/endpoints/args/header';
+// export {Flow} from './decorators/hybrid/flow';
+// export {Version} from './decorators/endpoints/version';
+// export {Delete} from './decorators/endpoints/delete';
+// export {Patch} from './decorators/endpoints/patch';
+// export {Put} from './decorators/endpoints/put';
+// export {Post} from './decorators/endpoints/post';
+// export {Get} from './decorators/endpoints/get';
+// export {Controller} from './decorators/controllers/controller';
+
+export * from './decorators';

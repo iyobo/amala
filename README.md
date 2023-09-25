@@ -4,13 +4,13 @@
 Amala is fast, light, and Docker-ready; Perfect for microservices.
 
 - Define your REST API endpoints using ES8 _classes_ and _decorators_.
-- Inject arguments into your endpoint handlers, effectively turning your controller actions into standalone, testable service actions.
+- Inject arguments into your endpoint handlers, effectively turning your controller endpoints into standalone, testable service endpoints.
 - Clean, light and FAST endpoints. Powered by Koa.
 - No further magic past decorators. Full access to underlying Koa app.
 - Project creator comes with fully configured Docker and Docker-compose settings for quick containerization.
 
-This leads to clean, self-documenting API endpoints and makes it so you can re-use those service actions elsewhere.
-It also makes your endpoint actions easier to test.
+This leads to clean, self-documenting API endpoints and makes it so you can re-use those service endpoints elsewhere.
+It also makes your endpoint endpoints easier to test.
 
 OpenAPI export feature is in progress and very incomplete, but you can see where it is by hitting 'GET /api/docs' by default.
 
@@ -327,7 +327,7 @@ Amala is more native to Koa than other Typescript controller systems (e.g routin
 All it cares about is KoaJS.
 
 The result is more dependable behavior and better error handling e.g you can now throw `boom` errors in your controller
-actions (or from anywhere down the execution stack of said actions) and those errors will make it back to the client
+endpoints (or from anywhere down the execution stack of said endpoints) and those errors will make it back to the client
 with exact status codes.
 
 Also, Amala supports **API versioning**. You won't find that anywhere else in a hurry. You can also disable versioning if you don't need it.
@@ -451,15 +451,15 @@ These decorators can be used on Classes i.e controllers
 
 #### @Controller(basePath?)
 
-Specifies this class as a controller class i.e a container of controller actions.
-`basepath` is prefixed to all action paths within this class.
+Specifies this class as a controller class i.e a container of controller endpoints.
+`basepath` is prefixed to all endpoint paths within this class.
 
 #### @Flow([...middlewares])
 
 Flow is the Amala terminology for "middleware chain".
-Define the series of koa middleware that must run (and not throw an error) before any action in this class can satisfy the request.
+Define the series of koa middleware that must run (and not throw an error) before any endpoint in this class can satisfy the request.
 
-### Action Decorators
+### Endpoint Decorators
 
 These decorators wrap functions of controller classes.
 
@@ -495,7 +495,7 @@ Define the series of middleware that must run (and not throw an error) before th
 
 ### Argument Decorators
 
-These decorators are used to inject contextual request data into your controller action's arguments.
+These decorators are used to inject contextual request data into your controller endpoint's arguments.
 Try to be as specific as possible with what you inject so that your endpoint handlers can be more easily tested.
 
 #### @Body() or @Body({required}) or @Body(name)
@@ -555,9 +555,9 @@ Injects the request files object. All files uploaded during the request can be f
 
 #### @Ctx()
 
-Injects the whole koa context. For a more descriptive endpoint handler/action, avoid doing this if you can. Opt for more specific injections.
+Injects the whole koa context. For a more descriptive endpoint handler/endpoint, avoid doing this if you can. Opt for more specific injections.
 
-## How to programmatically access controller actions
+## How to programmatically access controller endpoints
 
 ```typescript
 import { getControllers } from "amala";
@@ -565,9 +565,9 @@ const codex: Record<string,Controller> = getControllers(); //codex is now an ind
 ```
 
 To access the controller with the class name `UserController`, you can use `codex.UserController` or `codex['UserController']`.
-Because amala has you defining your endpoints using the equivalent of async service actions, you could essentially run these async service actions directly e.g
+Because amala has you defining your endpoints using the equivalent of async service endpoints, you could essentially run these async service endpoints directly e.g
 
-Given the action definition:
+Given the endpoint definition:
 ```typescript
 @Controller('/user')
 class UserController {

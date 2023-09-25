@@ -27,7 +27,7 @@ describe.only("library exports", () => {
   it("controllers", async () => {
     const controllers = getControllers();
     expect(controllers).toBeDefined();
-    expect(controllers.ActionController).toBeDefined();
+    expect(controllers.EndpointController).toBeDefined();
     expect(controllers.ArgController).toBeDefined();
     expect(controllers.ProtectedController).toBeDefined();
   });

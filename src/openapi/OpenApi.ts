@@ -1,25 +1,8 @@
 import {OpenAPIV3_1} from 'openapi-types';
 import * as _ from 'lodash';
 import {AmalaOptions} from '../types/AmalaOptions';
+import {AmalaMetadata} from '../types/metadata';
 
-
-export interface AmalaMetadataAction {
-  flow: (ctx, next) => Promise<unknown>
-  verb: 'get' | 'post' | 'put' | 'patch' | 'delete',
-  path: string,
-  arguments: Record<number, { injectSource: any, injectOptions: any }>,
-  argumentTypes: any[], // ??? returns?
-  target: () => Promise<unknown>
-}
-
-export interface AmalaMetadataController {
-  path: string,
-  actions: Record<string, AmalaMetadataAction>
-}
-
-export interface AmalaMetadata {
-  controllers: Record<string, AmalaMetadataController>;
-}
 
 export let openApiSpec: OpenAPIV3_1.Document = {
   openapi: '3.0.1',
@@ -140,101 +123,110 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
    */
   for (const controllerClassName in meta.controllers) {
     // e.g UserController
-    const controllerMeta = meta.controllers[controllerClassName];
-    const basePath = controllerMeta.path;
+    const controller = meta.controllers[controllerClassName];
 
-    for (const actionName in controllerMeta.actions) {
-      // e.g getUsers
-      const actionMeta = controllerMeta.actions[actionName];
-      const fullPath = convertRegexpToSwagger(basePath + (actionMeta.path === '/' ? '' : actionMeta.path));
-      const verb = actionMeta.verb;
+    controller.paths.forEach(controllerPath => {
 
-      paths[fullPath] = paths[fullPath] || {};
+      const basePath = convertRegexpToSwagger(controllerPath)
 
-      const parameters: OpenAPIV3_1.ParameterObject[] = [
-        // {
-        //   "in": "path",
-        //   "name": "userId",
-        //   "required": true,
-        //   "schema": {
-        //     "type": "string"
-        //   }
-        // }
-      ];
+      for (const endpointName in controller.endpoints) {
+        // e.g getUsers
+        const endpoint = controller.endpoints[endpointName];
 
-      // TODO: build parameter/ argument specs
-      for (const argId in actionMeta.arguments) {
-        const argInjectionDetails = actionMeta.arguments[argId];
+        endpoint.paths.forEach(endpointPath => {
 
-        const argType = actionMeta.argumentTypes?.[argId];
+          const fullPath = basePath + convertRegexpToSwagger( (endpointPath === '/' ? '' : endpointPath));
+          const verb = endpoint.verb;
 
-        // register unregistered schemas
-        if(argType) registerSchema(argType);
+          paths[fullPath] = paths[fullPath] || {};
 
-        const injectSource = argInjectionDetails.injectSource;
-        const injectOptions = argInjectionDetails.injectOptions;
-        const injectOptionsType = typeof argInjectionDetails.injectOptions;
-        let required = false;
-        const name = injectOptions;
+          const parameters: OpenAPIV3_1.ParameterObject[] = [
+            // {
+            //   "in": "path",
+            //   "name": "userId",
+            //   "required": true,
+            //   "schema": {
+            //     "type": "string"
+            //   }
+            // }
+          ];
 
-        const argExistsIn = convertInjectSource(argInjectionDetails.injectSource);
+          // TODO: build parameter/ argument specs
+          for (const argId in endpoint.arguments) {
+            const argInjectionDetails = endpoint.arguments[argId];
 
-        if (injectOptions && injectOptionsType !== 'string') {
-          // injection object
-          required = injectOptions.required || false;
-        }
+            const argType = endpoint.argumentTypes?.[argId];
 
-        // if the argument exists as part of path, consider to be required
-        if (argExistsIn === 'path') {
-          required = true;
-        }
+            // register unregistered schemas
+            if (argType) registerSchema(argType);
 
-        // eslint-disable-next-line new-cap
-        // const refl = argType.name;
-        // console.log(refl);
-        parameters.push({
-          in: argExistsIn,
-          name,
-          required,
-          schema: {
-            type: argType?.name || 'unknown'
+            const injectSource = argInjectionDetails.ctxKey;
+            const injectOptions = argInjectionDetails.ctxValueOptions;
+            const injectOptionsType = typeof argInjectionDetails.ctxValueOptions;
+            let required = false;
+            const name = injectOptions;
+
+            const argExistsIn = convertInjectSource(argInjectionDetails.ctxKey);
+
+            if (injectOptions && injectOptionsType !== 'string') {
+              // injection object
+              required = injectOptions.required || false;
+            }
+
+            // if the argument exists as part of path, consider to be required
+            if (argExistsIn === 'path') {
+              required = true;
+            }
+
+            // eslint-disable-next-line new-cap
+            // const refl = argType.name;
+            // console.log(refl);
+            parameters.push({
+              in: argExistsIn,
+              name,
+              required,
+              schema: {
+                type: argType?.name || 'unknown'
+              }
+            });
           }
-        });
-      }
 
-      // console.log(
-      //   'meta-'+actionMeta.target.name,
-      //   Reflect.getMetadata('design:type', actionMeta.target()),
-      //   Reflect.getMetadata('design:paramtypes',  actionMeta.target),
-      //   Reflect.getMetadata('design:returntype', actionMeta.target)
-      // );
+          // console.log(
+          //   'meta-'+endpointMeta.target.name,
+          //   Reflect.getMetadata('design:type', endpointMeta.target()),
+          //   Reflect.getMetadata('design:paramtypes',  endpointMeta.target),
+          //   Reflect.getMetadata('design:returntype', endpointMeta.target)
+          // );
 
-      // finalize iteration changes of path
-      paths[fullPath][verb] = {
-        operationId: `${controllerClassName}.${actionName}`,
-        summary: actionName,
-        tags: [
-          controllerClassName
-        ],
-        parameters,
-        responses: {
-          '2xx': { // TODO: more details
-            description: 'Successful response',
-            headers: {},
-            content: {
-              // @ts-ignore //????
-              'application/json': {
-                schema: {
-                  $ref: `#/components/schemas/Object`
+          // finalize iteration changes of path
+          paths[fullPath][verb] = {
+            operationId: `${controllerClassName}.${endpointName}`,
+            summary: endpointName,
+            tags: [
+              controllerClassName
+            ],
+            parameters,
+            responses: {
+              '2xx': { // TODO: more details
+                description: 'Successful response',
+                headers: {},
+                content: {
+                  // @ts-ignore //????
+                  'application/json': {
+                    schema: {
+                      $ref: `#/components/schemas/Object`
+                    }
+                  }
                 }
               }
             }
-          }
-        }
-      };
+          };
 
 
-    }
+        });
+
+      }
+    });
   }
 
   openApiSpec.paths = paths;
