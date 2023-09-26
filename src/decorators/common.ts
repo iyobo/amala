@@ -73,7 +73,7 @@ export function addVerbFunctionMeta({verb, paths, object, methodName}: AddVerbPr
     methodName
   );
   controller.endpoints[methodName].arguments = controller.endpoints[methodName].arguments || {} // this shouldn't exist but whatever
-  argumentTypes.forEach((argType, idx)=>{
+  argumentTypes?.forEach((argType, idx)=>{
     controller.endpoints[methodName].arguments[idx] = controller.endpoints[methodName].arguments[idx] || {}
     controller.endpoints[methodName].arguments[idx].argType = argType
   })
