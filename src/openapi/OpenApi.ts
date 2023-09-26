@@ -127,7 +127,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
 
     controller.paths.forEach(controllerPath => {
 
-      const basePath = convertRegexpToSwagger(controllerPath)
+      const basePath = options.basePath + convertRegexpToSwagger(controllerPath);
 
       for (const endpointName in controller.endpoints) {
         // e.g getUsers
@@ -135,7 +135,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
 
         endpoint.paths.forEach(endpointPath => {
 
-          const fullPath = basePath + convertRegexpToSwagger( (endpointPath === '/' ? '' : endpointPath));
+          const fullPath = basePath + convertRegexpToSwagger((endpointPath === '/' ? '' : endpointPath));
           const verb = endpoint.verb;
 
           paths[fullPath] = paths[fullPath] || {};
@@ -158,17 +158,17 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
             // register unregistered schemas
             if (argumentMeta.argType) registerSchema(argumentMeta.argType);
 
-            const injectSource = argumentMeta.ctxKey;
-            const injectOptions = argumentMeta.ctxValueOptions;
+            const ctxKey = argumentMeta.ctxKey;
+            const ctxValueOptions = argumentMeta.ctxValueOptions;
             const injectOptionsType = typeof argumentMeta.ctxValueOptions;
             let required = false;
-            const name = injectOptions;
+            const name = ctxValueOptions;
 
             const argExistsIn = convertInjectSource(argumentMeta.ctxKey);
 
-            if (injectOptions && injectOptionsType !== 'string') {
+            if (ctxValueOptions && injectOptionsType !== 'string') {
               // injection object
-              required = injectOptions.required || false;
+              required = ctxValueOptions.required || false;
             }
 
             // if the argument exists as part of path, consider to be required
