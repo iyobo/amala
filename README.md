@@ -415,6 +415,11 @@ export interface AmalaOptions {
     specPath?: string,
 
     /**
+     * URL path to serve openAPi UI. Default: "/api/swagger"
+     */
+    webPath?: string,
+
+    /**
      * What is the public URL for this API?
      */
     publicURL: string,
