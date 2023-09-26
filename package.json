@@ -1,6 +1,6 @@
 {
   "name": "amala",
-  "version": "9.0.5",
+  "version": "9.1.0",
   "description": "This is a Typescript routing controller system for KoaJS 2+. Define your REST API endpoints using classes and decorators.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
