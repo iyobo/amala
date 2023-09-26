@@ -63,7 +63,7 @@ export const bootstrapControllers = async (
   options.errorHandler = options.errorHandler || defaultErrorHandler;
 
   options.openAPI = options.openAPI || {enabled: true, publicURL: 'http://[publicURl]'};
-  options.openAPI.path = options.openAPI.path || '/api/docs';
+  options.openAPI.specPath = `${options.basePath}/${options.openAPI.specPath || 'docs'}`;
   options.openAPI.spec = options.openAPI.spec || openApiSpec;
 
   options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
@@ -123,7 +123,7 @@ export const bootstrapControllers = async (
     // Generate OpenAPI/Swagger spec
     await generateOpenApi(metadata, options);
 
-    options.router.get(options.openAPI.path, (ctx) => {
+    options.router.get(options.openAPI.specPath, (ctx) => {
       ctx.body = openApiSpec;
     });
   }

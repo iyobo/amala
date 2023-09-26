@@ -72,10 +72,16 @@ export interface AmalaOptions {
    */
   openAPI?: {
     enabled: boolean;
+
+    /**
+     * URL path to serve openAPI UI
+     */
+    webPath?: string;
+
     /**
      * URL path to serve openAPi spec. Default: "/api/docs"
      */
-    path?: string,
+    specPath?: string,
 
     /**
      * What is the public URL for this API?

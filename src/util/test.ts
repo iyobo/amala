@@ -11,7 +11,7 @@ export const startTestServer = async () => {
     openAPI: {
       enabled: true,
       publicURL: `http://localhost:${port}`,
-      path: 'docs',
+      specPath: 'docs',
       spec: {
         info: {
           title: 'Testic Service',
