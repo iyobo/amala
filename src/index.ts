@@ -12,6 +12,7 @@ import {KoaBodyOptions} from './types/KoaBodyOptions';
 import {HelmetOptions} from 'helmet';
 import {AmalaMetadata} from './types/metadata';
 import {addArgumentInjectMeta} from './decorators/common';
+import { koaSwagger } from 'koa2-swagger-ui';
 
 
 export let options: AmalaOptions;
@@ -64,6 +65,7 @@ export const bootstrapControllers = async (
 
   options.openAPI = options.openAPI || {enabled: true, publicURL: 'http://[publicURl]'};
   options.openAPI.specPath = `${options.basePath}/${options.openAPI.specPath || 'docs'}`;
+  options.openAPI.webPath = `${options.basePath}/${options.openAPI.webPath || 'swagger'}`;
   options.openAPI.spec = options.openAPI.spec || openApiSpec;
 
   options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
@@ -126,6 +128,17 @@ export const bootstrapControllers = async (
     options.router.get(options.openAPI.specPath, (ctx) => {
       ctx.body = openApiSpec;
     });
+
+    if(options.openAPI.webPath) {
+      app.use(
+        koaSwagger({
+          routePrefix: options.openAPI.webPath, // host at /swagger instead of default /docs
+          swaggerOptions: {
+            url: `${options.openAPI.publicURL}${options.openAPI.specPath}`, // example path to json
+          },
+        }),
+      );
+    }
   }
 
   // body parser
