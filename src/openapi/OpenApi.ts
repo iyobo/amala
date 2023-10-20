@@ -202,7 +202,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
                   parameters.push({
                     name: it[0],
                     in: oasSource,
-                    required: tr.required,
+                    required: oasSource !== "path"? tr.required: undefined,
                     schema: {
                       // @ts-ignore
                       type: tr.type || "string"
@@ -223,7 +223,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
                 parameters.push({
                   name: argumentMeta.ctxValueOptions,
                   in: oasSource,
-                  required,
+                  required: oasSource !== "path"? required: undefined,
                   schema: {
                     type: argumentMeta.argType?.name || "object"
                   }
