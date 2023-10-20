@@ -89,7 +89,7 @@ async function _determineArgument(
   const shouldValidate = values && isValidatableClass(argType) && ['body', 'params', 'query'].includes(ctxKey);
 
   if (shouldValidate) {
-    values = await plainToClass(argType, values);
+    values = await plainToClass(argType, values, {enableImplicitConversion: true});
 
     const errors = await validate(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
     if (errors.length > 0) {
@@ -101,8 +101,7 @@ async function _determineArgument(
       );
     }
 
-  }
-  else if (argType && argType !== String) {
+  } else if (argType && argType !== String) {
     values = argType(values);
   }
 

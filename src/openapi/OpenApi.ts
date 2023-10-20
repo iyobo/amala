@@ -1,47 +1,26 @@
-import {OpenAPIV3_1} from 'openapi-types';
-import * as _ from 'lodash';
-import {AmalaOptions} from '../types/AmalaOptions';
-import {AmalaMetadata} from '../types/metadata';
+import { OpenAPIV3_1 } from "openapi-types";
+import * as _ from "lodash";
+import { AmalaOptions } from "../types/AmalaOptions";
+import { AmalaMetadata } from "../types/metadata";
+import { translateMetaField, getPropertiesOfClassValidator } from "../util/tools";
 
 
 export let openApiSpec: OpenAPIV3_1.Document = {
-  openapi: '3.0.1',
+  openapi: "3.0.1",
   info: {
-    'title': 'API',
-    description: 'powered by AmalaJS (https://github.com/iyobo/amala)',
-    'version': '1.0.0'
+    title: "API",
+    description: "powered by AmalaJS (https://github.com/iyobo/amala)",
+    version: "1.0.0"
   },
   servers: [],
   paths: {},
   components: {
-    'schemas': {}
+    schemas: {}
   },
   security: [],
   tags: [],
   externalDocs: undefined
 };
-
-function convertRegexpToSwagger(path) {
-  const swaggerPath = [];
-
-  let paramMode = false;
-  for (const c of path) {
-
-    if (c === ':') {
-      paramMode = true;
-      swaggerPath.push('{');
-    } else if (paramMode && c === '/') {
-      paramMode = false;
-      swaggerPath.push('}/');
-    } else {
-      swaggerPath.push(c);
-    }
-  }
-
-  if (paramMode) swaggerPath.push('}');
-
-  return swaggerPath.join('');
-}
 
 export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) {
 
@@ -51,12 +30,17 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
   // overwrite default info with developer's API info. handled by deep merge
   // openApiSpec.info = {...openApiSpec.info, ...options.openAPI.spec.info};
 
-  const meta = {...metaData};
+  const meta = { ...metaData };
 
   // used to build up the paths section of the openAPI spec
   const paths: OpenAPIV3_1.PathsObject = {};
 
-  const schemas: Record<string, OpenAPIV3_1.SchemaObject> = {};
+  const schemas: Record<string, OpenAPIV3_1.SchemaObject> = {
+    Object: {
+      type: "object",
+      properties: {}
+    }
+  };
 
   // ---- SERVERS
   const servers: OpenAPIV3_1.ServerObject[] = [];
@@ -66,7 +50,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
     if (Array.isArray(options.versions)) {
       options.versions.forEach(it => {
         servers.push({
-          url: rootPath + '/v' + it,
+          url: rootPath + "/v" + it,
           description: `version ${it}`
         });
       });
@@ -74,12 +58,16 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
       for (const [k, v] of Object.entries(options.versions)) {
         if (v) {
           servers.push({
-            url: rootPath + '/v' + k,
+            url: rootPath + "/v" + k,
             description: `version ${k}`
           });
         }
       }
     }
+  } else {
+    servers.push({
+      url: options.openAPI.publicURL
+    });
   }
   openApiSpec.servers = [...servers, ...(options.openAPI?.spec?.servers || [])];
 
@@ -94,7 +82,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
     //   "properties": {
     //     "id": {
     //       "type": "integer",
-    //         "format": "int64"
+    //       "format": "int64"
     //     },
     //     "name": {
     //       "type": "string"
@@ -102,20 +90,31 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
     //   }
     // }
 
-    if (obj) {
+    if (!obj) return;
+    const meta = getPropertiesOfClassValidator(obj);
+
+    if (Object.keys(meta).length > 0) {
+      // this is a class-validator class
 
       const properties = {};
+      const required = [];
 
-      // loop through props
-      for (const [key, value] of Object.entries(obj)) {
-        properties[key] = typeof value;
+      // loop through prototype props
+      for (const fieldName in meta) {
+        const tr = translateMetaField(meta[fieldName]);
+        properties[fieldName] = {
+          type: tr.type
+        };
+        if (tr.required) required.push(fieldName);
       }
 
       schemas[obj.name] = {
-        type: 'object',
+        type: "object",
+        required,
         properties
       };
     }
+
   }
 
   /***
@@ -129,13 +128,16 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
 
       const basePath = options.basePath + convertRegexpToSwagger(controllerPath);
 
+      // for each endpoint
       for (const endpointName in controller.endpoints) {
-        // e.g getUsers
+
         const endpoint = controller.endpoints[endpointName];
 
+        // for each path
         endpoint.paths.forEach(endpointPath => {
 
-          const fullPath = basePath + convertRegexpToSwagger((endpointPath === '/' ? '' : endpointPath));
+          // PROCESS ENDPOINT
+          const fullPath = basePath + convertRegexpToSwagger((endpointPath === "/" ? "" : endpointPath));
           const verb = endpoint.verb;
 
           paths[fullPath] = paths[fullPath] || {};
@@ -151,67 +153,122 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
             // }
           ];
 
-          // TODO: build parameter/ argument specs
+          const requestBodyProperties = {};
+
+
+          /**
+           *  For each argument, divide it between requestBody (source:body) or parameters (any other source).
+           *  extract fields from classvalidators into its own function.
+           *  TODO: make it a nested thing.
+           * */
           for (const argId in endpoint.arguments) {
             const argumentMeta = endpoint.arguments[argId];
 
-            // register unregistered schemas
-            if (argumentMeta.argType) registerSchema(argumentMeta.argType);
-
             const ctxKey = argumentMeta.ctxKey;
-            const ctxValueOptions = argumentMeta.ctxValueOptions;
-            const injectOptionsType = typeof argumentMeta.ctxValueOptions;
+
+            // We only care about arguments with @Body, @Query or @Params decorators
+            if (!["body", "query", "params"].includes(ctxKey)) continue;
+
+            // register schema if applicable
+            registerSchema(argumentMeta.argType);
+
+            // const ctxValueOptions = argumentMeta.ctxValueOptions;
+            // const valueOptionsType = typeof argumentMeta.ctxValueOptions;
             let required = false;
-            const name = ctxValueOptions;
 
-            const argExistsIn = convertInjectSource(argumentMeta.ctxKey);
+            const oasSource: "body" | "path" | "query" = deriveOasSoure(argumentMeta.ctxKey);
 
-            if (ctxValueOptions && injectOptionsType !== 'string') {
+            if (argumentMeta.ctxValueOptions && typeof argumentMeta.ctxValueOptions !== "string") {
               // injection object
-              required = ctxValueOptions.required || false;
+              required = argumentMeta.ctxValueOptions.required || false;
             }
 
             // if the argument exists as part of path, consider to be required
-            if (argExistsIn === 'path') {
+            if (oasSource === "path") {
               required = true;
             }
 
-            // eslint-disable-next-line new-cap
-            // const refl = argType.name;
-            // console.log(refl);
-            parameters.push({
-              in: argExistsIn,
-              name,
-              required,
-              schema: {
-                type: argumentMeta.argType?.name || 'unknown'
+            // build parameters
+            const meta = getPropertiesOfClassValidator(argumentMeta.argType);
+            const metaEntries = Object.entries(meta);
+            if (metaEntries.length > 0) {
+
+              metaEntries.forEach((it, idx) => {
+                const tr = translateMetaField(it[1]);
+
+                if (oasSource === "body") {
+                  requestBodyProperties[it[0]] = { type: tr.type, required: tr.required };
+                } else {
+                  parameters.push({
+                    name: it[0],
+                    in: oasSource,
+                    required: tr.required,
+                    schema: {
+                      // @ts-ignore
+                      type: tr.type || "string"
+                    }
+                  });
+                }
+
+              });
+
+            } else {
+
+              if (oasSource === "body") {
+                requestBodyProperties[argumentMeta.ctxValueOptions] = {
+                  type: argumentMeta.argType?.name || "object",
+                  required
+                };
+              } else{
+                parameters.push({
+                  name: argumentMeta.ctxValueOptions,
+                  in: oasSource,
+                  required,
+                  schema: {
+                    type: argumentMeta.argType?.name || "object"
+                  }
+                });
               }
-            });
+            }
+
+
           }
 
-          // console.log(
-          //   'meta-'+endpointMeta.target.name,
-          //   Reflect.getMetadata('design:type', endpointMeta.target()),
-          //   Reflect.getMetadata('design:paramtypes',  endpointMeta.target),
-          //   Reflect.getMetadata('design:returntype', endpointMeta.target)
-          // );
+          const requestBody: OpenAPIV3_1.RequestBodyObject = {
+            content: {
+              "multipart/form-data": {
+                schema: {
+                  type: "object",
+                  properties: requestBodyProperties
+                }
+              },
+              "application/x-www-form-urlencoded": {
+                schema: {
+                  type: "object",
+                  properties: requestBodyProperties
+                }
+              },
+            }
+          };
 
-          // finalize iteration changes of path
+          // Finalize path
           paths[fullPath][verb] = {
             operationId: `${controllerClassName}.${endpointName}`,
             summary: endpointName,
             tags: [
               controllerClassName
             ],
+            // @ts-ignore
+            requestBody: Object.keys(requestBodyProperties).length > 0 ? requestBody : undefined,
             parameters,
             responses: {
-              '2xx': { // TODO: more details
-                description: 'Successful response',
+              "2xx": { // TODO: more details
+                description: "Successful response",
                 headers: {},
                 content: {
-                  // @ts-ignore //????
-                  'application/json': {
+                  "application/json": {
                     schema: {
+                      // TODO: Implement @Return decorator
                       $ref: `#/components/schemas/Object`
                     }
                   }
@@ -229,18 +286,45 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
 
   openApiSpec.paths = paths;
   openApiSpec.components.schemas = schemas;
+  // @ts-ignore
+  // openApiSpec.components.requestBodies = schemas;
   // console.log('OpenApi.init', meta);
 }
 
+function convertRegexpToSwagger(path) {
+  const swaggerPath = [];
 
-function convertInjectSource(source) {
+  let paramMode = false;
+  for (const c of path) {
+
+    if (c === ":") {
+      paramMode = true;
+      swaggerPath.push("{");
+    } else if (paramMode && c === "/") {
+      paramMode = false;
+      swaggerPath.push("}/");
+    } else {
+      swaggerPath.push(c);
+    }
+  }
+
+  if (paramMode) swaggerPath.push("}");
+
+  return swaggerPath.join("");
+}
+
+
+function deriveOasSoure(source) {
   switch (source) {
-    case 'params': {
-      return 'path';
+    case "params": {
+      return "path";
     }
     default: {
       return source;
     }
   }
 }
+
+
+
 

@@ -1,0 +1,552 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Sifical",
+    "description": "powered by AmalaJS (https://github.com/iyobo/amala)",
+    "version": "1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:4000"
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController.login",
+        "summary": "login",
+        "tags": [
+          "AuthController"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "required": false
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "required": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/signin": {
+      "post": {
+        "operationId": "AuthController.login",
+        "summary": "login",
+        "tags": [
+          "AuthController"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "required": false
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "required": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/signup": {
+      "post": {
+        "operationId": "AuthController.signup",
+        "summary": "signup",
+        "tags": [
+          "AuthController"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "required": true
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "required": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AuthController.logout",
+        "summary": "logout",
+        "tags": [
+          "AuthController"
+        ],
+        "parameters": [],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/requestPasswordReset": {
+      "post": {
+        "operationId": "AuthController.requestPasswordReset",
+        "summary": "requestPasswordReset",
+        "tags": [
+          "AuthController"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "String",
+                    "required": false
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "String",
+                    "required": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/resetPassword": {
+      "post": {
+        "operationId": "AuthController.resetPassword",
+        "summary": "resetPassword",
+        "tags": [
+          "AuthController"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "String",
+                    "required": false
+                  },
+                  "resetCode": {
+                    "type": "String",
+                    "required": false
+                  },
+                  "newPassword": {
+                    "type": "String",
+                    "required": false
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "String",
+                    "required": false
+                  },
+                  "resetCode": {
+                    "type": "String",
+                    "required": false
+                  },
+                  "newPassword": {
+                    "type": "String",
+                    "required": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/beat": {
+      "get": {
+        "operationId": "BeatController.index",
+        "summary": "index",
+        "tags": [
+          "BeatController"
+        ],
+        "parameters": [
+          {
+            "name": "yo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "String"
+            }
+          }
+        ],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/beat/one/{foo}": {
+      "get": {
+        "operationId": "BeatController.index2",
+        "summary": "index2",
+        "tags": [
+          "BeatController"
+        ],
+        "parameters": [
+          {
+            "name": "yo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "String"
+            }
+          },
+          {
+            "name": "foo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "String"
+            }
+          }
+        ],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/beat/two/{foo}": {
+      "post": {
+        "operationId": "BeatController.index3",
+        "summary": "index3",
+        "tags": [
+          "BeatController"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "String",
+                    "required": false
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "required": false
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "String",
+                    "required": false
+                  },
+                  "password": {
+                    "type": "string",
+                    "required": true
+                  },
+                  "rememberMe": {
+                    "type": "boolean",
+                    "required": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "foo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "String"
+            }
+          }
+        ],
+        "responses": {
+          "2xx": {
+            "description": "Successful response",
+            "headers": {},
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Object": {
+        "type": "object",
+        "properties": {}
+      },
+      "AuthLoginParams": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "rememberMe": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AuthSignupParams": {
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "firstName",
+          "lastName"
+        ],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "security": [],
+  "tags": []
+}
