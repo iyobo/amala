@@ -21,14 +21,18 @@ export function ensureArray<T>(item: T | T[]): T[] {
 }
 
 export function getPropertiesOfClassValidator(targetConstructor: Function): Record<string, string[]> {
-  const metadataStorage = getMetadataStorage();
-  const targetMetadatas = metadataStorage
-    .getTargetValidationMetadatas(targetConstructor, undefined, false, false, undefined);
-  const groupedMetadatas = metadataStorage.groupByPropertyName(targetMetadatas);
-  return Object.fromEntries(Object.entries(groupedMetadatas).map(([property, decorators]) => {
-    const CM = decorators.map(decorator => metadataStorage.getTargetValidatorConstraints(decorator.constraintCls).map(v => v.name));
-    return [property, CM.flat()];
-  }));
+  try {
+    const metadataStorage = getMetadataStorage();
+    const targetMetadatas = metadataStorage
+      .getTargetValidationMetadatas(targetConstructor, undefined, false, false, undefined);
+    const groupedMetadatas = metadataStorage.groupByPropertyName(targetMetadatas);
+    return Object.fromEntries(Object.entries(groupedMetadatas).map(([property, decorators]) => {
+      const CM = decorators.map(decorator => metadataStorage.getTargetValidatorConstraints(decorator.constraintCls).map(v => v.name));
+      return [property, CM.flat()];
+    }));
+  }catch(e){
+    throw new Error('There was an error trying to read decorator metadata. This typically happens when you build your TS code with a compiler like EsBuild that does not respect the "emitDecorators:true" configuration. Please recompile your amala project with tsc or a derivative/combination that involves tsc.')
+  }
 }
 
 const cvCodex = {
