@@ -1,9 +1,11 @@
-import Application from 'koa';
+import {Options} from '@koa/cors';
+import Router from '@koa/router';
 import {ValidatorOptions} from 'class-validator';
+import {HelmetOptions} from 'helmet';
+import Application from 'koa';
 import {OpenAPIV3_1} from 'openapi-types';
 
 import {KoaBodyOptions} from './KoaBodyOptions';
-import {HelmetOptions} from 'helmet';
 import {FlowFunction} from './metadata';
 
 export interface AmalaOptions {
@@ -18,7 +20,7 @@ export interface AmalaOptions {
   // If this is not provided, amala will create a koa-router for you and load it up with endpoints
   // Either way, a router is returned within the result of running the bootstrap function.
   // The router is not attached by default to the app. If you want that, be sure to set options.attachRoutes to true.
-  router?: any;
+  router?: Router;
 
   // An array used to register all controllers to be routed. Can take Classes or glob path strings of where the classes exist.
   // It is recommended to statically register each controller Classes here instead of using path strings.
@@ -123,5 +125,5 @@ export interface AmalaOptions {
    * Set enabled to false to disable Amala's implementation of Cors.
    * `opts` are @koa/cors settings.
    */
-  cors?: {enabled: boolean, opts?: any};
+  cors?: {enabled: boolean, opts?: Options};
 }

@@ -14,7 +14,7 @@ import {AmalaMetadata} from './types/metadata';
 import {addArgumentInjectMeta} from './decorators/common';
 import {koaSwagger} from 'koa2-swagger-ui';
 
-const cors = require('@koa/cors');
+import cors from '@koa/cors';
 
 
 export let options: AmalaOptions;
