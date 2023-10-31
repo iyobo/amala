@@ -8,11 +8,13 @@ Amala is fast, light, and Docker-ready; Perfect for microservices.
 - Clean, light and FAST endpoints. Powered by Koa.
 - No further magic past decorators. Full access to underlying Koa app.
 - Project creator comes with fully configured Docker and Docker-compose settings for quick containerization.
+- In-built OpenAPI spec exporter and Swagger UI!
 
 This leads to clean, self-documenting API endpoints and makes it so you can re-use those service endpoints elsewhere.
 It also makes your endpoint endpoints easier to test.
 
-OpenAPI export feature is in progress and very incomplete, but you can see where it is by hitting 'GET /api/docs' by default.
+OpenAPI export feature is functional and highly configurable. 
+When **enabled**, you can see your API JSON spec 'GET /api/docs' and the Swagger UI at '/api/swagger' by default.
 
 ## Supporting Amala
 
