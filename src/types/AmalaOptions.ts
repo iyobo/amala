@@ -7,6 +7,7 @@ import {HelmetOptions} from 'helmet';
 import {FlowFunction} from './metadata';
 
 export interface AmalaOptions {
+
   /** For If you want to supply your own koa application instance.
    * If this is not provided, amala will create a koa application for you.
    * Either way, an app is returned within the result of running the bootstrap function.
@@ -64,7 +65,7 @@ export interface AmalaOptions {
   // if true, will attach generated routes to the koa app. Don't set to true if you need to use app.use(...)
   attachRoutes?: boolean;
 
-  // Options for class-validator. Used to validate endpoint injectables. See docs.
+  // Options for class-validator. Used to validate endpoint injectables. See https://www.npmjs.com/package/class-validator.
   validatorOptions?: ValidatorOptions;
 
   /**
@@ -116,4 +117,11 @@ export interface AmalaOptions {
    * Logs more processed for diagnostics.
    */
   diagnostics?: boolean;
+
+  /**
+   * Cors is enabled by default.
+   * Set enabled to false to disable Amala's implementation of Cors.
+   * `opts` are @koa/cors settings.
+   */
+  cors?: {enabled: boolean, opts?: any};
 }

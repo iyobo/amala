@@ -1,9 +1,9 @@
 import 'reflect-metadata';
+import Router from '@koa/router';
 import {generateRoutes} from './util/generateRoutes';
 import {importClassesFromDirectories} from './util/importClasses';
 import Boom from '@hapi/boom';
 import {generateOpenApi, openApiSpec} from './openapi/OpenApi';
-import Router from 'koa-router';
 import bodyParser from 'koa-body';
 import KoaApplication from 'koa';
 import koaHelmet from 'koa-helmet';
@@ -12,7 +12,9 @@ import {KoaBodyOptions} from './types/KoaBodyOptions';
 import {HelmetOptions} from 'helmet';
 import {AmalaMetadata} from './types/metadata';
 import {addArgumentInjectMeta} from './decorators/common';
-import { koaSwagger } from 'koa2-swagger-ui';
+import {koaSwagger} from 'koa2-swagger-ui';
+
+const cors = require('@koa/cors');
 
 
 export let options: AmalaOptions;
@@ -71,6 +73,8 @@ export const bootstrapControllers = async (
   options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
   options.diagnostics = options.diagnostics || false;
 
+  options.cors = options.cors || {enabled: true, opts: {}};
+
 
   /**
    * Versions can be defined in multiple ways.
@@ -88,6 +92,11 @@ export const bootstrapControllers = async (
       versions[version] = true;
     });
     options.versions = versions;
+  }
+
+  // CORS
+  if (options.cors?.enabled) {
+    app.use(cors(options.cors.opts));
   }
 
   // Amala's Error handling middleware
@@ -108,6 +117,7 @@ export const bootstrapControllers = async (
 
   for (const controllerDef of options.controllers) {
     if (typeof controllerDef === 'string') {
+      // This is a path. get all controllers in that folder
       if (options.diagnostics) console.info(`Amala: munching controllers in path ${controllerDef}`);
       importClassesFromDirectories(controllerDef); // this is a string glob path. Load controllers from path
     } else {
@@ -118,6 +128,12 @@ export const bootstrapControllers = async (
     }
   }
 
+  // Register all global flows
+  options.flow.forEach(flow=>{
+    app.use(flow)
+  })
+
+  //
   await generateRoutes(options.router, options, metadata);
 
   // open api
@@ -129,7 +145,7 @@ export const bootstrapControllers = async (
       ctx.body = openApiSpec;
     });
 
-    if(options.openAPI.webPath) {
+    if (options.openAPI.webPath) {
       app.use(
         koaSwagger({
           routePrefix: options.openAPI.webPath, // host at /swagger instead of default /docs

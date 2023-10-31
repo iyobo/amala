@@ -1,11 +1,11 @@
 import boom from '@hapi/boom';
+import Router from '@koa/router';
 import {plainToClass} from 'class-transformer';
 import {validate} from 'class-validator';
 import {Context} from 'koa';
 import _ from 'lodash';
 import {isClass, isValidatableClass} from './tools';
 import {AmalaOptions} from '../types/AmalaOptions';
-import Router from 'koa-router';
 import {AmalaMetadata, AmalaMetadataArgument, AmalaMetadataController} from '../types/metadata';
 
 async function _argumentInjectorProcessor(name: string, body, injectOptions) {
@@ -166,9 +166,8 @@ async function _generateEndPoints(
           .filter(i => i.length)
           .join('/');
 
-        // Add defined middlewares
+        // Add defined middlewares for this route
         const flow = [
-          ...(options?.flow || []),
           ...(controller?.flow || []),
           ...(endpoint?.flow || [])
         ];
