@@ -25,36 +25,25 @@ awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=196619
 If you would like to contribute in other ways, Pull requests are also welcome!
 
 
-## Installation
-
-First you want to install amala:
-
-`yarn add amala`
-or
-`npm i amala`
-
-#### Important Notice about previous project name: `koa-ts-controllers`
-
-PLEASE NOTE: This project initially existed under the generic name `koa-ts-controllers`. It has since been renamed to `amala`.
-No further npm updates will be made under `koa-ts-controllers`.
-
-*Ignore this section* if you never used the previous package name `koa-ts-controllers`.
-If you installed this project under the previous name, Please replace `koa-ts-controllers` with `amala` in your code base.
-So:
-
-1) `yarn remove koa-ts-controllers`
-2) `yarn add amala`
-3)  Replace all string instances of "koa-ts-controllers" to "amala" in your codebase
-
-
 ## Getting started
-You may create your Amala-powered API project with any of the following:
+You may create an Amala project with any of the following:
 - `npm init amala-app <project_name>`
 - `npm create amala-app <project_name>`
 - `yarn create amala-app <project_name>`
 
 Any of those will create a docker-ready project for you to expand upon.
-Happy 
+Happy
+
+### Alternatively
+
+You can also just install amala:
+
+`yarn add amala`
+or
+`npm i amala`
+
+And checkout the next section.
+
 
 
 ## How to Use
