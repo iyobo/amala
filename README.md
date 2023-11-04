@@ -1,7 +1,7 @@
 # Amala
 
-**Amala** is a next-generation routing and controller system for KoaJS v2+ and Typescript.
-Amala is fast, light, and Docker-ready; Perfect for microservices.
+**Amala** is a decorator-based API framework for KoaJS v2+ and Typescript.
+Amala is fast, light, self-documenting and Docker-ready; Perfect for microservices.
 
 - Define your REST API endpoints using ES8 _classes_ and _decorators_.
 - Inject arguments into your endpoint handlers, effectively turning your controller endpoints into standalone, testable service endpoints.
