@@ -601,8 +601,8 @@ and then use that in a controller
 
 ## Upcoming Features
 
-- Support for Open API 3
-  - Amala will soon be able to generate Open API 3 specs (JSON) based on your controller definitions.
+### Customizable validators
+The ability to choose and configure different input validation engines besides class-validators.
 
 ## Troubleshooting
 
