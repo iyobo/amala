@@ -68,7 +68,10 @@ const {app, router} = await bootstrapControllers({
         2: true,
       dangote: true // great for custom, business client specific endpoint versions
     },
-    useHelmet: true // standard security protections for servers. 
+    useHelmet: true // standard security protections for servers.
+    openAPi:{
+        enabled: true // default is "/api/docs" for Openapi JSON output and "/api/swagger" for Swagger UI.
+    }
 });
 
 
