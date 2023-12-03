@@ -1,4 +1,6 @@
 # Amala
+<img width="439" alt="image" src="https://github.com/iyobo/amala/assets/5804246/5caa0985-c5ab-4915-8a0b-49d575061520">
+
 
 **Amala** is a decorator-based API framework for KoaJS v2+ and Typescript.
 Amala is fast, light, self-documenting and Docker-ready; Perfect for microservices.
