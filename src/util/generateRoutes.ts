@@ -101,7 +101,7 @@ async function _determineArgument(
       );
     }
 
-  } else if (argType && argType !== String) {
+  } else if (values && argType && argType !== String) {
     values = argType(values);
   }
 

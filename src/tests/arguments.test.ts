@@ -132,6 +132,11 @@ describe("Arguments", () => {
       const response = await testServer.post("/api/v2/arg/state").expect(200);
       expect(response.body.something).toEqual("hahaha");
     });
+    it("returns null if not exist", async () => {
+      const response = await testServer.post("/api/v2/arg/stateNoValue").expect(204);
+      expect(response.body).toEqual({});
+    });
+
   });
 
   describe("currentUser", () => {

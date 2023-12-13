@@ -72,6 +72,11 @@ export class ArgController {
     return state;
   }
 
+  @Post('/stateNoValue')
+  async stateNoValue(@State('foo') foo: any) {
+    return foo;
+  }
+
   @Flow([loginForTest])
   @Get('/user')
   async user(@CurrentUser() user: any) {

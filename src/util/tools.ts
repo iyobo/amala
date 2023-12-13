@@ -1,5 +1,5 @@
-import { Class } from "../types/metadata";
-import { getMetadataStorage } from "class-validator";
+import {Class} from "../types/metadata";
+import {getMetadataStorage} from "class-validator";
 
 export function isClass(type) {
   return type?.prototype?.constructor && type?.prototype?.constructor?.name !== "Object";
@@ -30,9 +30,9 @@ export function getPropertiesOfClassValidator(targetConstructor: Function): Reco
       const CM = decorators.map(decorator => metadataStorage.getTargetValidatorConstraints(decorator.constraintCls).map(v => v.name));
       return [property, CM.flat()];
     }));
-  }catch(e){
-    e.message += '. This typically happens when you build your TS code with a compiler like EsBuild that does not respect the "emitDecorators:true" configuration. Please recompile your amala project with tsc or a derivative/combination that involves tsc'
-    throw e
+  } catch (e) {
+    e.message += '. This typically happens when you build your TS code with a compiler like EsBuild that does not respect the "emitDecorators:true" configuration. Please recompile your amala project with tsc or a derivative/combination that involves tsc';
+    throw e;
   }
 }
 
