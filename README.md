@@ -1,4 +1,6 @@
 # Amala
+<img width="439" alt="image" src="https://github.com/iyobo/amala/assets/5804246/5caa0985-c5ab-4915-8a0b-49d575061520">
+
 
 **Amala** is a decorator-based API framework for KoaJS v2+ and Typescript.
 Amala is fast, light, self-documenting and Docker-ready; Perfect for microservices.
@@ -68,7 +70,10 @@ const {app, router} = await bootstrapControllers({
         2: true,
       dangote: true // great for custom, business client specific endpoint versions
     },
-    useHelmet: true // standard security protections for servers. 
+    useHelmet: true, // standard security protections for servers.
+    openAPi: {
+        enabled: true // default is "/api/docs" for Openapi JSON output and "/api/swagger" for Swagger UI.
+    }
 });
 
 
@@ -601,8 +606,8 @@ and then use that in a controller
 
 ## Upcoming Features
 
-- Support for Open API 3
-  - Amala will soon be able to generate Open API 3 specs (JSON) based on your controller definitions.
+### Customizable validators
+The ability to choose and configure different input validation engines besides class-validators.
 
 ## Troubleshooting
 
