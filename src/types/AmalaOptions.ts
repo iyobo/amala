@@ -24,6 +24,7 @@ export interface AmalaOptions {
 
   // An array used to register all controllers to be routed. Can take Classes or glob path strings of where the classes exist.
   // It is recommended to statically register each controller Classes here instead of using path strings.
+  // NOTE: The use of Glob strings is soon to be deprecated.
   controllers: Array<string | Function>;
 
   // Your base API path. default:  "/api"

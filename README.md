@@ -55,15 +55,16 @@ And checkout the next section.
 ---main.ts
 
 import {bootstrapControllers} from 'amala';
-import MyOtherController from './otherController/MyOtherController';
+import AController from './controllers/AController';
+import BController from './controllers/BController';
 
 ...
 
 const {app, router} = await bootstrapControllers({
     basePath: '/api',
     controllers: [
-      MyOtherController, 
-      __dirname + '/controllers/**/*.ts' // It is recommended to add controller classes directly to this array, but you can also add glob strings
+      AController,
+      BController
     ], 
     versions:{
         1: 'This version is deprecated and will soon be removed. Consider migrating to version 2 ASAP', // see Version decorator doc below
@@ -113,12 +114,9 @@ const {app, router} = await bootstrapControllers({
   app: koaApp,
   router: koarouter,
   basePath: '/api',
-  flow: [someMiddlewareFunction, someOtherMiddleware] // in order of execution!
+  flow: [someMiddlewareFunction, someOtherMiddleware], // in order of execution!
   attachRoutes: true,
-  controllers: [
-    MyOtherController,
-    __dirname + '/controllers/**/*.ts' // It is recommended to add controller classes directly to this array, but you can also add glob strings
-  ]
+  ...
 });
 
 
