@@ -1,5 +1,5 @@
 # Amala
-<img width="439" alt="image" src="https://github.com/iyobo/amala/assets/5804246/5caa0985-c5ab-4915-8a0b-49d575061520">
+![amala2](https://github.com/iyobo/amala/assets/5804246/acc68a52-1110-4e84-84b3-7529b1f0d354)
 
 
 **Amala** is a decorator-based API framework for KoaJS v2+ and Typescript.
