@@ -1,0 +1,1 @@
+{"version":3,"file":"returns.js","sourceRoot":"","sources":["../../../src/decorators/endpoint/returns.ts"],"names":[],"mappings":";;;AAAA,sCAA8C;AAE9C,4CAA6C;AAE7C,SAAgB,GAAG,CAAC,IAAqC;IACvD,OAAO,UAAU,MAAmB,EAAE,UAAkB;QACtD,IAAA,4BAAmB,EAAC,EAAC,IAAI,EAAE,KAAK,EAAE,UAAU,EAAE,KAAK,EAAE,IAAA,mBAAW,EAAC,IAAI,CAAC,EAAE,MAAM,EAAC,CAAC,CAAC;IACnF,CAAC,CAAC;AACJ,CAAC;AAJD,kBAIC"}

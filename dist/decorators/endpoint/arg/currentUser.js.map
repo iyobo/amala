@@ -1,0 +1,1 @@
+{"version":3,"file":"currentUser.js","sourceRoot":"","sources":["../../../../src/decorators/endpoint/arg/currentUser.ts"],"names":[],"mappings":";;;AAAA,yCAAmD;AAEnD,SAAgB,WAAW,CAAC,aAA4C;IACtE,OAAO,UACL,MAA2B,EAC3B,UAAkB,EAClB,KAAa;QAEb,IAAA,8BAAqB,EAAC;YACpB,KAAK;YACL,MAAM,EAAE,aAAa;YACrB,eAAe,EAAE,aAAa;YAC9B,UAAU;YACV,MAAM;SACP,CAAC,CAAC;IACL,CAAC,CAAC;AACJ,CAAC;AAdD,kCAcC"}

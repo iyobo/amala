@@ -1,0 +1,1 @@
+{"version":3,"file":"query.js","sourceRoot":"","sources":["../../../../src/decorators/endpoint/arg/query.ts"],"names":[],"mappings":";;;AAAA,yCAA+E;AAE/E,SAAgB,KAAK,CAAC,aAAmD;IACvE,OAAO,UACL,MAA2B,EAC3B,UAAkB,EAClB,KAAa;QAEb,IAAA,8BAAqB,EAAC;YACpB,KAAK;YACL,MAAM,EAAE,OAAO;YACf,eAAe,EAAE,aAAa;YAC9B,UAAU;YACV,MAAM;SACP,CAAC,CAAC;IACL,CAAC,CAAC;AACJ,CAAC;AAdD,sBAcC"}

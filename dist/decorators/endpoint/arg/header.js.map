@@ -1,0 +1,1 @@
+{"version":3,"file":"header.js","sourceRoot":"","sources":["../../../../src/decorators/endpoint/arg/header.ts"],"names":[],"mappings":";;;AAAA,yCAAmD;AAEnD,SAAgB,MAAM,CAAC,aAA4C;IACjE,OAAO,UACL,MAA2B,EAC3B,UAAkB,EAClB,KAAa;QAEb,IAAA,8BAAqB,EAAC;YACpB,KAAK;YACL,MAAM,EAAE,QAAQ;YAChB,eAAe,EAAE,aAAa;YAC9B,UAAU;YACV,MAAM;SACP,CAAC,CAAC;IACL,CAAC,CAAC;AACJ,CAAC;AAdD,wBAcC"}

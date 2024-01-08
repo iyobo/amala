@@ -1,0 +1,1 @@
+{"version":3,"file":"version.js","sourceRoot":"","sources":["../../../src/decorators/endpoint/version.ts"],"names":[],"mappings":";;;AAAA,sCAAiD;AAGjD,SAAgB,OAAO,CAAC,OAAe,EAAE,0BAAmC;IAC1E,OAAO,UAAU,MAAmB,EAAE,UAAkB;QACtD,IAAA,+BAAsB,EAAC;YACrB,MAAM;YACN,UAAU;YACV,OAAO;YACP,0BAA0B;SAC3B,CAAC,CAAC;IACL,CAAC,CAAC;AACJ,CAAC;AATD,0BASC"}

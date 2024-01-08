@@ -1,0 +1,1 @@
+{"version":3,"file":"body.js","sourceRoot":"","sources":["../../../../src/decorators/endpoint/arg/body.ts"],"names":[],"mappings":";;;AAAA,yCAA+E;AAE/E,SAAgB,IAAI,CAAC,aAAmD;IACtE,OAAO,UACL,MAA2B,EAC3B,UAAkB,EAClB,KAAa;QAEb,IAAA,8BAAqB,EAAC;YACpB,KAAK;YACL,MAAM,EAAE,MAAM;YACd,eAAe,EAAE,aAAa;YAC9B,UAAU;YACV,MAAM;SACP,CAAC,CAAC;IACL,CAAC,CAAC;AACJ,CAAC;AAdD,oBAcC"}
