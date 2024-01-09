@@ -2,46 +2,49 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+![amala2](https://github.com/iyobo/amala/assets/5804246/acc68a52-1110-4e84-84b3-7529b1f0d354)
+# Intro
 
-Let's discover **Docusaurus in less than 5 minutes**.
 
-## Getting Started
+**AmalaJS** is a decorator-based API framework powered by Typescript and KoaJS v2+.
+Amala is fast, light, self-documenting and Docker-ready; Perfect for microservices.
 
-Get started by **creating a new site**.
+- Define your REST API endpoints using ES8 _classes_ and _decorators_.
+- Inject arguments into your endpoint handlers, effectively turning your controller endpoints into standalone, testable service endpoints.
+- Clean, light and FAST endpoints. Powered by Koa.
+- No further magic past decorators. Full access to underlying Koa app.
+- Project creator comes with fully configured Docker and Docker-compose settings for quick containerization.
+- In-built OpenAPI spec generator and Swagger UI!
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+This leads to clean, self-documenting API endpoints, which also makes them easier to test.
 
-### What you'll need
+When **enabled**, you can see your API JSON spec `GET /api/docs` and the Swagger UI at `/api/swagger` by default.
 
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+## Supporting Amala
 
-## Generate a new site
+**AmalaJS** is an MIT-licensed open source project with its ongoing development made possible entirely by
+community support. If AmalaJS is helping you build
+awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=19661939" data-patreon-widget-type="become-patron-button">Becoming a Patron</a>.
 
-Generate a new Docusaurus site using the **classic template**.
+If you would like to contribute in other ways, Pull requests are also welcome!
 
-The classic template will automatically be added to your project after you run the command:
 
-```bash
-npm init docusaurus@latest my-website classic
-```
+## Getting started
+You may create an Amala project with any of the following:
+- `npm init amala-app <project_name>`
+- `npm create amala-app <project_name>`
+- `yarn create amala-app <project_name>`
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+Any of those will create a docker-ready project for you to expand upon.
+Happy
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+### Alternatively
 
-## Start your site
+You can also just install amala:
 
-Run the development server:
+`yarn add amala`
+or
+`npm i amala`
 
-```bash
-cd my-website
-npm run start
-```
+And checkout the next section.
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
-
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
-
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
