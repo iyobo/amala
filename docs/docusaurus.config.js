@@ -8,8 +8,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Amala',
-  tagline: 'Fast + NextGen NodeJs library for creating Koa API endpoints with Typescript decorators.',
+  title: 'AmalaJS',
+  tagline: 'A Next-Gen Typescript framework for creating fast, scalable and modern NodeJS APIs',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -66,23 +66,23 @@ const config = {
       // Replace with your project's social card
       image: 'img/logo.png',
       navbar: {
-        title: 'Amala',
+        title: 'AmalaJS',
         logo: {
-          alt: '@mala',
-          src: 'img/logo.svg',
+          alt: 'AmalaJS',
+          src: 'img/logo.png',
         },
         items: [
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Tutorial',
+            label: 'Documentation',
           },
-          {
-            to: '/blog',
-            label: 'Blog',
-            position: 'left'
-          },
+          // {
+          //   to: '/blog',
+          //   label: 'Blog',
+          //   position: 'left'
+          // },
           {
             href: 'https://github.com/iyobo/amala/tree/master/docs/src',
             label: 'GitHub',
