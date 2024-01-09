@@ -29,4 +29,4 @@ You may create an Amala project with any of the following:
 - `npm create amala-app <project_name>`
 - `yarn create amala-app <project_name>`
 
-For next steps, see official docs at (https://amalajs.com)[https://amalajs.com]
+For next steps, see official docs at https://amalajs.com.
