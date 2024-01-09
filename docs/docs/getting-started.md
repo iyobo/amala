@@ -120,7 +120,7 @@ Also see examples below for working with multiple versions of your API in your c
 Below is an example of a controller class, displaying many endpoint scenarios:
 
 ```typescript
---- controllers/FooController.ts
+--- controllers/AController.ts
 
 import {Controller, Ctx, Req, Body, Get, Post, Delete, Query, Flow, Params, Version} from 'amala';
 import {authMiddleware, aMiddleware, bMiddleware} from './yourMiddlewares'
@@ -128,7 +128,7 @@ import {IsNumber, IsString} from 'class-validator';
 
 @Controller('/foo')
 @Flow(aMiddleware) // middleware to pass into any of the endpoints in this controller. e.g auth middleware.
-export class FooController {
+export class AController {
 
     @Get('/')
     async myEndpointHandler() {
