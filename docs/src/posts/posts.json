@@ -1,4 +1,0 @@
-{
-  "layout": "layouts/list.html",
-  "permalink": "/{{ title | slug }}/index.html"
-}
