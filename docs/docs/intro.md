@@ -1,9 +1,10 @@
 ---
 sidebar_position: 1
+sidebar_label: Introduction
 ---
 
 ![amala2](https://github.com/iyobo/amala/assets/5804246/acc68a52-1110-4e84-84b3-7529b1f0d354)
-# Intro
+# Introduction
 
 
 **AmalaJS** is a decorator-based API framework powered by Typescript and KoaJS v2+.
@@ -20,7 +21,7 @@ This leads to clean, self-documenting API endpoints, which also makes them easie
 
 When **enabled**, you can see your API JSON spec `GET /api/docs` and the Swagger UI at `/api/swagger` by default.
 
-## Supporting Amala
+## Supporting AmalaJS
 
 **AmalaJS** is an MIT-licensed open source project with its ongoing development made possible entirely by
 community support. If AmalaJS is helping you build
@@ -28,23 +29,4 @@ awesome APIs, please consider <a href="https://www.patreon.com/bePatron?u=196619
 
 If you would like to contribute in other ways, Pull requests are also welcome!
 
-
-## Getting started
-You may create an Amala project with any of the following:
-- `npm init amala-app <project_name>`
-- `npm create amala-app <project_name>`
-- `yarn create amala-app <project_name>`
-
-Any of those will create a docker-ready project for you to expand upon.
-Happy
-
-### Alternatively
-
-You can also just install amala:
-
-`yarn add amala`
-or
-`npm i amala`
-
-And checkout the next section.
 

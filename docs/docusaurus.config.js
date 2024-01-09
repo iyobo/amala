@@ -44,14 +44,14 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/iyobo/amala/tree/master/docs/src',
+            'https://github.com/iyobo/amala/tree/master/docs',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/iyobo/amala/tree/master/docs/src',
+            'https://github.com/iyobo/amala/tree/master/docs',
         },
         theme: {
           customCss: './src/css/custom.css',
