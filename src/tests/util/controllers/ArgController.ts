@@ -145,7 +145,7 @@ export class ArgController {
   }
 
   @Post('/uploadFile')
-  async uploadFile(@Ctx() ctx, @File() files: Record<string,File>) {
+  async uploadFile(@Ctx() ctx, @File() files: Record<string, any>) {
     return files;
   }
 

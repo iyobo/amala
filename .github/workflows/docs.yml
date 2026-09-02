@@ -1,44 +1,47 @@
-name: Deploy to GitHub Pages
+name: Deploy documentation
 
 on:
   push:
     branches:
       - master
-      - main
-    # Review gh actions docs if you want to further define triggers, paths, etc
-    # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
+    paths:
+      - 'docs/**'
+      - '.github/workflows/docs.yml'
+
+concurrency:
+  group: documentation-deployment
+  cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
   deploy:
-    name: Deploy to GitHub Pages
+    name: Build and deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: 18
+          node-version: 20
           cache: npm
+          cache-dependency-path: docs/package-lock.json
 
       - name: Install dependencies
-        run: cd docs && npm ci
-      - name: Build website
-        run: cd docs && npm run build
+        run: npm ci
+        working-directory: docs
 
-      # Popular action to deploy to GitHub Pages:
-      # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Build website
+        run: npm run build
+        working-directory: docs
+
+      - name: Publish GitHub Pages branch
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Build output to publish to the `gh-pages` branch
           publish_dir: ./docs/build
-          # The following lines assign commit authorship to the official
-          # GH-Actions bot for deploys to `gh-pages` branch:
-          # https://github.com/actions/checkout/issues/13#issuecomment-724415212
-          # The GH actions bot is used by default if you didn't specify the two fields.
-          # You can swap them out with your own user credentials.
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com

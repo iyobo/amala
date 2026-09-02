@@ -70,9 +70,14 @@ const bootstrapControllers = async (params) => {
     }
     exports.options.validatorOptions = exports.options.validatorOptions || {};
     exports.options.errorHandler = exports.options.errorHandler || defaultErrorHandler;
-    exports.options.openAPI = exports.options.openAPI || { enabled: true, publicURL: 'http://[publicURl]' };
-    exports.options.openAPI.specPath = `${exports.options.basePath}/${exports.options.openAPI.specPath || 'docs'}`;
-    exports.options.openAPI.webPath = `${exports.options.basePath}/${exports.options.openAPI.webPath || 'swagger'}`;
+    exports.options.openAPI = {
+        enabled: true,
+        publicURL: '',
+        ...exports.options.openAPI
+    };
+    const openAPIBasePath = exports.options.basePath || '';
+    exports.options.openAPI.specPath = `${openAPIBasePath}/${exports.options.openAPI.specPath || 'docs'}`;
+    exports.options.openAPI.webPath = `${openAPIBasePath}/${exports.options.openAPI.webPath || 'swagger'}`;
     exports.options.openAPI.spec = exports.options.openAPI.spec || OpenApi_1.openApiSpec;
     exports.options.bodyParser = exports.options.bodyParser === false ? false : exports.options.bodyParser;
     exports.options.diagnostics = exports.options.diagnostics || false;
@@ -150,9 +155,8 @@ const bootstrapControllers = async (params) => {
     // body parser
     if (exports.options.bodyParser !== false) {
         app.use((0, koa_body_1.default)({
-            ...exports.options.bodyParser,
-            // includeUnparsed: true,
-            multipart: true
+            multipart: true,
+            ...exports.options.bodyParser
         }));
     }
     if (exports.options.attachRoutes) {

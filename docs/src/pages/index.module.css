@@ -1,23 +1,281 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
-
 .heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(230, 158, 65, 0.2), transparent 30%),
+    linear-gradient(145deg, #24152c 0%, #3a1f44 55%, #4b283f 100%);
+  color: #fffaf2;
   overflow: hidden;
+  padding: 6rem 0 5.5rem;
+  position: relative;
+}
+
+.heroBanner::after {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  content: '';
+  inset: 0;
+  mask-image: linear-gradient(to bottom, black, transparent 88%);
+  pointer-events: none;
+  position: absolute;
+}
+
+.heroGrid {
+  align-items: center;
+  display: grid;
+  gap: 4.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  position: relative;
+  z-index: 1;
+}
+
+.heroCopy {
+  max-width: 660px;
+}
+
+.eyebrow {
+  color: var(--amala-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  color: inherit;
+  font-size: clamp(3rem, 6vw, 5.1rem);
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+  margin-bottom: 1.5rem;
+}
+
+.heroSubtitle {
+  color: rgba(255, 250, 242, 0.8);
+  font-size: clamp(1.08rem, 2vw, 1.28rem);
+  line-height: 1.65;
+  margin-bottom: 2rem;
+  max-width: 610px;
+}
+
+.buttons {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.35rem;
+}
+
+.buttons :global(.button--primary) {
+  background: var(--amala-accent);
+  border-color: var(--amala-accent);
+  color: #2b172d;
+  min-height: 48px;
+}
+
+.buttons :global(.button--primary:hover) {
+  background: var(--amala-accent-bright);
+  border-color: var(--amala-accent-bright);
+  color: #2b172d;
+}
+
+.secondaryAction {
+  color: #fffaf2;
+  font-weight: 700;
+  padding: 0.7rem 0.2rem;
+  text-decoration: none;
+}
+
+.secondaryAction:hover {
+  color: var(--amala-accent-bright);
+  text-decoration: none;
+}
+
+.heroMeta {
+  color: rgba(255, 250, 242, 0.58);
+  font-size: 0.85rem;
+  margin: 1.4rem 0 0;
+}
+
+.codePanel {
+  background: rgba(17, 11, 22, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(12, 6, 16, 0.38);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.codePanelLabel {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 250, 242, 0.65);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.85rem 1.1rem;
+  text-transform: uppercase;
+}
+
+.codePanel :global(.theme-code-block) {
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+}
+
+.securityBand {
+  background: var(--amala-plum);
+  color: #fffaf2;
+  padding: 4.5rem 0;
+}
+
+.securityGrid {
+  align-items: start;
+  display: grid;
+  gap: 4rem;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1fr);
+}
+
+.securityGrid h2 {
+  color: inherit;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.securityGrid p:not(.eyebrow) {
+  color: rgba(255, 250, 242, 0.78);
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.inlineLink {
+  color: var(--amala-accent-bright);
+  font-weight: 800;
+}
+
+.inlineLink:hover {
+  color: #fff3d9;
+}
+
+.nextSteps {
+  background: var(--amala-surface-muted);
+  padding: 6rem 0;
+}
+
+.sectionHeading {
+  margin-bottom: 2.5rem;
+  max-width: 680px;
+}
+
+.sectionHeading h2 {
+  font-size: clamp(2.1rem, 4vw, 3.4rem);
+  letter-spacing: -0.045em;
+  margin: 0;
+}
+
+.stepsGrid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.stepCard {
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--amala-border);
+  border-radius: 14px;
+  color: var(--ifm-font-color-base);
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  padding: 1.6rem;
+  text-decoration: none;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+
+.stepCard:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-font-color-base);
+  text-decoration: none;
+  transform: translateY(-3px);
+}
+
+.stepNumber {
+  color: var(--ifm-color-primary);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin-bottom: 3.5rem;
+}
+
+.stepCard h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.stepCard p {
+  color: var(--amala-text-muted);
+  line-height: 1.65;
+}
+
+.cardLink {
+  color: var(--ifm-color-primary);
+  font-size: 0.9rem;
+  font-weight: 800;
+  margin-top: auto;
 }
 
 @media screen and (max-width: 996px) {
   .heroBanner {
-    padding: 2rem;
+    padding: 4.5rem 0;
+  }
+
+  .heroGrid,
+  .securityGrid {
+    gap: 3rem;
+    grid-template-columns: 1fr;
+  }
+
+  .codePanel {
+    max-width: 720px;
+  }
+
+  .stepsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepCard {
+    min-height: 220px;
   }
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+@media screen and (max-width: 576px) {
+  .heroBanner {
+    padding: 3.5rem 0;
+  }
+
+  .heroTitle {
+    font-size: 2.9rem;
+  }
+
+  .buttons {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .buttons :global(.button),
+  .secondaryAction {
+    justify-content: center;
+    min-height: 48px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .securityBand,
+  .nextSteps {
+    padding: 4rem 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepCard {
+    transition: none;
+  }
 }

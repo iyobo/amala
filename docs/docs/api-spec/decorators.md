@@ -3,161 +3,140 @@ sidebar_position: 2
 sidebar_label: Decorators
 ---
 
-Here are the decorators you can use to define your API.
+# Decorator reference
 
-## Class Decorators
+Amala decorators register controllers and map Koa request data to endpoint arguments.
 
-These decorators can be used on Classes i.e controllers
+## Controller decorators
 
-### @Controller(basePath?)
+### `@Controller(path?)`
 
-Specifies this class as a controller class i.e a container of controller endpoints.
-`basepath` is prefixed to all endpoint paths within this class.
-
-### @Flow([...middlewares])
-
-Flow is the Amala terminology for "middleware chain".
-Define the series of koa middleware that must run (and not throw an error) before any endpoint in this class can satisfy the request.
-
-## Endpoint Decorators
-
-These decorators wrap functions of controller classes.
-
-### @Get(path)
-
-Specifies a function as a handler to the given GET `path` route. See above examples.
-
-### @Post(path)
-
-Specifies a function as a handler to the given POST `path` route. See above examples.
-
-### @Patch(path)
-
-Specifies a function as a handler to the given PATCH `path` route. See above examples.
-
-### @Put(path)
-
-Specifies a function as a handler to the given PUT `path` route. See above examples.
-
-### @Delete(path)
-
-Specifies a function as a handler to the given DELETE `path` route. See above examples.
-
-### @Version(v)
-
-specify that this route handler only handles version `v` paths. And only if bootstrap options.version contains `v`, otherwise 404.
-
-
-### @Flow([...middlewares])
-
-Flow is JollofJS terminology for "middleware chain".
-Define the series of middleware that must run (and not throw an error) before this function can satisfy the enpoint. See above example.
-
-## Argument Decorators
-
-These decorators are used to inject contextual request data into your controller endpoint's arguments.
-Try to be as specific as possible with what you inject so that your endpoint handlers can be more easily tested.
-
-### \@Body() or \@Body(options) or \@Body(name)
-
-Injects ctx.request.body or ctx.request.body[name]
-
-### @State() or @State(name)
-
-Injects ctx.state object or ctx.state[name]
-
-### @CurrentUser()
-
-This is a shortcut to access `ctx.state.user`.
-That is the standard location for storing the currently logged in user object. e.g when using koa-passport.
-Consider using this along with an authentication guard middleware e.g
+Registers a class as a controller. The path, or each path in an array, is prefixed to every endpoint in the class.
 
 ```typescript
-@Post('/lead')
-@Flow([authMiddleware])
-async createFoo( @Body() leadData: any, @CurrentUser() user) {
-
-    leadData.userId = user.id
-    return leadData;
-}
-
+@Controller(['/users', '/people'])
+class UserController {}
 ```
 
-### @Header() or @Header(name)
+### `@Flow(middleware)`
 
-Injects ctx.header object or ctx.header[name]
-
-### @Params() or @Params(name)
-
-Injects ctx.params object or ctx.params[name]
-
-### @Query() or @Query(name)
-
-Injects ctx.query object or ctx.query[name]
-
-### @Session() or @Session(name)
-
-This works only if you have a session handler defined in ctx.session e.g koa-session.
-Injects ctx.session object or ctx.session[name]
-
-### @Req()
-
-Injects the koa request object. useful when streaming data up to server
-
-### @Res()
-
-Injects the koa response object. useful when streaming data down to client.
-
-### @File()
-
-Injects the request files object. All files uploaded during the request can be found here, indexed by file field name.
-
-
-### @Ctx()
-
-Injects the whole koa context. For a more descriptive endpoint handler/endpoint, avoid doing this if you can. Opt for more specific injections.
-
-## How to programmatically access controller endpoints
+Adds one Koa middleware function or an array of middleware functions to every endpoint in the controller. Middleware runs in declaration order before the endpoint handler.
 
 ```typescript
-import { getControllers } from "amala";
-const codex: Record<string,Controller> = getControllers(); //codex is now an index of all the controller functions and their classes.
+@Controller('/admin')
+@Flow([requireUser, requireAdmin])
+class AdminController {}
 ```
 
-To access the controller with the class name `UserController`, you can use `codex.UserController` or `codex['UserController']`.
-Because amala has you defining your endpoints using the equivalent of async service endpoints, you could essentially run these async service endpoints directly e.g
+## Endpoint decorators
 
-Given the endpoint definition:
+`@Get`, `@Post`, `@Patch`, `@Put`, and `@Delete` register a method for one path or an array of paths.
+
 ```typescript
-@Controller('/user')
-class UserController {
-    ...
-    @Post('/')
-    async createUser(@Body() userParams: UserParams){
-        // create and return some new user
-    }
-    ...
+@Get(['/me', '/profile'])
+getProfile() {
+  return {name: 'Ada'};
 }
 ```
-You could directly run the function that the endpoint path `POST /api/v1/user` also runs by simply:
-`const newUser = await codex.userController.createUser(userParams)` assuming the function doesn't require any koa context specific parameters.
 
-This becomes somewhat of a useful and clean way to unit-test your endpoint functions.
+### `@Version(version, deprecationMessage?)`
 
-## How to make custom decorators
+Limits a handler to a configured API version. An optional message is added to the `Deprecation` response header.
 
-Making custom decorators is easy! Just create a wrapper function around the Ctx decorator or any other decorator and you are done.
-Decorators are currently limited to simply referencing fields from koa's ctx.
-
-E.g If we wanted to pull something that some middleware has attached to ctx, we can simply say
 ```typescript
-export const Something = ()=>Ctx('something');
+@Get('/')
+@Version(1, 'Use version 2.')
+listV1() {}
+```
 
-```
-and then use that in a controller
+Place a handler without `@Version` after version-specific handlers for the same method and path; it handles the remaining configured versions.
+
+### Endpoint `@Flow`
+
+Adds middleware to one endpoint. Controller middleware runs first, followed by endpoint middleware.
+
 ```typescript
-    @Get('/')
-    async myEndpointHandler(@Something() theThing: any) {
-      // theThing lives
-    }
+@Delete('/:id')
+@Flow([requireUser, requireOwner])
+remove(@Params('id') id: string) {}
 ```
+
+## Argument decorators
+
+| Decorator | Injected value |
+| --- | --- |
+| `@Body()` | `ctx.request.body` |
+| `@Body('field')` | `ctx.request.body.field` |
+| `@Body({required: true})` | The body, with a `422` response when empty |
+| `@Params()` / `@Params('id')` | All path parameters or one parameter |
+| `@Query()` / `@Query('q')` | The parsed query or one query value |
+| `@Header()` / `@Header('name')` | All request headers or one header |
+| `@State()` / `@State('name')` | Koa state or one state value |
+| `@CurrentUser()` | `ctx.state.user` |
+| `@Session()` / `@Session('name')` | The configured Koa session or one value |
+| `@File()` | `ctx.request.files` |
+| `@Req()` | The Koa request |
+| `@Res()` | The Koa response |
+| `@Ctx()` / `@Ctx('name')` | The Koa context or one context field |
+
+Prefer the narrowest decorator that gives the handler what it needs. This reduces coupling to Koa and makes the method easier to test.
+
+### Validation and conversion
+
+When a body, path, or query argument has a class type, Amala uses reflected metadata to transform the value and run class-validator:
+
+```typescript
+class LookupInput {
+  @IsString()
+  id: string;
+}
+
+@Get('/:id')
+getOne(@Params() input: LookupInput) {
+  return input;
+}
+```
+
+Use classes, not interfaces, for validated inputs. Consider `whitelist: true` and `forbidNonWhitelisted: true` in `validatorOptions` when extra properties should be rejected.
+
+### Authentication
+
+`@CurrentUser()` is an accessor, not an authentication check. Authentication middleware must verify the request, store the trusted user in `ctx.state.user`, and run before the endpoint:
+
+```typescript
+@Get('/me')
+@Flow(requireUser)
+getMe(@CurrentUser() user: AuthenticatedUser) {
+  return user;
+}
+```
+
+### File uploads
+
+`@File()` requires multipart parsing. Set explicit upload limits and verify file type from content, not only from the supplied filename or content type. Disable multipart parsing when the application does not accept files.
+
+## Custom argument decorators
+
+Wrap `@Ctx` to name application-specific context values:
+
+```typescript
+export const RequestId = () => Ctx('requestId');
+
+@Get('/')
+list(@RequestId() requestId: string) {
+  return {requestId};
+}
+```
+
+## Controller metadata
+
+`getControllers()` returns Amala's process-wide controller metadata, indexed by controller class name. It is useful for diagnostics and tooling; it does not return live controller instances.
+
+```typescript
+import {getControllers} from 'amala';
+
+const controllers = getControllers();
+console.log(Object.keys(controllers));
+```
+
+Because the registry is process-wide, use separate processes for mutually untrusted applications or modules.

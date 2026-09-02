@@ -5,6 +5,7 @@ let nativeServer;
 beforeAll(async () => {
     const { app, router } = await (0, index_1.bootstrapControllers)({
         basePath: "/api",
+        // eslint-disable-next-line node/no-path-concat
         controllers: [__dirname + "/util/controllers/**/*.ts"],
         versions: ["1", "2"]
     });

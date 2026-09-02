@@ -2,12 +2,13 @@ import request from "supertest";
 import {bootstrapControllers} from "../index";
 
 let nativeServer;
-let testServer: request.SuperTest<request.Test>;
+let testServer;
 
 beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({
     basePath: "/api",
+    // eslint-disable-next-line node/no-path-concat
     controllers: [__dirname + "/util/controllers/**/*.ts"],
     versions: ["1", "2"],
     disableVersioning: true, // overwrites and cancels versions if present => /apiBase/controller/endpoint

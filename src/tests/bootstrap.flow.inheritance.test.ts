@@ -3,13 +3,14 @@ import {bootstrapControllers} from "../index";
 import {setSomethingStateFlow} from "./util/flow/flow";
 
 let nativeServer;
-let testServer: request.SuperTest<request.Test>;
+let testServer;
 
 beforeAll(async () => {
 
 
   const {app, router} = await bootstrapControllers({
     basePath: "/api",
+    // eslint-disable-next-line node/no-path-concat
     controllers: [__dirname + "/util/controllers/**/*.ts"],
     versions: ["1", "2"],
     flow: [setSomethingStateFlow],

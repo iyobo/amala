@@ -39,7 +39,7 @@ export declare class ArgController {
     sessionSingle(sess: string): Promise<string>;
     req(req: Request): Promise<import("http").IncomingHttpHeaders>;
     uploadBuffer(ctx: any, req: Request): Promise<any>;
-    uploadFile(ctx: any, files: Record<string, File>): Promise<Record<string, File>>;
+    uploadFile(ctx: any, files: Record<string, any>): Promise<Record<string, any>>;
     uploadFile2(ctx: any, req: Request): Promise<import("formidable").Files>;
     res(res: Response): Promise<"works" | "did not work">;
     ctx(ctx: any): Promise<any>;

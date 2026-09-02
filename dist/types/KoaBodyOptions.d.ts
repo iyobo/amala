@@ -14,6 +14,8 @@ export type KoaBodyOptions = {
     formidable?: {
         maxFields?: number;
         maxFieldsSize?: number;
+        maxFileSize?: number;
+        maxFiles?: number;
         uploadDir?: string;
         keepExtensions?: boolean;
         hash?: string;
