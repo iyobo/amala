@@ -2,7 +2,7 @@ import request from "supertest";
 import {bootstrapControllers} from "../index";
 
 let nativeServer;
-let testServer: request.SuperTest<request.Test>;
+let testServer;
 beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({

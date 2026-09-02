@@ -5,6 +5,7 @@ beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({
     basePath: "/api",
+    // eslint-disable-next-line node/no-path-concat
     controllers: [__dirname + "/util/controllers/**/*.ts"],
     versions: ["1", "2"]
   });

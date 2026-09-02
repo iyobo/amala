@@ -5,7 +5,7 @@ import {ArgController} from "./util/controllers/ArgController";
 import {ProtectedController} from "./util/controllers/ProtectedController";
 
 let nativeServer;
-let testServer: request.SuperTest<request.Test>;
+let testServer;
 beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({

@@ -1,5 +1,6 @@
 */.js
 node_modules
+docs/build
 dist
 webpack/*.js
 .webpack

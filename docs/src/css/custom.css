@@ -1,34 +1,116 @@
-/**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
- */
-
-/* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --ifm-color-primary: #713b63;
+  --ifm-color-primary-dark: #653558;
+  --ifm-color-primary-darker: #5f3253;
+  --ifm-color-primary-darkest: #4e2944;
+  --ifm-color-primary-light: #7d416e;
+  --ifm-color-primary-lighter: #834473;
+  --ifm-color-primary-lightest: #955387;
+  --ifm-background-color: #fffaf2;
+  --ifm-background-surface-color: #ffffff;
+  --ifm-heading-color: #2d1d2b;
+  --ifm-font-color-base: #392b37;
+  --ifm-code-font-size: 92%;
+  --ifm-navbar-background-color: rgba(255, 250, 242, 0.95);
+  --ifm-footer-background-color: #24152c;
+  --ifm-global-radius: 8px;
+  --docusaurus-highlighted-code-line-bg: rgba(113, 59, 99, 0.12);
+  --amala-accent: #e69e41;
+  --amala-accent-bright: #ffc66e;
+  --amala-border: rgba(76, 43, 70, 0.18);
+  --amala-plum: #3a1f44;
+  --amala-surface-muted: #f6ecdf;
+  --amala-text-muted: #6d5d69;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  --ifm-color-primary: #e6a9d4;
+  --ifm-color-primary-dark: #dd91c6;
+  --ifm-color-primary-darker: #d984bd;
+  --ifm-color-primary-darkest: #c35ca4;
+  --ifm-color-primary-light: #efc1e2;
+  --ifm-color-primary-lighter: #f3cee8;
+  --ifm-color-primary-lightest: #fff4fb;
+  --ifm-background-color: #211a22;
+  --ifm-background-surface-color: #2b222d;
+  --ifm-heading-color: #fff7fd;
+  --ifm-font-color-base: #eadfe8;
+  --ifm-navbar-background-color: rgba(33, 26, 34, 0.96);
+  --ifm-footer-background-color: #19131b;
+  --docusaurus-highlighted-code-line-bg: rgba(230, 169, 212, 0.15);
+  --amala-border: rgba(240, 205, 232, 0.17);
+  --amala-plum: #351d3e;
+  --amala-surface-muted: #271f29;
+  --amala-text-muted: #c4b5c0;
 }
 
-a {
-  font-weight: bolder;
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+.navbar {
+  border-bottom: 1px solid var(--amala-border);
+  box-shadow: none;
+}
+
+.navbar__brand,
+.navbar__link {
+  font-weight: 750;
+}
+
+.navbar__logo img {
+  border-radius: 6px;
+}
+
+[data-theme='dark'] .navbar__logo img {
+  filter: invert(1) brightness(1.15);
+}
+
+.button {
+  border-radius: 7px;
+  font-weight: 800;
+}
+
+.markdown h1:first-child {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  letter-spacing: -0.045em;
+  line-height: 1.03;
+  margin-bottom: 1.5rem;
+}
+
+.markdown > p,
+.markdown li {
+  line-height: 1.75;
+}
+
+.theme-doc-markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.theme-doc-markdown table th {
+  background: var(--amala-surface-muted);
+}
+
+:focus-visible {
+  outline: 3px solid var(--amala-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .markdown h1:first-child {
+    font-size: 2.15rem;
+    overflow-wrap: anywhere;
+  }
 }

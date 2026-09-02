@@ -9,7 +9,7 @@ import KoaApplication from 'koa';
 import koaHelmet from 'koa-helmet';
 import {AmalaOptions} from './types/AmalaOptions';
 import {KoaBodyOptions} from './types/KoaBodyOptions';
-import {HelmetOptions} from 'helmet';
+import type {HelmetOptions} from 'helmet';
 import {AmalaMetadata} from './types/metadata';
 import {addArgumentInjectMeta} from './decorators/common';
 import {koaSwagger} from 'koa2-swagger-ui';
@@ -65,9 +65,14 @@ export const bootstrapControllers = async (
   options.validatorOptions = options.validatorOptions || {};
   options.errorHandler = options.errorHandler || defaultErrorHandler;
 
-  options.openAPI = options.openAPI || {enabled: true, publicURL: 'http://[publicURl]'};
-  options.openAPI.specPath = `${options.basePath}/${options.openAPI.specPath || 'docs'}`;
-  options.openAPI.webPath = `${options.basePath}/${options.openAPI.webPath || 'swagger'}`;
+  options.openAPI = {
+    enabled: true,
+    publicURL: '',
+    ...options.openAPI
+  };
+  const openAPIBasePath = options.basePath || '';
+  options.openAPI.specPath = `${openAPIBasePath}/${options.openAPI.specPath || 'docs'}`;
+  options.openAPI.webPath = `${openAPIBasePath}/${options.openAPI.webPath || 'swagger'}`;
   options.openAPI.spec = options.openAPI.spec || openApiSpec;
 
   options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
@@ -160,9 +165,8 @@ export const bootstrapControllers = async (
   // body parser
   if (options.bodyParser !== false) {
     app.use(bodyParser({
-      ...options.bodyParser as KoaBodyOptions,
-      // includeUnparsed: true,
-      multipart: true
+      multipart: true,
+      ...options.bodyParser as KoaBodyOptions
     }));
   }
 

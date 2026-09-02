@@ -1,11 +1,10 @@
 ---
-sidebar_position: 4
-sidebar_label: Upcoming Features
+sidebar_position: 6
+sidebar_label: Roadmap
 ---
-# Upcoming Features
 
-## Customizable validators
-The ability to choose and configure different input validation engines besides class-validators.
+# Roadmap
 
-## OpenAPI improvements
-Amala's OpenAPI spec-gen support could be better. For example, headers cannot be passed in just yet which would be useful for testing various things like auth and bearer tokens.
+Amala's roadmap is maintained through [GitHub issues](https://github.com/iyobo/amala/issues). Current areas of interest include richer OpenAPI output, additional validation flexibility, and a clearer migration path for future major releases.
+
+Roadmap items are exploratory until they are assigned to a release. Open an issue with a concrete use case before implementing a new public API so maintainers can agree on compatibility, security, and documentation requirements.

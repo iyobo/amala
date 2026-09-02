@@ -3,7 +3,7 @@
 import { Options } from '@koa/cors';
 import Router from '@koa/router';
 import { ValidatorOptions } from 'class-validator';
-import { HelmetOptions } from 'helmet';
+import type { HelmetOptions } from 'helmet';
 import Application from 'koa';
 import { OpenAPIV3_1 } from 'openapi-types';
 import { KoaBodyOptions } from './KoaBodyOptions';
@@ -29,7 +29,7 @@ export interface AmalaOptions {
      * OpenAPI options
      */
     openAPI?: {
-        enabled: boolean;
+        enabled?: boolean;
         /**
          * URL path to serve openAPI UI
          */
@@ -41,7 +41,7 @@ export interface AmalaOptions {
         /**
          * What is the public URL for this API?
          */
-        publicURL: string;
+        publicURL?: string;
         /**
          * Use this to Pre-fill certain aspects of the OpenAPI spec e.g to define "info" segment.
          */

@@ -1,39 +1,27 @@
 // @ts-check
-// `@type` JSDoc annotations allow editor autocompletion and type checking
-// (when paired with `@ts-check`).
-// There are various equivalent ways to declare your Docusaurus config.
-// See: https://docusaurus.io/docs/api/docusaurus-config
 
 import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'AmalaJS',
-  tagline: 'A Next-Gen Typescript framework for creating fast, scalable and modern NodeJS APIs',
+  title: 'Amala',
+  tagline: 'Typed Koa APIs with decorators, validation, versioning, and OpenAPI support.',
   favicon: 'img/favicon.ico',
-
-  // Set the production url of your site here
-  url: 'https://amalajs.com',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
+  url: 'https://www.amalajs.com',
   baseUrl: '/',
-
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'iyobo', // Usually your GitHub org/user name.
-  projectName: 'amala', // Usually your repo name.
-
+  organizationName: 'iyobo',
+  projectName: 'amala',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
-
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
+  trailingSlash: false,
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: 'throw',
+    },
+  },
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
   },
-
   presets: [
     [
       'classic',
@@ -41,34 +29,28 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/iyobo/amala/tree/master/docs',
+          editUrl: 'https://github.com/iyobo/amala/edit/master/docs/',
+          showLastUpdateAuthor: true,
+          showLastUpdateTime: true,
         },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/iyobo/amala/tree/master/docs',
-        },
+        blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
       }),
     ],
   ],
-
   themeConfig:
-  /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      // Replace with your project's social card
       image: 'img/logo.png',
+      colorMode: {
+        respectPrefersColorScheme: true,
+      },
       navbar: {
-        title: 'AmalaJS',
+        title: 'Amala',
         logo: {
-          alt: 'AmalaJS',
+          alt: 'Amala logo',
           src: 'img/logo.png',
         },
         items: [
@@ -76,15 +58,15 @@ const config = {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Documentation',
+            label: 'Docs',
           },
-          // {
-          //   to: '/blog',
-          //   label: 'Blog',
-          //   position: 'left'
-          // },
           {
-            href: 'https://github.com/iyobo/amala/tree/master/docs/src',
+            to: '/docs/api-spec/bootstrap-controllers',
+            label: 'API reference',
+            position: 'left',
+          },
+          {
+            href: 'https://github.com/iyobo/amala',
             label: 'GitHub',
             position: 'right',
           },
@@ -92,52 +74,31 @@ const config = {
       },
       footer: {
         style: 'dark',
-        // links: [
-        //   {
-        //     title: 'Docs',
-        //     items: [
-        //       {
-        //         label: 'Tutorial',
-        //         to: '/docs/intro',
-        //       },
-        //     ],
-        //   },
-        //   // {
-        //   //   title: 'Community',
-        //   //   items: [
-        //   //     {
-        //   //       label: 'Stack Overflow',
-        //   //       href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-        //   //     },
-        //   //     {
-        //   //       label: 'Discord',
-        //   //       href: 'https://discordapp.com/invite/docusaurus',
-        //   //     },
-        //   //     {
-        //   //       label: 'Twitter',
-        //   //       href: 'https://twitter.com/docusaurus',
-        //   //     },
-        //   //   ],
-        //   // },
-        //   {
-        //     title: 'More',
-        //     items: [
-        //       {
-        //         label: 'Blog',
-        //         to: '/blog',
-        //       },
-        //       {
-        //         label: 'GitHub',
-        //         href: 'https://github.com/facebook/docusaurus',
-        //       },
-        //     ],
-        //   },
-        // ],
-        copyright: `Copyright © ${new Date().getFullYear()} The AmalaJS framework. Built with Docusaurus.`,
+        links: [
+          {
+            title: 'Documentation',
+            items: [
+              {label: 'Get started', to: '/docs/getting-started'},
+              {label: 'Configuration', to: '/docs/api-spec/bootstrap-controllers'},
+              {label: 'Decorators', to: '/docs/api-spec/decorators'},
+              {label: 'Security', to: '/docs/security'},
+            ],
+          },
+          {
+            title: 'Project',
+            items: [
+              {label: 'GitHub', href: 'https://github.com/iyobo/amala'},
+              {label: 'Issues', href: 'https://github.com/iyobo/amala/issues'},
+              {label: 'Security policy', href: 'https://github.com/iyobo/amala/security/policy'},
+            ],
+          },
+        ],
+        copyright: `Copyright © ${new Date().getFullYear()} Amala contributors. Released under the MIT License.`,
       },
       prism: {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
+        additionalLanguages: ['bash'],
       },
     }),
 };
