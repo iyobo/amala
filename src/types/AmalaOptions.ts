@@ -41,7 +41,6 @@ export interface AmalaOptions<
   // For if you want to supply tour own Koa-Router instance.
   // If this is not provided, amala will create a koa-router for you and load it up with endpoints
   // Either way, a router is returned within the result of running the bootstrap function.
-  // The router is not attached by default to the app. If you want that, be sure to set options.attachRoutes to true.
   router?: Router<StateT, ContextT>;
 
   // An array used to register all controllers to be routed. Can take Classes or glob path strings of where the classes exist.
@@ -94,7 +93,8 @@ export interface AmalaOptions<
    */
   errorHandler?: ErrorHandler<StateT, ContextT>;
 
-  // if true, will attach generated routes to the koa app. Don't set to true if you need to use app.use(...)
+  // Generated routes are attached to the Koa app by default. Set this to false
+  // when the application needs to mount router middleware itself for custom ordering.
   attachRoutes?: boolean;
 
   // Options for class-validator. Used to validate endpoint injectables. See https://www.npmjs.com/package/class-validator.

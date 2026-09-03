@@ -63,24 +63,25 @@ await bootstrapControllers<AppState, ContextExtensions>({
 });
 ```
 
-Use the exported `AmalaContext<AppState, ContextExtensions>` type wherever the complete Koa context is needed.
+Use the exported context type wherever the complete Koa context is needed:
+
+```typescript
+type AppContext = AmalaContext<AppState, ContextExtensions>;
+```
 
 ## Update error handlers
 
 The error value is now `unknown`. Narrow it before reading error-specific fields:
 
 ```typescript
-await bootstrapControllers({
-  controllers: [UserController],
-  errorHandler: async (error, ctx) => {
-    const message = error instanceof Error
-      ? error.message
-      : 'Internal Server Error';
+errorHandler: async (error, ctx) => {
+  const message = error instanceof Error
+    ? error.message
+    : 'Internal Server Error';
 
-    ctx.status = 500;
-    ctx.body = {message};
-  },
-});
+  ctx.status = 500;
+  ctx.body = {message};
+}
 ```
 
 This prevents thrown strings, objects, or other non-Error values from being treated as trusted error instances.

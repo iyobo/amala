@@ -14,22 +14,8 @@ Amala decorators register controllers and map Koa request data to endpoint argum
 Registers a class as a controller. The path, or each path in an array, is prefixed to every endpoint in the class.
 
 ```typescript
-import {bootstrapControllers, Controller, Get} from 'amala';
-
 @Controller(['/users', '/people'])
-class UserController {
-  @Get('/')
-  list() {
-    return [];
-  }
-}
-
-async function main() {
-  const {app} = await bootstrapControllers({controllers: [UserController]});
-  app.listen(3000);
-}
-
-void main();
+class UserController {}
 ```
 
 ### `@Flow(middleware)`
@@ -39,39 +25,9 @@ Adds one Koa middleware function or an array of middleware functions to every en
 Use `AmalaMiddleware<AppState, ContextExtensions>` when the flow reads application-specific Koa values. `@Flow` preserves those generics instead of widening the context to `any`.
 
 ```typescript
-import {AmalaMiddleware, bootstrapControllers, Controller, Flow, Get} from 'amala';
-
-interface AppState {
-  user?: {isAdmin: boolean};
-}
-
-const requireUser: AmalaMiddleware<AppState> = async (ctx, next) => {
-  if (!ctx.state.user) ctx.throw(401);
-  await next();
-};
-
-const requireAdmin: AmalaMiddleware<AppState> = async (ctx, next) => {
-  if (!ctx.state.user?.isAdmin) ctx.throw(403);
-  await next();
-};
-
 @Controller('/admin')
 @Flow([requireUser, requireAdmin])
-class AdminController {
-  @Get('/')
-  dashboard() {
-    return {access: 'granted'};
-  }
-}
-
-async function main() {
-  const {app} = await bootstrapControllers<AppState>({
-    controllers: [AdminController],
-  });
-  app.listen(3000);
-}
-
-void main();
+class AdminController {}
 ```
 
 ## Endpoint decorators
@@ -79,22 +35,10 @@ void main();
 `@Get`, `@Post`, `@Patch`, `@Put`, and `@Delete` register a method for one path or an array of paths.
 
 ```typescript
-import {bootstrapControllers, Controller, Get} from 'amala';
-
-@Controller('/users')
-class UserController {
-  @Get(['/me', '/profile'])
-  getProfile() {
-    return {name: 'Ada'};
-  }
+@Get(['/me', '/profile'])
+getProfile() {
+  return {name: 'Ada'};
 }
-
-async function main() {
-  const {app} = await bootstrapControllers({controllers: [UserController]});
-  app.listen(3000);
-}
-
-void main();
 ```
 
 ### `@Version(version, deprecationMessage?)`
@@ -102,31 +46,9 @@ void main();
 Limits a handler to a configured API version. An optional message is added to the `Deprecation` response header.
 
 ```typescript
-import {bootstrapControllers, Controller, Get, Version} from 'amala';
-
-@Controller('/users')
-class UserController {
-  @Get('/')
-  @Version('1', 'Use version 2.')
-  listV1() {
-    return {version: 1};
-  }
-
-  @Get('/')
-  listCurrent() {
-    return {version: 2};
-  }
-}
-
-async function main() {
-  const {app} = await bootstrapControllers({
-    controllers: [UserController],
-    versions: [1, 2],
-  });
-  app.listen(3000);
-}
-
-void main();
+@Get('/')
+@Version(1, 'Use version 2.')
+listV1() {}
 ```
 
 Place a handler without `@Version` after version-specific handlers for the same method and path; it handles the remaining configured versions.
@@ -136,23 +58,9 @@ Place a handler without `@Version` after version-specific handlers for the same 
 Adds middleware to one endpoint. Controller middleware runs first, followed by endpoint middleware.
 
 ```typescript
-import {bootstrapControllers, Controller, Delete, Flow, Params} from 'amala';
-
-@Controller('/users')
-class UserController {
-  @Delete('/:id')
-  @Flow([requireUser, requireOwner])
-  remove(@Params('id') id: string) {
-    return {removed: id};
-  }
-}
-
-async function main() {
-  const {app} = await bootstrapControllers({controllers: [UserController]});
-  app.listen(3000);
-}
-
-void main();
+@Delete('/:id')
+@Flow([requireUser, requireOwner])
+remove(@Params('id') id: string) {}
 ```
 
 ## Argument decorators
@@ -180,33 +88,15 @@ Prefer the narrowest decorator that gives the handler what it needs. This reduce
 When a body, path, or query argument has a class type, Amala uses reflected metadata to transform the value and run class-validator:
 
 ```typescript
-import {
-  bootstrapControllers,
-  Controller,
-  Get,
-  IsString,
-  Params,
-} from 'amala';
-
 class LookupInput {
   @IsString()
-  id!: string;
+  id: string;
 }
 
-@Controller('/items')
-class ItemController {
-  @Get('/:id')
-  getOne(@Params() input: LookupInput) {
-    return input;
-  }
+@Get('/:id')
+getOne(@Params() input: LookupInput) {
+  return input;
 }
-
-async function main() {
-  const {app} = await bootstrapControllers({controllers: [ItemController]});
-  app.listen(3000);
-}
-
-void main();
 ```
 
 Use classes, not interfaces, for validated inputs. Consider `whitelist: true` and `forbidNonWhitelisted: true` in `validatorOptions` when extra properties should be rejected.
@@ -218,46 +108,11 @@ For nested objects, combine class-validator's `@ValidateNested()` with class-tra
 `@CurrentUser()` is an accessor, not an authentication check. Authentication middleware must verify the request, store the trusted user in `ctx.state.user`, and run before the endpoint:
 
 ```typescript
-import {
-  AmalaMiddleware,
-  bootstrapControllers,
-  Controller,
-  CurrentUser,
-  Flow,
-  Get,
-} from 'amala';
-
-interface AuthenticatedUser {
-  id: string;
+@Get('/me')
+@Flow(requireUser)
+getMe(@CurrentUser() user: AuthenticatedUser) {
+  return user;
 }
-
-interface AppState {
-  user?: AuthenticatedUser;
-}
-
-const requireUser: AmalaMiddleware<AppState> = async (ctx, next) => {
-  // Verify the credential before assigning this trusted identity.
-  ctx.state.user = await authenticate(ctx);
-  await next();
-};
-
-@Controller('/account')
-class AccountController {
-  @Get('/me')
-  @Flow(requireUser)
-  getMe(@CurrentUser() user: AuthenticatedUser) {
-    return user;
-  }
-}
-
-async function main() {
-  const {app} = await bootstrapControllers<AppState>({
-    controllers: [AccountController],
-  });
-  app.listen(3000);
-}
-
-void main();
 ```
 
 ### File uploads
@@ -269,43 +124,12 @@ void main();
 Wrap `@Ctx` to name application-specific context values:
 
 ```typescript
-import {
-  AmalaMiddleware,
-  bootstrapControllers,
-  Controller,
-  Ctx,
-  Get,
-} from 'amala';
-
-interface ContextExtensions {
-  requestId: string;
-}
-
 export const RequestId = () => Ctx('requestId');
 
-const requestContext: AmalaMiddleware<{}, ContextExtensions> =
-  async (ctx, next) => {
-    ctx.requestId = crypto.randomUUID();
-    await next();
-  };
-
-@Controller('/items')
-class ItemController {
-  @Get('/')
-  list(@RequestId() requestId: string) {
-    return {requestId};
-  }
+@Get('/')
+list(@RequestId() requestId: string) {
+  return {requestId};
 }
-
-async function main() {
-  const {app} = await bootstrapControllers<{}, ContextExtensions>({
-    controllers: [ItemController],
-    flow: [requestContext],
-  });
-  app.listen(3000);
-}
-
-void main();
 ```
 
 The handler annotation describes the injected value. Use `AmalaContext<AppState, ContextExtensions>` when injecting the complete context with `@Ctx()`.
@@ -315,19 +139,10 @@ The handler annotation describes the injected value. Use `AmalaContext<AppState,
 `getControllers()` returns Amala's process-wide controller metadata, indexed by controller class name. It is useful for diagnostics and tooling; it does not return live controller instances.
 
 ```typescript
-import {bootstrapControllers, Controller, getControllers} from 'amala';
+import {getControllers} from 'amala';
 
-@Controller('/users')
-class UserController {}
-
-async function main() {
-  await bootstrapControllers({controllers: [UserController]});
-
-  const controllers = getControllers();
-  console.log(Object.keys(controllers));
-}
-
-void main();
+const controllers = getControllers();
+console.log(Object.keys(controllers));
 ```
 
 Because the registry is process-wide, use separate processes for mutually untrusted applications or modules.

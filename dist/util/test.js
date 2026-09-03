@@ -7,6 +7,7 @@ const ProtectedController_1 = require("../tests/util/controllers/ProtectedContro
 const startTestServer = async () => {
     const port = 4050;
     const { app, router } = await (0, index_1.bootstrapControllers)({
+        attachRoutes: false,
         basePath: "/api",
         controllers: [ArgController_1.ArgController, ProtectedController_1.ProtectedController],
         versions: ["1", "2"],

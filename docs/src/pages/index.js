@@ -19,10 +19,16 @@ interface Context {
 
 const app = new Koa<State, Context>();
 
-await bootstrapControllers({
-  app,
-  controllers: [UserController],
-});`;
+async function main() {
+  await bootstrapControllers({
+    app,
+    controllers: [UserController],
+  });
+
+  app.listen(3000);
+}
+
+void main();`;
 
 const contextUsage = `type AppContext = AmalaContext<State, Context>;
 
@@ -34,7 +40,18 @@ const authorize: AmalaMiddleware<State, Context> =
     // Fully typed in middleware, factories,
     // error handlers, and returned app/router.
     await next();
-  };`;
+  };
+
+async function main() {
+  const {app} = await bootstrapControllers<State, Context>({
+    controllers: [UserController],
+    flow: [authorize],
+  });
+
+  app.listen(3000);
+}
+
+void main();`;
 
 function HomepageHeader() {
   return (
@@ -42,9 +59,9 @@ function HomepageHeader() {
       <div className={styles.heroGlow} aria-hidden="true" />
       <div className={`container ${styles.heroGrid}`}>
         <div className={styles.heroCopy}>
-          <Link className={styles.releasePill} to="/docs/migration-v12">
+          <Link className={styles.releasePill} to="/docs/migration-v13">
             <span className={styles.releaseDot} aria-hidden="true" />
-            Amala 12 is here
+              Amala 13 is here
             <span aria-hidden="true">↗</span>
           </Link>
           <Heading as="h1" className={styles.heroTitle}>
@@ -53,14 +70,15 @@ function HomepageHeader() {
           </Heading>
           <p className={styles.heroSubtitle}>
             A small TypeScript layer for controller routing, validation, and
-            OpenAPI—now carrying your Koa state and context types end to end.
+            OpenAPI—now ready to listen after bootstrap while carrying your
+            Koa state and context types end to end.
           </p>
           <div className={styles.buttons}>
             <Link className="button button--primary button--lg" to="/docs/getting-started">
-              Start with v12
+              Start with v13
             </Link>
-            <Link className={styles.secondaryAction} to="/docs/migration-v12">
-              Migrate from v11 <span aria-hidden="true">→</span>
+            <Link className={styles.secondaryAction} to="/docs/migration-v13">
+              Migrate from v12 <span aria-hidden="true">→</span>
             </Link>
           </div>
           <ul className={styles.heroFacts} aria-label="Project details">
@@ -79,7 +97,7 @@ function HomepageHeader() {
                 <i />
               </span>
               <span>src/main.ts</span>
-              <span className={styles.codeVersion}>v12</span>
+              <span className={styles.codeVersion}>v13</span>
             </div>
             <CodeBlock language="typescript">{contextExample}</CodeBlock>
           </div>
@@ -87,16 +105,16 @@ function HomepageHeader() {
       </div>
       <div className={`container ${styles.releaseRail}`}>
         <div>
+          <strong>Ready to listen</strong>
+          <span>Routes mount automatically</span>
+        </div>
+        <div>
           <strong>Typed context</strong>
           <span>No implicit property bag</span>
         </div>
         <div>
           <strong>Koa-native</strong>
-          <span>Your middleware model stays intact</span>
-        </div>
-        <div>
-          <strong>Intentionally small</strong>
-          <span>No container or binding framework</span>
+          <span>Manual composition stays available</span>
         </div>
       </div>
     </header>
@@ -107,7 +125,7 @@ function ContextSpotlight() {
     <section className={styles.contextSpotlight} aria-labelledby="context-heading">
       <div className={`container ${styles.contextGrid}`}>
         <div className={styles.contextCopy}>
-          <p className={styles.eyebrow}>The v12 idea</p>
+          <p className={styles.eyebrow}>Still just Koa</p>
           <Heading id="context-heading" as="h2">
             The context you already use, with types that follow it everywhere.
           </Heading>
@@ -126,8 +144,8 @@ function ContextSpotlight() {
               <p><strong>No new runtime model.</strong> Koa remains Koa; application middleware still owns application state.</p>
             </div>
           </div>
-          <Link className={styles.inlineLinkDark} to="/docs/migration-v12">
-            Read the v12 migration guide <span aria-hidden="true">→</span>
+          <Link className={styles.inlineLinkDark} to="/docs/api-spec/bootstrap-controllers#typed-koa-context">
+            See typed context in bootstrap <span aria-hidden="true">→</span>
           </Link>
         </div>
         <div className={styles.contextCode}>
@@ -165,8 +183,8 @@ function SecurityCallout() {
 
 function NextSteps() {
   const steps = [
-    ['01', 'Start a v12 API', 'Define a controller, type the Koa context, and serve the first request.', '/docs/getting-started'],
-    ['02', 'Move from v11', 'See every breaking type change and the smallest migration path.', '/docs/migration-v12'],
+    ['01', 'Start a v13 API', 'Define a controller, type the Koa context, and serve the first request.', '/docs/getting-started'],
+    ['02', 'Move from v12', 'See the route-mounting change and the smallest migration path.', '/docs/migration-v13'],
     ['03', 'Ship deliberately', 'Review parsing, CORS, OpenAPI, authentication, and production defaults.', '/docs/security'],
   ];
 
@@ -196,7 +214,7 @@ export default function Home() {
   return (
     <Layout
       title="Keep Koa. Add a contract."
-      description="Amala 12 is a small TypeScript framework for typed Koa context, controller routing, validation, versioning, and OpenAPI."
+      description="Amala 13 is a small TypeScript framework for typed Koa context, ready-to-listen controller routing, validation, versioning, and OpenAPI."
     >
       <HomepageHeader />
       <main>

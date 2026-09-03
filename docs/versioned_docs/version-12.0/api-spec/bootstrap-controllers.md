@@ -7,7 +7,12 @@ sidebar_label: bootstrapControllers
 
 Initializes controller routes and returns the Koa app and router used by Amala.
 
-Its generic signature is `bootstrapControllers<StateT, ContextT>(options)`. It resolves to the typed `app` and `router` that Amala configured.
+```typescript
+bootstrapControllers<StateT, ContextT>(options): Promise<{
+  app: Application<StateT, ContextT>;
+  router: Router<StateT, ContextT>;
+}>
+```
 
 Only `controllers` is required.
 
@@ -26,7 +31,7 @@ const {app, router} = await bootstrapControllers({
 | `app` | new Koa app | Use an existing Koa application. |
 | `router` | new Koa router | Use an existing `@koa/router` instance. |
 | `basePath` | `''` | Prefix added before version, controller, and OpenAPI paths. |
-| `attachRoutes` | `true` | Attach `router.routes()` and `router.allowedMethods()` automatically. Set to `false` for manual middleware ordering. |
+| `attachRoutes` | `false` | Attach `router.routes()` and `router.allowedMethods()` automatically. |
 | `flow` | `[]` | Global Koa middleware registered before generated routes. |
 | `diagnostics` | `false` | Log controller and route registration details. Avoid in noisy production logs. |
 
@@ -68,35 +73,31 @@ The same types appear in global middleware, `@Flow`, `controllerFactory`, `error
 Versioning is enabled by default with version `1`.
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController],
-  versions: {
-    1: 'Version 1 will be removed on 2027-01-01.',
-    2: true,
-  },
-});
-
-app.listen(3000);
+versions: [1, 2]
 ```
 
-This registers compatible endpoints under `/v1` and `/v2`. Amala includes the message in the `Deprecation` response header for version 1 routes. A simple array such as `versions: [1, 2]` enables versions without deprecation messages. Set `disableVersioning: true` to omit the `/v...` path segment. `@Version` handlers are skipped when built-in versioning is disabled.
+This registers compatible endpoints under `/v1` and `/v2`. An object can also mark a version as deprecated:
+
+```typescript
+versions: {
+  1: 'Version 1 will be removed on 2027-01-01.',
+  2: true,
+}
+```
+
+Amala includes that message in the `Deprecation` response header for version 1 routes. Set `disableVersioning: true` to omit the `/v...` path segment. `@Version` handlers are skipped when built-in versioning is disabled.
 
 ## Request parsing
 
 Amala configures `koa-body` unless `bodyParser` is `false`.
 
 ```typescript
-const {app} = await bootstrapControllers({
-  bodyParser: {
-    formLimit: '56kb',
-    jsonLimit: '1mb',
-    multipart: false,
-    textLimit: '56kb',
-  },
-  controllers: [UserController],
-});
-
-app.listen(3000);
+bodyParser: {
+  formLimit: '56kb',
+  jsonLimit: '1mb',
+  multipart: false,
+  textLimit: '56kb',
+}
 ```
 
 Multipart parsing remains enabled by default for compatibility. Explicitly set `multipart: false` when uploads are not needed. When uploads are enabled, configure `formidable` limits and validate file content in application code.
@@ -108,15 +109,10 @@ Set `bodyParser: false` if the application installs its own parser.
 `validatorOptions` is passed to class-validator whenever Amala receives a decorated class input:
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController],
-  validatorOptions: {
-    forbidNonWhitelisted: true,
-    whitelist: true,
-  },
-});
-
-app.listen(3000);
+validatorOptions: {
+  forbidNonWhitelisted: true,
+  whitelist: true,
+}
 ```
 
 Interfaces do not exist at runtime and cannot be validated. Use a class with class-validator decorators.
@@ -136,12 +132,6 @@ class UserController {
     return this.ctx.state.services.users.list();
   }
 }
-
-const {app} = await bootstrapControllers<AppState, ContextExtensions>({
-  controllers: [UserController],
-});
-
-app.listen(3000);
 ```
 
 The optional `controllerFactory` remains available when an application needs custom construction. It receives the controller class and typed context, may return a promise, and runs once per request. Amala does not provide or manage a dependency-injection container, binding registry, or service lifecycle.
@@ -151,23 +141,18 @@ The optional `controllerFactory` remains available when an application needs cus
 OpenAPI generation is enabled by default.
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController],
-  openAPI: {
-    enabled: true,
-    publicURL: 'https://api.example.com',
-    specPath: 'docs',
-    webPath: 'swagger',
-    spec: {
-      info: {
-        title: 'Example API',
-        version: '1.0.0',
-      },
+openAPI: {
+  enabled: true,
+  publicURL: 'https://api.example.com',
+  specPath: 'docs',
+  webPath: 'swagger',
+  spec: {
+    info: {
+      title: 'Example API',
+      version: '1.0.0',
     },
   },
-});
-
-app.listen(3000);
+}
 ```
 
 `specPath` and `webPath` are appended to `basePath`. With `basePath: '/api'`, their defaults are `/api/docs` and `/api/swagger`. `publicURL` defaults to the current origin.
@@ -181,14 +166,9 @@ Set `openAPI: {enabled: false}` to disable both endpoints. In production, disabl
 Set `useHelmet: true` to add Koa Helmet to the global middleware flow, or pass Helmet options:
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController],
-  useHelmet: {
-    contentSecurityPolicy: false,
-  },
-});
-
-app.listen(3000);
+useHelmet: {
+  contentSecurityPolicy: false,
+}
 ```
 
 Review Helmet options for your application, especially when serving Swagger UI from the same process.
@@ -198,18 +178,13 @@ Review Helmet options for your application, especially when serving Swagger UI f
 CORS is enabled by default using `@koa/cors` defaults. Public applications should configure an explicit allowed origin or disable Amala's CORS middleware and install their own policy:
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController],
-  cors: {
-    enabled: true,
-    opts: {
-      credentials: true,
-      origin: 'https://app.example.com',
-    },
+cors: {
+  enabled: true,
+  opts: {
+    credentials: true,
+    origin: 'https://app.example.com',
   },
-});
-
-app.listen(3000);
+}
 ```
 
 Do not combine credentialed requests with a wildcard origin.
@@ -219,20 +194,14 @@ Do not combine credentialed requests with a wildcard origin.
 The default handler formats Boom errors, returns validation details for client errors, and hides details for server errors. Override it with `errorHandler` when you need structured logging or a different response envelope:
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController],
-  errorHandler: async (error, ctx) => {
-    const errorId = crypto.randomUUID();
+errorHandler: async (error, ctx) => {
+  const message = error instanceof Error
+    ? error.message
+    : 'Internal Server Error';
 
-    // Narrow and redact the unknown error inside this reporter.
-    await reportErrorSafely({error, errorId});
-
-    ctx.status = 500;
-    ctx.body = {error: 'Internal Server Error', errorId};
-  },
-});
-
-app.listen(3000);
+  ctx.status = 500;
+  ctx.body = {error: message};
+}
 ```
 
 The error value is `unknown`; narrow it before accessing error-specific properties. Keep secrets, request bodies, authorization headers, and raw third-party URLs out of error logs.
@@ -248,5 +217,3 @@ const {app, router} = await bootstrapControllers({
 ```
 
 The same objects are returned after Amala registers its middleware and routes.
-
-Generated routes are mounted on the app by default. When `attachRoutes: false` is used, route generation is unchanged and the returned router can be mounted manually wherever the application needs it.

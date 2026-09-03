@@ -11,6 +11,7 @@ let nativeServer;
 let testServer;
 beforeAll(async () => {
     const { app, router } = await (0, index_1.bootstrapControllers)({
+        attachRoutes: false,
         basePath: "/api",
         controllers: [path_1.default.join(__dirname, "util/controllers/**/*.ts")],
         versions: ["1", "2"],

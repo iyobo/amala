@@ -12,38 +12,16 @@ Check the complete generated path:
 - `basePath` is prefixed first.
 - Versioning adds `/v1` by default.
 - `@Controller` and endpoint paths are appended after the version.
-- Amala 13 attaches routes by default. If `attachRoutes: false` is set, mount `router.routes()` and `router.allowedMethods()` manually.
+- `attachRoutes` defaults to `false`; attach `router.routes()` and `router.allowedMethods()` yourself unless you set it to `true`.
 
 Set `diagnostics: true` temporarily to print registered controller and route paths during startup.
-
-## Middleware added after bootstrap does not run
-
-Amala 13 attaches controller routes during bootstrap. Koa middleware added afterward may sit behind a matching route handler in the stack.
-
-Register middleware on an existing Koa app before bootstrap, pass global middleware through `flow`, or set `attachRoutes: false` and mount the returned router after the application middleware:
-
-```typescript
-const {app, router} = await bootstrapControllers({
-  attachRoutes: false,
-  controllers: [UserController],
-});
-
-app.use(applicationMiddleware);
-app.use(router.routes());
-app.use(router.allowedMethods());
-```
 
 ## Decorated controllers are not discovered
 
 Prefer passing controller classes directly:
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController, HealthController],
-  diagnostics: true,
-});
-
-app.listen(3000);
+controllers: [UserController, HealthController]
 ```
 
 When using a glob, make it absolute and match the files produced in the environment. A development glob ending in `.ts` will not find compiled `.js` files in production. Controller modules execute when they are loaded, so globs must come only from trusted configuration.
@@ -78,7 +56,17 @@ Amala installs `koa-body` unless `bodyParser` is `false`. Verify that:
 
 ## File uploads are missing
 
-Multipart parsing must be enabled explicitly if your application disabled it.
+Multipart parsing must be enabled explicitly if your application disabled it:
+
+```typescript
+bodyParser: {
+  multipart: true,
+  formidable: {
+    maxFileSize: 5 * 1024 * 1024,
+    maxFiles: 2,
+  },
+}
+```
 
 Use `@File()` or `@Req()` to access uploads. koa-body places uploads in `ctx.request.files`. For Multer, use the Koa adapter and disable Amala's parser so only one middleware consumes the stream:
 
@@ -90,6 +78,11 @@ const upload = multer({
   limits: {fileSize: 5 * 1024 * 1024},
 });
 
+await bootstrapControllers({
+  bodyParser: false,
+  controllers: [UploadController],
+});
+
 @Controller('/uploads')
 class UploadController {
   @Flow([upload.single('image')])
@@ -98,13 +91,6 @@ class UploadController {
     return {name: file.originalname, size: file.size};
   }
 }
-
-const {app} = await bootstrapControllers({
-  bodyParser: false,
-  controllers: [UploadController],
-});
-
-app.listen(3000);
 ```
 
 Use `@koa/multer`, not Express's `multer` middleware directly. A single upload is available from `ctx.request.file`; field and array uploads use `ctx.request.files`. Store files explicitly in the handler or a service—parsing an upload does not persist it automatically.

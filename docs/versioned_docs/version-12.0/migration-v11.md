@@ -32,41 +32,35 @@ See the upstream [Koa 3 migration guide](https://github.com/koajs/koa/blob/maste
 
 ## Update `@IsIBAN()` validation options
 
-In v10, the first argument was a `ValidationOptions` object, as in `@IsIBAN({message: 'Enter a valid IBAN'})`. In v11, the first argument configures IBAN locale filtering. Move class-validator's validation options to the second argument. This complete application also shows how the controller is bootstrapped:
+In v10, the first argument was a `ValidationOptions` object:
 
 ```typescript
-import {
-  Body,
-  bootstrapControllers,
-  Controller,
-  IsIBAN,
-  Post,
-} from 'amala';
-
 class PaymentInput {
-  @IsIBAN(undefined, {message: 'Enter a valid IBAN'})
-  iban!: string;
+  @IsIBAN({message: 'Enter a valid IBAN'})
+  iban: string;
 }
-
-@Controller('/payments')
-class PaymentController {
-  @Post('/')
-  create(@Body({required: true}) payment: PaymentInput) {
-    return payment;
-  }
-}
-
-async function main() {
-  const {app} = await bootstrapControllers({
-    controllers: [PaymentController],
-  });
-  app.listen(3000);
-}
-
-void main();
 ```
 
-You can allow or reject specific IBAN locales through the first argument, for example `@IsIBAN({whitelist: ['GB', 'IE']}, validationOptions)`.
+In v11, the first argument configures IBAN locale filtering. Move class-validator's validation options to the second argument:
+
+```typescript
+class PaymentInput {
+  @IsIBAN(undefined, {message: 'Enter a valid IBAN'})
+  iban: string;
+}
+```
+
+You can now allow or reject specific IBAN locales through the first argument:
+
+```typescript
+class PaymentInput {
+  @IsIBAN(
+    {whitelist: ['GB', 'IE']},
+    {message: 'Enter a supported UK or Irish IBAN'},
+  )
+  iban: string;
+}
+```
 
 This change applies to `IsIBAN` imported from either `amala` or `class-validator`.
 

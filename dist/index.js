@@ -103,11 +103,12 @@ const addLegacyFileMetadataAliases = (files) => {
  * @param params - KoaControllerOptions
  */
 const bootstrapControllers = async (params) => {
-    var _a;
+    var _a, _b;
     const configuredOptions = params;
     exports.options = params;
     const app = configuredOptions.app = configuredOptions.app || new KoaApplication();
     configuredOptions.router = configuredOptions.router || new router_1.default();
+    configuredOptions.attachRoutes = (_a = configuredOptions.attachRoutes) !== null && _a !== void 0 ? _a : true;
     configuredOptions.versions = configuredOptions.versions || { 1: true };
     configuredOptions.flow = configuredOptions.flow || [];
     if (configuredOptions.useHelmet) {
@@ -148,7 +149,7 @@ const bootstrapControllers = async (params) => {
         configuredOptions.versions = versions;
     }
     // CORS
-    if ((_a = configuredOptions.cors) === null || _a === void 0 ? void 0 : _a.enabled) {
+    if ((_b = configuredOptions.cors) === null || _b === void 0 ? void 0 : _b.enabled) {
         app.use((0, cors_1.default)(configuredOptions.cors.opts));
     }
     // Amala's Error handling middleware
