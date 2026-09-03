@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Header = void 0;
+exports.Header = Header;
 const common_1 = require("../../common");
 function Header(injectOptions) {
     return function (object, methodName, index) {
@@ -13,5 +13,4 @@ function Header(injectOptions) {
         });
     };
 }
-exports.Header = Header;
 //# sourceMappingURL=header.js.map

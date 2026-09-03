@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EndpointController = void 0;
 const index_1 = require("../../../index");
 const flow_1 = require("../flow/flow");
-let EndpointController = exports.EndpointController = class EndpointController {
+let EndpointController = class EndpointController {
     async getRoute() {
         return "okay";
     }
@@ -66,6 +66,7 @@ let EndpointController = exports.EndpointController = class EndpointController {
         return await this.usedByThis2(456);
     }
 };
+exports.EndpointController = EndpointController;
 __decorate([
     (0, index_1.Get)("/"),
     __metadata("design:type", Function),

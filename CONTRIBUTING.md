@@ -36,6 +36,23 @@ Use `npm start` from `docs/` for local documentation development.
 - Keep unrelated formatting and dependency upgrades out of the change.
 - Confirm that both framework and documentation builds complete before requesting review.
 
+## Releases
+
+Every release starts with a pull request that updates `package.json`, `package-lock.json`, and `CHANGELOG.md`. Use semantic versioning consistently:
+
+- Patch for backward-compatible bug and security fixes.
+- Minor for backward-compatible features.
+- Major for breaking API, runtime, or support-policy changes.
+
+After the version pull request is merged, check out its exact merge commit and run:
+
+```bash
+npm ci
+npm run release:publish
+```
+
+Verify the published version from the npm registry before creating and pushing its annotated Git tag. Never create a release commit or version tag before npm confirms the package was published.
+
 ## Security reports
 
 Do not disclose suspected vulnerabilities in a public issue or pull request. Follow [SECURITY.md](SECURITY.md) instead.

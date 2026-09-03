@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Flow = void 0;
+exports.Flow = Flow;
 const common_1 = require("../common");
 const index_1 = require("../../index");
 const tools_1 = require("../../util/tools");
@@ -24,5 +24,4 @@ function Flow(flow) {
         }
     };
 }
-exports.Flow = Flow;
 //# sourceMappingURL=flow.js.map

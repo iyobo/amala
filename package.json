@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "github",
-    "url": "https://github.com/iyobo/amala"
+    "url": "git+https://github.com/iyobo/amala.git"
   },
   "homepage": "https://amalajs.com",
   "bugs": {
@@ -35,9 +35,8 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "changelog": "auto-changelog -p",
-    "release:patch": "npm test && tsc && npm version patch && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master --tags",
-    "release:minor": "npm test && tsc && npm version minor && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master --tags",
-    "release:major": "npm test && tsc && npm version major && npm run changelog && git add CHANGELOG.md && git commit -m \"Release\" && npm publish && git push origin master--tags"
+    "release:check": "npm test -- --runInBand && npm run build && npm run lint && npm audit --omit=dev && npm pack --dry-run",
+    "release:publish": "npm run release:check && npm publish --access public"
   },
   "files": [
     "dist/**/*",
@@ -65,33 +64,31 @@
     "@types/boom": "^7.3.0",
     "@types/cookies": "^0.9.2",
     "@types/express": "^4.17.25",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/koa": "^2.15.0",
     "@types/koa__cors": "^5.0.1",
     "@types/koa__router": "^12.0.3",
     "@types/lodash": "^4.14.149",
     "@types/node": "^18.19.130",
     "@types/supertest": "^7.2.0",
-    "@typescript-eslint/eslint-plugin": "^5.9.0",
-    "@typescript-eslint/parser": "^5.9.0",
+    "@typescript-eslint/eslint-plugin": "8.55.0",
+    "@typescript-eslint/parser": "8.55.0",
     "auto-changelog": "^2.4.0",
-    "eslint": "7.29.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-config-standard": "16.0.3",
-    "eslint-plugin-import": "2.23.4",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-prettier": "3.4.0",
-    "eslint-plugin-promise": "5.1.0",
-    "eslint-plugin-react": "7.24.0",
-    "eslint-plugin-standard": "5.0.0",
-    "jest": "^29.7.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-promise": "^6.6.0",
+    "eslint-plugin-react": "^7.37.5",
+    "jest": "^30.5.1",
     "multer": "^2.3.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.9.6",
     "supertest": "^7.2.2",
-    "ts-jest": "^29.1.1",
+    "ts-jest": "^29.4.12",
     "ts-morph": "^13.0.3",
     "ts-node": "^10.9.1",
-    "typescript": "^5.1",
-    "typescript-eslint": "0.0.1-alpha.0"
+    "typescript": "^5.9.3"
   }
 }

@@ -111,8 +111,8 @@ export function addArgumentInjectMeta({
   controller.endpoints[methodName].arguments =
     controller.endpoints[methodName].arguments || {};
   controller.endpoints[methodName].arguments[index] = {
-    ctxKey: ctxKey,
-    ctxValueOptions: ctxValueOptions
+    ctxKey,
+    ctxValueOptions
   };
 
   metadata.controllers[object.constructor.name] = controller;
