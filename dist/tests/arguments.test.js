@@ -218,7 +218,7 @@ describe("Arguments", () => {
             expect(response.body).toBeDefined();
             expect(response.body.foo).toEqual('bar');
         });
-        it("Buffer can be uploaded", async () => {
+        it("does not copy uploaded file contents into the parsed body", async () => {
             const buffer = Buffer.from('some file data');
             const response = await testServer
                 .post("/api/v2/arg/uploadBuffer")
@@ -226,7 +226,7 @@ describe("Arguments", () => {
                 .attach('testFile', buffer)
                 .expect(200);
             // returns a serialized req object
-            expect(response.body).toEqual({ testFile: 'some file data' });
+            expect(response.body).toEqual({});
         });
         it("File decorator injects files", async () => {
             const response = await testServer

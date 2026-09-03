@@ -41,7 +41,7 @@ function HomepageHeader() {
               View on GitHub <span aria-hidden="true">→</span>
             </Link>
           </div>
-          <p className={styles.heroMeta}>Node.js 18+ · TypeScript · MIT licensed</p>
+          <p className={styles.heroMeta}>Node.js 22+ · TypeScript · MIT licensed</p>
         </div>
         <div className={styles.codePanel}>
           <div className={styles.codePanelLabel}>A controller is the contract</div>

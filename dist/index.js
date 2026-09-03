@@ -52,6 +52,26 @@ const defaultErrorHandler = async (err, ctx) => {
         console.error(err);
     }
 };
+const addLegacyFileMetadataAliases = (files) => {
+    if (!files || typeof files !== 'object')
+        return;
+    const fileValues = Array.isArray(files) ? files : Object.values(files);
+    for (const value of fileValues) {
+        if (Array.isArray(value)) {
+            addLegacyFileMetadataAliases(value);
+            continue;
+        }
+        if (!value || typeof value !== 'object')
+            continue;
+        const file = value;
+        if (!('name' in file) && 'originalFilename' in file) {
+            file.name = file.originalFilename;
+        }
+        if (!('type' in file) && 'mimetype' in file) {
+            file.type = file.mimetype;
+        }
+    }
+};
 /**
  *
  * @param app - Koa instance
@@ -158,6 +178,10 @@ const bootstrapControllers = async (params) => {
             multipart: true,
             ...exports.options.bodyParser
         }));
+        app.use(async (ctx, next) => {
+            addLegacyFileMetadataAliases(ctx.request.files);
+            await next();
+        });
     }
     if (exports.options.attachRoutes) {
         // Combine routes

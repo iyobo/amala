@@ -1,3 +1,4 @@
+import type { Context } from 'koa';
 export type KoaBodyOptions = {
     patchNode?: boolean;
     patchKoa?: boolean;
@@ -10,6 +11,10 @@ export type KoaBodyOptions = {
     text?: boolean;
     json?: boolean;
     jsonStrict?: boolean;
+    jsonTypes?: string[];
+    urlencodedTypes?: string[];
+    textTypes?: string[];
+    multipartTypes?: string[];
     includeUnparsed?: boolean;
     formidable?: {
         maxFields?: number;
@@ -22,7 +27,7 @@ export type KoaBodyOptions = {
         multiples?: boolean;
         onFileBegin?: (name: string, file: any) => void;
     };
-    onError?: (error: any, context: any) => any;
+    onError?: (error: Error, context: Context) => void;
     strict?: boolean;
     parsedMethods?: string[];
 };

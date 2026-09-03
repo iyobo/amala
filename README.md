@@ -17,8 +17,10 @@ Upgrading from v10? Read the [v11 migration guide](https://amalajs.com/docs/migr
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 22 or newer
 - TypeScript with `experimentalDecorators` and `emitDecoratorMetadata` enabled
+
+Amala's parameter decorators rely on TypeScript's legacy decorator metadata. The standard decorator implementation does not yet support parameter decorators or emit design-time parameter types.
 
 ## Quick start
 
