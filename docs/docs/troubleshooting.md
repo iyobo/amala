@@ -105,6 +105,10 @@ Generated OpenAPI server URLs contain `basePath` and the active version. Operati
 
 Controller decorator metadata is process-wide. Two apps in one Node.js process can see the same registered controller names and metadata. Run independent or mutually untrusted APIs in separate processes.
 
+## A dependency injection container cannot construct controllers
+
+Use the `controllerFactory` bootstrap option to resolve controller instances. It runs for every request and receives both the controller class and Koa context. Avoid a process-wide mutable request scope; create and dispose request scopes in middleware.
+
 ## The documentation site does not build
 
 The current Docusaurus site requires Node.js 20 or newer. From `docs/`, run `npm ci` before `npm run build` so the lockfile and toolchain stay aligned.

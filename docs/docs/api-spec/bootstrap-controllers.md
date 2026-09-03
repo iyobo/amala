@@ -24,6 +24,7 @@ const {app, router} = await bootstrapControllers({
 | Option | Default | Purpose |
 | --- | --- | --- |
 | `controllers` | required | Trusted controller classes or glob strings to load. Prefer explicit classes. |
+| `controllerFactory` | Per-request `new ControllerClass(ctx)` | Resolve controller instances through an application-owned dependency injection container. |
 | `app` | new Koa app | Use an existing Koa application. |
 | `router` | new Koa router | Use an existing `@koa/router` instance. |
 | `basePath` | `''` | Prefix added before version, controller, and OpenAPI paths. |
@@ -81,6 +82,29 @@ validatorOptions: {
 ```
 
 Interfaces do not exist at runtime and cannot be validated. Use a class with class-validator decorators.
+
+## Dependency injection
+
+By default, Amala constructs a fresh controller for each request and passes the Koa context to its constructor. Set `controllerFactory` to resolve that request's controller from a dependency injection container instead:
+
+```typescript
+const {app} = await bootstrapControllers({
+  controllers: [UserController],
+  flow: [async (ctx, next) => {
+    const scope = container.createScope();
+    try {
+      ctx.state.container = scope;
+      await next();
+    } finally {
+      await scope.dispose();
+    }
+  }],
+  controllerFactory: (ControllerClass, ctx) =>
+    ctx.state.container.resolve(ControllerClass),
+});
+```
+
+The factory receives the controller class and current Koa context, may return a promise, and runs once per request. Amala does not store a global container or dispose application-owned scopes. Create and clean up request scopes in middleware so concurrent requests cannot share request-specific state accidentally.
 
 ## OpenAPI
 

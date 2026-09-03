@@ -4,10 +4,11 @@ import { Options } from '@koa/cors';
 import Router from '@koa/router';
 import { ValidatorOptions } from 'class-validator';
 import type { HelmetOptions } from 'helmet';
-import Application from 'koa';
+import Application, { Context } from 'koa';
 import { OpenAPIV3_1 } from 'openapi-types';
 import { KoaBodyOptions } from './KoaBodyOptions';
-import { FlowFunction } from './metadata';
+import { Class, FlowFunction } from './metadata';
+export type ControllerFactory = (controllerClass: Class, ctx: Context) => object | Promise<object>;
 export interface AmalaOptions {
     /** For If you want to supply your own koa application instance.
      * If this is not provided, amala will create a koa application for you.
@@ -16,6 +17,13 @@ export interface AmalaOptions {
     app?: Application;
     router?: Router;
     controllers: Array<string | Function>;
+    /**
+     * Resolve a controller instance for each request. The default behavior is
+     * equivalent to `(ControllerClass, ctx) => new ControllerClass(ctx)`.
+     * Use this hook to integrate a dependency injection container without
+     * introducing process-wide container state.
+     */
+    controllerFactory?: ControllerFactory;
     basePath?: string;
     versions?: Array<number | string> | {
         [key: string]: string | boolean;
