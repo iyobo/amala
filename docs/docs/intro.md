@@ -6,7 +6,7 @@ slug: /intro
 
 # Build typed Koa APIs with decorators
 
-Amala is a TypeScript framework for defining Koa routes as controller classes. It adds a focused programming model—routing decorators, request-data injection, validation, API versioning, and OpenAPI generation—while returning the underlying Koa app and router whenever you need direct control.
+Amala is a TypeScript framework for defining Koa routes as controller classes. It adds a focused programming model—routing decorators, request-data injection, validation, API versioning, and OpenAPI generation—while preserving your Koa state and context types and returning the underlying app and router.
 
 ```typescript
 @Controller('/users')
@@ -23,6 +23,7 @@ With `basePath: '/api'` and the default version configuration, this handler serv
 ## What Amala provides
 
 - Decorators for controllers, HTTP methods, middleware, and version constraints.
+- End-to-end Koa state and context-extension generics with safe property-free defaults.
 - Argument injection for bodies, path parameters, query values, headers, state, sessions, files, requests, responses, and the full Koa context.
 - Runtime transformation and validation of decorated class inputs through `class-transformer` and `class-validator`.
 - Built-in API version routing, including deprecation headers.
@@ -31,7 +32,7 @@ With `basePath: '/api'` and the default version configuration, this handler serv
 
 ## What stays in your application
 
-Amala intentionally does not choose your database, authentication system, authorization policy, session strategy, observability stack, or deployment platform. Those remain Koa middleware and application concerns.
+Amala intentionally does not choose your database, dependency container, authentication system, authorization policy, session strategy, observability stack, or deployment platform. Those remain Koa middleware and application concerns.
 
 In particular, `@CurrentUser()` only reads `ctx.state.user`; it does not authenticate the request. Protect the endpoint with authentication and authorization middleware before using that value.
 
@@ -44,6 +45,7 @@ If you need multiple mutually untrusted APIs in one process, note that Amala's d
 ## Next steps
 
 - Follow [Getting started](./getting-started.md) to run a first endpoint.
+- Read [Migrate to v12](./migration-v12.md) when upgrading an existing application.
 - Review [`bootstrapControllers`](./api-spec/bootstrap-controllers.md) for configuration and defaults.
 - Browse the [decorator reference](./api-spec/decorators.md).
 - Complete the [production security checklist](./security.md) before exposing an API publicly.

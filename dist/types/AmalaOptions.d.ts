@@ -2,33 +2,35 @@ import { Options } from '@koa/cors';
 import Router from '@koa/router';
 import { ValidatorOptions } from 'class-validator';
 import type { HelmetOptions } from 'helmet';
-import Application, { Context } from 'koa';
+import type Application = require('koa');
 import { OpenAPIV3_1 } from 'openapi-types';
 import { KoaBodyOptions } from './KoaBodyOptions';
-import { Class, FlowFunction } from './metadata';
-export type ControllerFactory = (controllerClass: Class, ctx: Context) => object | Promise<object>;
-export interface AmalaOptions {
+import { FlowFunction } from './metadata';
+import { AmalaContext, EmptyContext } from './context';
+export type ControllerClass = new (...args: unknown[]) => object;
+export type ControllerFactory<StateT extends object = EmptyContext, ContextT extends object = EmptyContext> = (controllerClass: ControllerClass, ctx: AmalaContext<StateT, ContextT>) => object | Promise<object>;
+export type ErrorHandler<StateT extends object = EmptyContext, ContextT extends object = EmptyContext> = (err: unknown, ctx: AmalaContext<StateT, ContextT>) => void | Promise<void>;
+export interface AmalaOptions<StateT extends object = EmptyContext, ContextT extends object = EmptyContext> {
     /** For If you want to supply your own koa application instance.
      * If this is not provided, amala will create a koa application for you.
      * Either way, an app is returned within the result of running the bootstrap function.
      **/
-    app?: Application;
-    router?: Router;
+    app?: Application<StateT, ContextT>;
+    router?: Router<StateT, ContextT>;
     controllers: Array<string | Function>;
     /**
      * Resolve a controller instance for each request. The default behavior is
      * equivalent to `(ControllerClass, ctx) => new ControllerClass(ctx)`.
-     * Use this hook to integrate a dependency injection container without
-     * introducing process-wide container state.
+     * Applications own any custom construction strategy and service lifecycle.
      */
-    controllerFactory?: ControllerFactory;
+    controllerFactory?: ControllerFactory<StateT, ContextT>;
     basePath?: string;
     versions?: Array<number | string> | {
         [key: string]: string | boolean;
     };
     disableVersioning?: boolean;
-    flow?: FlowFunction[];
-    errorHandler?: (err: any, ctx: any) => Promise<void>;
+    flow?: FlowFunction<StateT, ContextT>[];
+    errorHandler?: ErrorHandler<StateT, ContextT>;
     attachRoutes?: boolean;
     validatorOptions?: ValidatorOptions;
     /**
@@ -61,7 +63,7 @@ export interface AmalaOptions {
             externalDocs?: Partial<OpenAPIV3_1.ExternalDocumentationObject>;
         }>;
     };
-    bodyParser?: false | KoaBodyOptions;
+    bodyParser?: false | KoaBodyOptions<StateT, ContextT>;
     /**
      * Will use koa helmet
      */

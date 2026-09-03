@@ -1,8 +1,9 @@
 import {addArgumentInjectMeta, ValidationDecoratorOptions} from '../../common';
+import {ClassMethod} from '../../../types/metadata';
 
 export function Query(injectOptions?: string | ValidationDecoratorOptions) {
   return function (
-    object: Record<string, any>,
+    object: ClassMethod,
     methodName: string,
     index: number
   ): void {

@@ -24,7 +24,7 @@ afterAll(done => {
         done();
     }
 });
-describe.only("library exports", () => {
+describe("library exports", () => {
     it("controllers", async () => {
         const controllers = (0, index_1.getControllers)();
         expect(controllers).toBeDefined();

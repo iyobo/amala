@@ -26,6 +26,7 @@
     "react/prop-types": "off",
     "@typescript-eslint/interface-name-prefix": "off",
     "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-explicit-any": "error",
     "require-atomic-updates": "off",
     "no-unused-vars": "off",
     "camelcase": "off",

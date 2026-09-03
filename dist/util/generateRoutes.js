@@ -9,49 +9,52 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const lodash_1 = __importDefault(require("lodash"));
 const tools_1 = require("./tools");
+function readProperty(value, key) {
+    if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
+        return undefined;
+    }
+    return value[key];
+}
 async function _argumentInjectorProcessor(name, body, injectOptions) {
     if (!injectOptions) {
         return body;
     }
     if (typeof injectOptions === 'string') {
-        return body[injectOptions];
+        return readProperty(body, injectOptions);
     }
-    else if (typeof injectOptions === 'object') {
+    else if (injectOptions && typeof injectOptions === 'object') {
         // is required
-        if (injectOptions.required && (!body || lodash_1.default.isEmpty(body))) {
+        if (readProperty(injectOptions, 'required') === true && (!body || lodash_1.default.isEmpty(body))) {
             throw boom_1.default.badData('Body: is required and cannot be null');
         }
         return body;
     }
-    throw boom_1.default.badImplementation(`${name}: Cannot handle injection options ${injectOptions}`);
+    throw boom_1.default.badImplementation(`${name}: Cannot handle injection options ${String(injectOptions)}`);
 }
-/**
- * Acts as a special override for non-trivial injections.
- * e.g "query" should be searched for in ctx.request, not ctx.
- */
 const argumentInjectorTranslations = {
     session: async (ctx, injectOptions) => {
-        if (!ctx.session)
+        const session = readProperty(ctx, 'session');
+        if (!session)
             throw boom_1.default.failedDependency('Sessions have not been activated on this server');
         if (typeof injectOptions === 'string') {
-            return ctx.session[injectOptions];
+            return readProperty(session, injectOptions);
         }
-        return ctx.session;
+        return session;
     },
     ctx: async (ctx) => ctx,
     query: async (ctx, injectOptions) => {
-        return _argumentInjectorProcessor('query', ctx.query, injectOptions);
+        return _argumentInjectorProcessor('query', readProperty(ctx, 'query'), injectOptions);
     },
     currentUser: async (ctx, injectOptions) => {
-        return _argumentInjectorProcessor('currentUser', ctx.state.user, injectOptions);
+        return _argumentInjectorProcessor('currentUser', readProperty(ctx.state, 'user'), injectOptions);
     },
     body: async (ctx, injectOptions) => {
-        return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
+        return _argumentInjectorProcessor('body', readProperty(ctx.request, 'body'), injectOptions);
     },
     request: async (ctx, injectOptions) => {
         var _a;
         if (injectOptions === 'files') {
-            return (_a = ctx.request.files) !== null && _a !== void 0 ? _a : ctx.request.file;
+            return (_a = readProperty(ctx.request, 'files')) !== null && _a !== void 0 ? _a : readProperty(ctx.request, 'file');
         }
         return _argumentInjectorProcessor('request', ctx.request, injectOptions);
     }
@@ -75,27 +78,30 @@ function flattenValidationErrors(errors, parentPath = '') {
 async function _determineArgument(ctx, argument, options) {
     let values;
     const { ctxKey, ctxValueOptions, argType } = argument;
-    if (argumentInjectorTranslations[ctxKey]) {
-        values = await argumentInjectorTranslations[ctxKey](ctx, ctxValueOptions);
+    const translator = ctxKey ? argumentInjectorTranslations[ctxKey] : undefined;
+    if (translator) {
+        values = await translator(ctx, ctxValueOptions);
     }
-    else {
+    else if (ctxKey) {
         // not a special arg injector? No special translation exists so just use CTX.
-        values = ctx[ctxKey];
-        if (values && ctxValueOptions) {
-            values = values[ctxValueOptions];
+        values = readProperty(ctx, ctxKey);
+        if (values && typeof ctxValueOptions === 'string') {
+            values = readProperty(values, ctxValueOptions);
         }
         // TODO: implement custom function capability here for arg injectors
     }
     // validate if this is a class and if this is a body, params, or query injection
-    const shouldValidate = values && (0, tools_1.isValidatableClass)(argType) && ['body', 'params', 'query'].includes(ctxKey);
+    const shouldValidate = values && (0, tools_1.isValidatableClass)(argType) && ctxKey
+        && ['body', 'params', 'query'].includes(ctxKey);
     if (shouldValidate) {
-        values = await (0, class_transformer_1.plainToClass)(argType, values, { enableImplicitConversion: true });
-        const errors = await (0, class_validator_1.validate)(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
+        const transformed = (0, class_transformer_1.plainToClass)(argType, values, { enableImplicitConversion: true });
+        values = transformed;
+        const errors = await (0, class_validator_1.validate)(transformed, options.validatorOptions); // TODO: wrap around this to trap runtime errors
         if (errors.length > 0) {
             throw boom_1.default.badData('validation error for argument type: ' + ctxKey, flattenValidationErrors(errors));
         }
     }
-    else if (values && argType && argType !== String) {
+    else if (values && typeof argType === 'function' && argType !== String) {
         values = argType(values);
     }
     return values;
@@ -104,10 +110,11 @@ async function _generateEndPoints(router, options, controller, parentPath, gener
     // const controllerInstanceName = controller.targetClass.name + '__' + parentPath;
     let deprecationMessage = '';
     if (options.versions &&
+        !Array.isArray(options.versions) &&
         typeof options.versions[generatingForVersion] === 'string') {
         deprecationMessage = options.versions[generatingForVersion];
     }
-    const endpoints = Object.values(controller.endpoints);
+    const endpoints = Object.values(controller.endpoints || {});
     // for each endpoint...
     for (const endpoint of endpoints) {
         let willAddEndpoint = true;
@@ -137,7 +144,7 @@ async function _generateEndPoints(router, options, controller, parentPath, gener
             }
         }
         if (willAddEndpoint) {
-            for (const endpointPath of endpoint.paths) {
+            for (const endpointPath of endpoint.paths || []) {
                 const path = '/' + (parentPath + '/' + endpointPath)
                     .split('/')
                     .filter(i => i.length)
@@ -165,16 +172,20 @@ async function _generateEndPoints(router, options, controller, parentPath, gener
                     // ctx.body = await endpoint.target(...targetArguments);
                     // Each request resolves its own controller instance. Existing
                     // applications retain the original constructor-with-context behavior.
+                    if (!controller.targetClass || !endpoint.targetMethod) {
+                        throw boom_1.default.badImplementation('Incomplete controller metadata');
+                    }
+                    const ControllerClass = controller.targetClass;
                     let controllerInstance;
                     if (options.controllerFactory) {
-                        controllerInstance = await options.controllerFactory(controller.targetClass, ctx);
+                        controllerInstance = await options.controllerFactory(ControllerClass, ctx);
                     }
                     else {
                         // eslint-disable-next-line new-cap
-                        controllerInstance = new controller.targetClass(ctx);
+                        controllerInstance = new ControllerClass(ctx);
                     }
                     if (!controllerInstance) {
-                        throw boom_1.default.badImplementation(`Controller factory did not return an instance for ${controller.targetClass.name}`);
+                        throw boom_1.default.badImplementation(`Controller factory did not return an instance for ${ControllerClass.name}`);
                     }
                     // bind to controller instance to allow for "this" within class when
                     // accessing other class endpoints. e.g this.getOne
@@ -206,7 +217,7 @@ async function generateRoutes(router, options, metadata) {
     for (const controller of controllers) {
         if (options.disableVersioning) {
             // enter endpoint without versioning e.g /api/users
-            for (const path of controller.paths) {
+            for (const path of controller.paths || []) {
                 await _generateEndPoints(router, options, controller, basePath + path, undefined);
             }
         }
@@ -216,7 +227,7 @@ async function generateRoutes(router, options, metadata) {
                 ? options.versions
                 : lodash_1.default.keysIn(options.versions);
             for (const version of versions) {
-                for (const path of controller.paths) {
+                for (const path of controller.paths || []) {
                     await _generateEndPoints(router, options, controller, basePath + `/v${version}` + path, version);
                 }
             }

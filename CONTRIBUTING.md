@@ -27,6 +27,16 @@ npm run build
 
 Use `npm start` from `docs/` for local documentation development.
 
+Before changing the current documentation for a new major release, snapshot the
+outgoing major from `docs/`:
+
+```bash
+npm run docusaurus -- docs:version <outgoing-major>
+```
+
+Treat files under `versioned_docs/` as historical documentation. Fix them only
+when the historical instructions themselves are incorrect or unsafe.
+
 ## Pull requests
 
 - Explain the user-visible problem and the chosen behavior.

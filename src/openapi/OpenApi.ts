@@ -3,6 +3,22 @@ import * as _ from "lodash";
 import { AmalaOptions } from "../types/AmalaOptions";
 import { AmalaMetadata } from "../types/metadata";
 import { translateMetaField, getPropertiesOfClassValidator } from "../util/tools";
+import {EmptyContext} from '../types/context';
+
+type SimpleSchemaType = 'string' | 'number' | 'integer' | 'boolean' | 'object';
+
+function toSimpleSchemaType(value?: string): SimpleSchemaType {
+  const normalized = value?.toLowerCase();
+  if (
+    normalized === 'number'
+    || normalized === 'integer'
+    || normalized === 'boolean'
+    || normalized === 'object'
+  ) {
+    return normalized;
+  }
+  return 'string';
+}
 
 
 function createDefaultOpenApiSpec(): OpenAPIV3_1.Document {
@@ -26,7 +42,10 @@ function createDefaultOpenApiSpec(): OpenAPIV3_1.Document {
 
 export let openApiSpec: OpenAPIV3_1.Document = createDefaultOpenApiSpec();
 
-export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) {
+export function generateOpenApi<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+>(metaData: AmalaMetadata, options: AmalaOptions<StateT, ContextT>) {
 
   // incorporate custom spec values
   const customSpec = options.openAPI?.spec || {};
@@ -78,7 +97,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
   /**
    * logs encountered SCHEMAS
    */
-  function registerSchema(obj) {
+  function registerSchema(obj?: Function): void {
 
     // e.g
     // "Category": {
@@ -100,14 +119,14 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
     if (Object.keys(meta).length > 0) {
       // this is a class-validator class
 
-      const properties = {};
-      const required = [];
+      const properties: Record<string, {type: SimpleSchemaType}> = {};
+      const required: string[] = [];
 
       // loop through prototype props
       for (const fieldName in meta) {
         const tr = translateMetaField(meta[fieldName]);
         properties[fieldName] = {
-          type: tr.type
+          type: toSimpleSchemaType(tr.type)
         };
         if (tr.required) required.push(fieldName);
       }
@@ -160,7 +179,8 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
             // }
           ];
 
-          const requestBodyProperties = {};
+          const requestBodyProperties: Record<string, {type: SimpleSchemaType}> = {};
+          const requestBodyRequired: string[] = [];
 
 
           /**
@@ -174,7 +194,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
             const ctxKey = argumentMeta.ctxKey;
 
             // We only care about arguments with @Body, @Query or @Params decorators
-            if (!["body", "query", "params"].includes(ctxKey)) continue;
+            if (!isDocumentedSource(ctxKey)) continue;
 
             // register schema if applicable
             registerSchema(argumentMeta.argType);
@@ -183,11 +203,13 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
             // const valueOptionsType = typeof argumentMeta.ctxValueOptions;
             let required = false;
 
-            const oasSource: "body" | "path" | "query" = deriveOasSoure(argumentMeta.ctxKey);
+            const oasSource = deriveOasSource(ctxKey);
 
             if (argumentMeta.ctxValueOptions && typeof argumentMeta.ctxValueOptions !== "string") {
               // injection object
-              required = argumentMeta.ctxValueOptions.required || false;
+              required = Boolean(
+                (argumentMeta.ctxValueOptions as {required?: boolean}).required
+              );
             }
 
             // if the argument exists as part of path, consider to be required
@@ -200,11 +222,14 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
             const metaEntries = Object.entries(meta);
             if (metaEntries.length > 0) {
 
-              metaEntries.forEach((it, idx) => {
+              metaEntries.forEach(it => {
                 const tr = translateMetaField(it[1]);
 
                 if (oasSource === "body") {
-                  requestBodyProperties[it[0]] = { type: tr.type, required: tr.required };
+                  requestBodyProperties[it[0]] = {
+                    type: toSimpleSchemaType(tr.type)
+                  };
+                  if (tr.required) requestBodyRequired.push(it[0]);
                 } else {
                   parameters.push({
                     name: it[0],
@@ -222,17 +247,18 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
             } else {
 
               if (oasSource === "body") {
-                requestBodyProperties[argumentMeta.ctxValueOptions] = {
-                  type: argumentMeta.argType?.name || "object",
-                  required
+                const propertyName = String(argumentMeta.ctxValueOptions);
+                requestBodyProperties[propertyName] = {
+                  type: toSimpleSchemaType(argumentMeta.argType?.name || "object"),
                 };
+                if (required) requestBodyRequired.push(propertyName);
               } else{
                 parameters.push({
-                  name: argumentMeta.ctxValueOptions,
+                  name: String(argumentMeta.ctxValueOptions),
                   in: oasSource,
                   required: oasSource !== "path"? required: undefined,
                   schema: {
-                    type: argumentMeta.argType?.name || "object"
+                    type: toSimpleSchemaType(argumentMeta.argType?.name || "object")
                   }
                 });
               }
@@ -246,13 +272,15 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
               "multipart/form-data": {
                 schema: {
                   type: "object",
-                  properties: requestBodyProperties
+                  properties: requestBodyProperties,
+                  required: requestBodyRequired.length ? requestBodyRequired : undefined
                 }
               },
               "application/x-www-form-urlencoded": {
                 schema: {
                   type: "object",
-                  properties: requestBodyProperties
+                  properties: requestBodyProperties,
+                  required: requestBodyRequired.length ? requestBodyRequired : undefined
                 }
               },
             }
@@ -320,7 +348,7 @@ function joinServerUrl(publicURL = '', ...segments: string[]): string {
   return `${origin}${path}`;
 }
 
-function convertRegexpToSwagger(path) {
+function convertRegexpToSwagger(path: string | RegExp): string {
   const swaggerPath = [];
 
   let paramMode = false;
@@ -343,7 +371,13 @@ function convertRegexpToSwagger(path) {
 }
 
 
-function deriveOasSoure(source) {
+type DocumentedSource = 'body' | 'query' | 'params';
+
+function isDocumentedSource(source: unknown): source is DocumentedSource {
+  return source === 'body' || source === 'query' || source === 'params';
+}
+
+function deriveOasSource(source: DocumentedSource): 'body' | 'path' | 'query' {
   switch (source) {
     case "params": {
       return "path";
@@ -353,6 +387,3 @@ function deriveOasSoure(source) {
     }
   }
 }
-
-
-

@@ -6,8 +6,8 @@ Security fixes are applied to the current major release. Older majors are not ro
 
 | Version | Security updates |
 | --- | --- |
-| 10.x | Supported |
-| 9.x and earlier | Not routinely supported |
+| 12.x | Supported |
+| 11.x and earlier | Not routinely supported |
 
 ## Reporting a vulnerability
 

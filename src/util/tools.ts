@@ -1,8 +1,10 @@
 import {Class} from "../types/metadata";
 import {getMetadataStorage} from "class-validator";
 
-export function isClass(type) {
-  return type?.prototype?.constructor && type?.prototype?.constructor?.name !== "Object";
+export function isClass(type: unknown): type is Class {
+  return typeof type === 'function'
+    && Boolean(type.prototype?.constructor)
+    && type.prototype.constructor.name !== "Object";
 }
 
 export function isValidatableClass(type: Class) {
@@ -31,12 +33,14 @@ export function getPropertiesOfClassValidator(targetConstructor: Function): Reco
       return [property, CM.flat()];
     }));
   } catch (e) {
-    e.message += '. This typically happens when you build your TS code with a compiler like EsBuild that does not respect the "emitDecorators:true" configuration. Please recompile your amala project with tsc or a derivative/combination that involves tsc';
+    if (e instanceof Error) {
+      e.message += '. This typically happens when you build your TS code with a compiler like EsBuild that does not respect the "emitDecorators:true" configuration. Please recompile your amala project with tsc or a derivative/combination that involves tsc';
+    }
     throw e;
   }
 }
 
-const cvCodex = {
+const cvCodex: Record<string, string> = {
   "isString": "string",
   "isNumber": "number",
   "isBoolean": "boolean"

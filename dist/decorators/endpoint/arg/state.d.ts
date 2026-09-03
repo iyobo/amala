@@ -1,1 +1,2 @@
-export declare function State(injectOptions?: string | Record<string, any>): (object: Record<string, any>, methodName: string, index: number) => void;
+import { ClassMethod } from '../../../types/metadata';
+export declare function State(injectOptions?: string | Record<string, unknown>): (object: ClassMethod, methodName: string, index: number) => void;

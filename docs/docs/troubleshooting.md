@@ -105,9 +105,9 @@ Generated OpenAPI server URLs contain `basePath` and the active version. Operati
 
 Controller decorator metadata is process-wide. Two apps in one Node.js process can see the same registered controller names and metadata. Run independent or mutually untrusted APIs in separate processes.
 
-## A dependency injection container cannot construct controllers
+## Custom controller construction fails
 
-Use the `controllerFactory` bootstrap option to resolve controller instances. It runs for every request and receives both the controller class and Koa context. Avoid a process-wide mutable request scope; create and dispose request scopes in middleware.
+Use the `controllerFactory` bootstrap option only when the default per-request `new ControllerClass(ctx)` behavior does not fit the application. It runs for every request and receives both the controller class and the typed Koa context. Amala does not provide a container or manage application service lifecycles.
 
 ## The documentation site does not build
 

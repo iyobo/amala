@@ -1,8 +1,9 @@
 import {addArgumentInjectMeta} from '../../common';
+import {ClassMethod} from '../../../types/metadata';
 
 export function File() {
   return function (
-    object: Record<string, any>,
+    object: ClassMethod,
     methodName: string,
     index: number
   ): void {

@@ -74,18 +74,18 @@ export class EndpointController {
   }
 
   @Get("/staten")
-  async staten(@State() state: any) {
+  async staten(@State() state: Record<string, unknown>) {
     return state;
   }
 
   // ---
   @Get("/usedByThis")
-  async usedByThis(@Params() p) {
+  async usedByThis(@Params() p: unknown) {
     return p;
   }
 
   @Get("/usedByThis2")
-  async usedByThis2(p) {
+  async usedByThis2(p: unknown) {
     return {res:p};
   }
 

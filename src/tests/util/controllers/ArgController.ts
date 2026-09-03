@@ -2,6 +2,7 @@ import {Type} from 'class-transformer';
 import {IsNumber, IsPositive, IsString, ValidateNested} from 'class-validator';
 import {Request, Response} from 'koa';
 import {
+  Context,
   Body,
   Controller,
   Ctx,
@@ -24,6 +25,11 @@ interface InterfaceInput {
 
   aNumber: number;
 }
+
+type UploadedFile = Record<string, unknown> & {
+  name?: unknown;
+  type?: unknown;
+};
 
 class ClassInput {
   @IsString()
@@ -49,7 +55,7 @@ const CustomDeco = ()=>Ctx('query');
 @Controller('/arg')
 export class ArgController {
   @Post('/:model/:id')
-  async twoParams(@Params() params, @Params('id') id: string) {
+  async twoParams(@Params() params: Record<string, string>, @Params('id') id: string) {
     return {params, id};
   }
 
@@ -59,7 +65,7 @@ export class ArgController {
   }
 
   @Post('/bodySimple')
-  async simpleBody(@Body() body: any) {
+  async simpleBody(@Body() body: unknown) {
     return body;
   }
 
@@ -85,28 +91,28 @@ export class ArgController {
 
   @Flow([setSomethingStateFlow])
   @Post('/state')
-  async state(@State() state: any) {
+  async state(@State() state: Record<string, unknown>) {
     return state;
   }
 
   @Post('/stateNoValue')
-  async stateNoValue(@State('foo') foo: any) {
+  async stateNoValue(@State('foo') foo: unknown) {
     return foo;
   }
 
   @Flow([loginForTest])
   @Get('/user')
-  async user(@CurrentUser() user: any) {
+  async user(@CurrentUser() user: Record<string, unknown>) {
     return user;
   }
 
   @Post('/header')
-  async header(@Header() header: any) {
+  async header(@Header() header: Record<string, string | string[] | undefined>) {
     return header;
   }
 
   @Get('/query')
-  async query(@Query() q: any) {
+  async query(@Query() q: Record<string, string | string[]>) {
     return q;
   }
 
@@ -116,7 +122,7 @@ export class ArgController {
   }
 
   @Get('/params/:id')
-  async params(@Params() q: any) {
+  async params(@Params() q: Record<string, string>) {
     return q;
   }
 
@@ -140,7 +146,7 @@ export class ArgController {
   // sessions
   @Get('/session')
   @Flow(setSomethingSessionFlow)
-  async session(@Session() sess: any) {
+  async session(@Session() sess: Record<string, unknown>) {
     return sess;
   }
 
@@ -157,20 +163,20 @@ export class ArgController {
   }
 
   @Post('/uploadBuffer')
-  async uploadBuffer(@Ctx() ctx, @Req() req: Request): Promise<unknown> {
+  async uploadBuffer(@Ctx() ctx: Context, @Req() req: Request): Promise<unknown> {
     return req.body;
   }
 
   @Post('/uploadFile')
-  async uploadFile(@Ctx() ctx, @File() files: Record<string, any>) {
+  async uploadFile(@Ctx() ctx: Context, @File() files: Record<string, UploadedFile>) {
     const file = files?.testFile;
     if (!file) return undefined;
     return {testFile: {...file, name: file.name, type: file.type}};
   }
 
   @Post('/uploadFile2')
-  async uploadFile2(@Ctx() ctx, @Req() req: Request) {
-    const file = (req.files as Record<string, any> | undefined)?.testFile;
+  async uploadFile2(@Ctx() ctx: Context, @Req() req: Request) {
+    const file = (req.files as unknown as Record<string, UploadedFile> | undefined)?.testFile;
     if (!file) return undefined;
     return {testFile: {...file, name: file.name, type: file.type}};
   }
@@ -181,22 +187,22 @@ export class ArgController {
   }
 
   @Post('/ctx')
-  async ctx(@Ctx() ctx: any) {
+  async ctx(@Ctx() ctx: Context) {
     return ctx;
   }
 
   @Get('/ctx2')
-  async ctx2(@Ctx('query') query: any) {
+  async ctx2(@Ctx('query') query: Record<string, string | string[]>) {
     return query;
   }
 
   @Get('/custom')
-  async custom(@CustomDeco() query: any) {
+  async custom(@CustomDeco() query: Record<string, string | string[]>) {
     return query;
   }
 
   @Get(['/multiPath1','/multiPath2'])
-  async multiPath(@Query() query: any) {
+  async multiPath(@Query() query: Record<string, string | string[]>) {
     return query;
   }
 

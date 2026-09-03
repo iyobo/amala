@@ -17,8 +17,12 @@
   --docusaurus-highlighted-code-line-bg: rgba(113, 59, 99, 0.12);
   --amala-accent: #e69e41;
   --amala-accent-bright: #ffc66e;
+  --amala-accent-soft: #f2d7a7;
   --amala-border: rgba(76, 43, 70, 0.18);
+  --amala-coral: #ff7e5b;
+  --amala-coral-dark: #b64f38;
   --amala-plum: #3a1f44;
+  --amala-surface-paper: #fffaf2;
   --amala-surface-muted: #f6ecdf;
   --amala-text-muted: #6d5d69;
 }
@@ -39,7 +43,11 @@
   --ifm-footer-background-color: #19131b;
   --docusaurus-highlighted-code-line-bg: rgba(230, 169, 212, 0.15);
   --amala-border: rgba(240, 205, 232, 0.17);
+  --amala-accent-soft: #563f31;
+  --amala-coral: #ff9678;
+  --amala-coral-dark: #ffad95;
   --amala-plum: #351d3e;
+  --amala-surface-paper: #211a22;
   --amala-surface-muted: #271f29;
   --amala-text-muted: #c4b5c0;
 }
@@ -60,6 +68,10 @@ body {
 .navbar__brand,
 .navbar__link {
   font-weight: 750;
+}
+
+.navbar__item.dropdown .navbar__link::after {
+  top: 1px;
 }
 
 .navbar__logo img {

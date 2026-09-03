@@ -40,14 +40,14 @@ const path = __importStar(require("path"));
  */
 function importClassesFromDirectories(globString, formats = ['.js', '.ts']) {
     const loadFileClasses = function (exported, allLoaded) {
-        if (exported instanceof Function) {
+        if (typeof exported === 'function') {
             allLoaded.push(exported);
         }
-        else if (exported instanceof Array) {
-            exported.forEach((i) => loadFileClasses(i, allLoaded));
+        else if (Array.isArray(exported)) {
+            exported.forEach(item => loadFileClasses(item, allLoaded));
         }
-        else if (exported instanceof Object || typeof exported === 'object') {
-            Object.keys(exported).forEach(key => loadFileClasses(exported[key], allLoaded));
+        else if (exported && typeof exported === 'object') {
+            Object.values(exported).forEach(value => loadFileClasses(value, allLoaded));
         }
         return allLoaded;
     };

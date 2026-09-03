@@ -30,6 +30,17 @@ const config = {
         docs: {
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/iyobo/amala/edit/master/docs/',
+          lastVersion: 'current',
+          versions: {
+            current: {
+              label: '12.x',
+              banner: 'none',
+            },
+            '11.0': {
+              label: '11.x',
+              banner: 'unmaintained',
+            },
+          },
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
         },
@@ -61,9 +72,14 @@ const config = {
             label: 'Docs',
           },
           {
-            to: '/docs/api-spec/bootstrap-controllers',
+            type: 'doc',
+            docId: 'api-spec/bootstrap-controllers',
             label: 'API reference',
             position: 'left',
+          },
+          {
+            type: 'docsVersionDropdown',
+            position: 'right',
           },
           {
             href: 'https://github.com/iyobo/amala',

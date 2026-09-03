@@ -1,4 +1,5 @@
 import {addArgumentInjectMeta, ValidationDecoratorOptions} from '../../common';
+import {ClassMethod} from '../../../types/metadata';
 
 /**
  * Injects the full Koa context.
@@ -7,7 +8,7 @@ import {addArgumentInjectMeta, ValidationDecoratorOptions} from '../../common';
  */
 export function Ctx(ctxfield?: string, injectOptions?: string | ValidationDecoratorOptions) {
   return function (
-    object: Record<string, any>,
+    object: ClassMethod,
     methodName: string,
     index: number
   ): void {

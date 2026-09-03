@@ -2,30 +2,47 @@ import {Options} from '@koa/cors';
 import Router from '@koa/router';
 import {ValidatorOptions} from 'class-validator';
 import type {HelmetOptions} from 'helmet';
-import Application, {Context} from 'koa';
+import type Application = require('koa');
 import {OpenAPIV3_1} from 'openapi-types';
 
 import {KoaBodyOptions} from './KoaBodyOptions';
 import {Class, FlowFunction} from './metadata';
+import {AmalaContext, EmptyContext} from './context';
 
-export type ControllerFactory = (
-  controllerClass: Class,
-  ctx: Context
+export type ControllerClass = new (...args: unknown[]) => object;
+
+export type ControllerFactory<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+> = (
+  controllerClass: ControllerClass,
+  ctx: AmalaContext<StateT, ContextT>
 ) => object | Promise<object>;
 
-export interface AmalaOptions {
+export type ErrorHandler<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+> = (
+  err: unknown,
+  ctx: AmalaContext<StateT, ContextT>
+) => void | Promise<void>;
+
+export interface AmalaOptions<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+> {
 
   /** For If you want to supply your own koa application instance.
    * If this is not provided, amala will create a koa application for you.
    * Either way, an app is returned within the result of running the bootstrap function.
    **/
-  app?: Application;
+  app?: Application<StateT, ContextT>;
 
   // For if you want to supply tour own Koa-Router instance.
   // If this is not provided, amala will create a koa-router for you and load it up with endpoints
   // Either way, a router is returned within the result of running the bootstrap function.
   // The router is not attached by default to the app. If you want that, be sure to set options.attachRoutes to true.
-  router?: Router;
+  router?: Router<StateT, ContextT>;
 
   // An array used to register all controllers to be routed. Can take Classes or glob path strings of where the classes exist.
   // It is recommended to statically register each controller Classes here instead of using path strings.
@@ -35,10 +52,9 @@ export interface AmalaOptions {
   /**
    * Resolve a controller instance for each request. The default behavior is
    * equivalent to `(ControllerClass, ctx) => new ControllerClass(ctx)`.
-   * Use this hook to integrate a dependency injection container without
-   * introducing process-wide container state.
+   * Applications own any custom construction strategy and service lifecycle.
    */
-  controllerFactory?: ControllerFactory;
+  controllerFactory?: ControllerFactory<StateT, ContextT>;
 
   // Your base API path. Defaults to the root path.
   basePath?: string;
@@ -51,7 +67,7 @@ export interface AmalaOptions {
   disableVersioning?: boolean;
 
   // Define the sequence of middleware to per request.
-  flow?: FlowFunction[];
+  flow?: FlowFunction<StateT, ContextT>[];
 
   /*
    Amala simplifies error handling for you using Boom errors.
@@ -61,7 +77,7 @@ export interface AmalaOptions {
    If you must change this, be sure to reference the default implementation for context. See below:
 
    ```
-  const defaultErrorHandler = async (err: any, ctx: any) => {
+  const defaultErrorHandler = async (err: unknown, ctx: AmalaContext) => {
   if (err.isBoom) {
     const error = err.output.payload;
     error.errorDetails = error.statusCode >= 500 ? undefined : err.data;
@@ -76,7 +92,7 @@ export interface AmalaOptions {
 };
    ```
    */
-  errorHandler?: (err, ctx) => Promise<void>;
+  errorHandler?: ErrorHandler<StateT, ContextT>;
 
   // if true, will attach generated routes to the koa app. Don't set to true if you need to use app.use(...)
   attachRoutes?: boolean;
@@ -122,7 +138,7 @@ export interface AmalaOptions {
   // body parser options. See https://www.npmjs.com/package/koa-body#options
   // Set to false to prevent amala from attaching koa-body middleware to all endpoints.
   // Useful if you prefer to use something else for body parsing in your koa app or to disable it altogether.
-  bodyParser?: false | KoaBodyOptions;
+  bodyParser?: false | KoaBodyOptions<StateT, ContextT>;
 
   /**
    * Will use koa helmet

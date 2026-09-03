@@ -2,14 +2,15 @@ import 'reflect-metadata';
 import Router from '@koa/router';
 import {generateRoutes} from './util/generateRoutes';
 import {importClassesFromDirectories} from './util/importClasses';
-import Boom from '@hapi/boom';
+import * as Boom from '@hapi/boom';
 import {generateOpenApi, openApiSpec} from './openapi/OpenApi';
 import bodyParser from 'koa-body';
-import KoaApplication from 'koa';
+import KoaApplication = require('koa');
 import koaHelmet from 'koa-helmet';
 import {AmalaOptions} from './types/AmalaOptions';
 import {KoaBodyOptions} from './types/KoaBodyOptions';
 import {AmalaMetadata} from './types/metadata';
+import {AmalaContext, EmptyContext} from './types/context';
 import {addArgumentInjectMeta} from './decorators/common';
 import {koaSwagger} from 'koa2-swagger-ui';
 
@@ -26,17 +27,24 @@ export function getControllers() {
   return metadata.controllers;
 }
 
-const defaultErrorHandler = async (err: any, ctx: any) => {
-  if (err.isBoom) {
-    const error = err.output.payload;
+const logInternalError = (statusCode: number): void => {
+  console.error(`Amala: request failed with status ${statusCode}`);
+};
+
+const defaultErrorHandler = async (
+  err: unknown,
+  ctx: AmalaContext
+): Promise<void> => {
+  if (Boom.isBoom(err)) {
+    const error = {...err.output.payload};
     error.errorDetails = error.statusCode >= 500 ? undefined : err.data;
     ctx.body = error;
     ctx.status = error.statusCode;
-    if (error.statusCode >= 500) console.error(err);
+    if (error.statusCode >= 500) logInternalError(error.statusCode);
   } else {
     ctx.body = {error: 'Internal Server Error'};
     ctx.status = 500;
-    console.error(err);
+    logInternalError(500);
   }
 };
 
@@ -66,39 +74,50 @@ const addLegacyFileMetadataAliases = (files: unknown): void => {
  * @param app - Koa instance
  * @param params - KoaControllerOptions
  */
-export const bootstrapControllers = async (
-  params: AmalaOptions
-): Promise<{ app: KoaApplication; router: Router }> => {
-  options = params;
-  const app = options.app = options.app || new KoaApplication();
-  options.router = options.router || new Router();
+export const bootstrapControllers = async <
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+>(
+  params: AmalaOptions<StateT, ContextT>
+): Promise<{
+  app: KoaApplication<StateT, ContextT>;
+  router: Router<StateT, ContextT>;
+}> => {
+  const configuredOptions = params;
+  options = params as unknown as AmalaOptions;
+  const app = configuredOptions.app = configuredOptions.app || new KoaApplication<StateT, ContextT>();
+  configuredOptions.router = configuredOptions.router || new Router<StateT, ContextT>();
 
-  options.versions = options.versions || {1: true};
+  configuredOptions.versions = configuredOptions.versions || {1: true};
 
-  options.flow = options.flow || [];
+  configuredOptions.flow = configuredOptions.flow || [];
 
-  if (options.useHelmet) {
-    const opts = options.useHelmet === true ? undefined : options.useHelmet;
-    options.flow = [koaHelmet(opts as Parameters<typeof koaHelmet>[0]), ...options.flow];
+  if (configuredOptions.useHelmet) {
+    const opts = configuredOptions.useHelmet === true ? undefined : configuredOptions.useHelmet;
+    const helmetMiddleware = koaHelmet(opts as Parameters<typeof koaHelmet>[0]);
+    configuredOptions.flow = [
+      helmetMiddleware as unknown as typeof configuredOptions.flow[number],
+      ...configuredOptions.flow
+    ];
   }
 
-  options.validatorOptions = options.validatorOptions || {};
-  options.errorHandler = options.errorHandler || defaultErrorHandler;
+  configuredOptions.validatorOptions = configuredOptions.validatorOptions || {};
+  configuredOptions.errorHandler = configuredOptions.errorHandler || defaultErrorHandler;
 
-  options.openAPI = {
+  configuredOptions.openAPI = {
     enabled: true,
     publicURL: '',
-    ...options.openAPI
+    ...configuredOptions.openAPI
   };
-  const openAPIBasePath = options.basePath || '';
-  options.openAPI.specPath = `${openAPIBasePath}/${options.openAPI.specPath || 'docs'}`;
-  options.openAPI.webPath = `${openAPIBasePath}/${options.openAPI.webPath || 'swagger'}`;
-  options.openAPI.spec = options.openAPI.spec || {};
+  const openAPIBasePath = configuredOptions.basePath || '';
+  configuredOptions.openAPI.specPath = `${openAPIBasePath}/${configuredOptions.openAPI.specPath || 'docs'}`;
+  configuredOptions.openAPI.webPath = `${openAPIBasePath}/${configuredOptions.openAPI.webPath || 'swagger'}`;
+  configuredOptions.openAPI.spec = configuredOptions.openAPI.spec || {};
 
-  options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
-  options.diagnostics = options.diagnostics || false;
+  configuredOptions.bodyParser = configuredOptions.bodyParser === false ? false : configuredOptions.bodyParser;
+  configuredOptions.diagnostics = configuredOptions.diagnostics || false;
 
-  options.cors = options.cors || {enabled: true, opts: {}};
+  configuredOptions.cors = configuredOptions.cors || {enabled: true, opts: {}};
 
 
   /**
@@ -110,18 +129,18 @@ export const bootstrapControllers = async (
    */
 
   // if versions are in array for, convert to object
-  if (Array.isArray(options.versions)) {
-    const versions = {};
+  if (Array.isArray(configuredOptions.versions)) {
+    const versions: Record<string, string | boolean> = {};
 
-    options.versions.forEach(version => {
+    configuredOptions.versions.forEach(version => {
       versions[version] = true;
     });
-    options.versions = versions;
+    configuredOptions.versions = versions;
   }
 
   // CORS
-  if (options.cors?.enabled) {
-    app.use(cors(options.cors.opts));
+  if (configuredOptions.cors?.enabled) {
+    app.use(cors(configuredOptions.cors.opts));
   }
 
   // Amala's Error handling middleware
@@ -129,7 +148,7 @@ export const bootstrapControllers = async (
     try {
       await next();
     } catch (err) {
-      await options.errorHandler(err, ctx);
+      await configuredOptions.errorHandler(err, ctx);
     }
   });
 
@@ -140,10 +159,10 @@ export const bootstrapControllers = async (
    * The Controller class files just need to be loaded. They will handle their own registration in metadata
    */
 
-  for (const controllerDef of options.controllers) {
+  for (const controllerDef of configuredOptions.controllers) {
     if (typeof controllerDef === 'string') {
       // This is a path. get all controllers in that folder
-      if (options.diagnostics) console.info(`Amala: munching controllers in path ${controllerDef}`);
+      if (configuredOptions.diagnostics) console.info(`Amala: munching controllers in path ${controllerDef}`);
       importClassesFromDirectories(controllerDef); // this is a string glob path. Load controllers from path
     } else {
       /**
@@ -154,28 +173,28 @@ export const bootstrapControllers = async (
   }
 
   // Register all global flows
-  options.flow.forEach(flow=>{
+  configuredOptions.flow.forEach(flow=>{
     app.use(flow)
   })
 
   //
-  await generateRoutes(options.router, options, metadata);
+  await generateRoutes(configuredOptions.router, configuredOptions, metadata);
 
   // open api
-  if (options.openAPI.enabled) {
+  if (configuredOptions.openAPI.enabled) {
     // Generate OpenAPI/Swagger spec
-    await generateOpenApi(metadata, options);
+    await generateOpenApi(metadata, configuredOptions);
 
-    options.router.get(options.openAPI.specPath, (ctx) => {
+    configuredOptions.router.get(configuredOptions.openAPI.specPath, (ctx) => {
       ctx.body = openApiSpec;
     });
 
-    if (options.openAPI.webPath) {
+    if (configuredOptions.openAPI.webPath) {
       app.use(
         koaSwagger({
-          routePrefix: options.openAPI.webPath, // host at /swagger instead of default /docs
+          routePrefix: configuredOptions.openAPI.webPath, // host at /swagger instead of default /docs
           swaggerOptions: {
-            url: `${options.openAPI.publicURL}${options.openAPI.specPath}`, // example path to json
+            url: `${configuredOptions.openAPI.publicURL}${configuredOptions.openAPI.specPath}`, // example path to json
           },
         }),
       );
@@ -183,10 +202,10 @@ export const bootstrapControllers = async (
   }
 
   // body parser
-  if (options.bodyParser !== false) {
+  if (configuredOptions.bodyParser !== false) {
     app.use(bodyParser({
       multipart: true,
-      ...options.bodyParser as KoaBodyOptions
+      ...configuredOptions.bodyParser as KoaBodyOptions
     } as Parameters<typeof bodyParser>[0]));
     app.use(async (ctx, next) => {
       addLegacyFileMetadataAliases(ctx.request.files);
@@ -194,17 +213,17 @@ export const bootstrapControllers = async (
     });
   }
 
-  if (options.attachRoutes) {
+  if (configuredOptions.attachRoutes) {
     // Combine routes
-    app.use(options.router.routes());
-    app.use(options.router.allowedMethods({
+    app.use(configuredOptions.router.routes());
+    app.use(configuredOptions.router.allowedMethods({
       methodNotAllowed: () => Boom.notFound(),
       notImplemented: () => Boom.notImplemented(),
       throw: true,
     }));
   }
 
-  return {app, router: options.router};
+  return {app, router: configuredOptions.router};
 };
 
 export * from 'class-validator';
@@ -216,8 +235,23 @@ export * from 'class-transformer';
 export const addArgumentDecorator = addArgumentInjectMeta;
 
 export {errors} from './util/errors';
-export type {AmalaOptions, ControllerFactory} from './types/AmalaOptions';
-export type Context = KoaApplication.Context
+export type {
+  AmalaOptions,
+  ControllerClass,
+  ControllerFactory,
+  ErrorHandler
+} from './types/AmalaOptions';
+export type {
+  AmalaContext,
+  AmalaMiddleware,
+  AmalaNext,
+  EmptyContext
+} from './types/context';
+export type Context<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext,
+  ResponseBodyT = unknown
+> = AmalaContext<StateT, ContextT, ResponseBodyT>;
 // export {Ctx} from './decorators/endpoints/args/ctx';
 // export {Query} from './decorators/endpoints/args/query';
 // export {Params} from './decorators/endpoints/args/params';

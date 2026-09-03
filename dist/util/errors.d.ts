@@ -1,5 +1,6 @@
-export declare const boom: any;
-export type AmalaError = (message: string, data?: any) => Error;
+import * as Boom from '@hapi/boom';
+export declare const boom: typeof Boom;
+export type AmalaError = (message: string, data?: unknown) => Error;
 export declare const errorBadRequest: AmalaError;
 export declare const errorNotLoggedIn: AmalaError;
 export declare const errorForbidden: AmalaError;

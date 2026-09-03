@@ -1,14 +1,21 @@
+import Boom from '@hapi/boom';
 import request from 'supertest';
-import {bootstrapControllers, Controller, Get} from '../index';
+import {bootstrapControllers, Context, Controller, Get} from '../index';
+import type {Server} from 'node:http';
+
+type FactoryDependency = Context | {
+  source: string;
+  requestId: string;
+};
 
 @Controller('/factory')
 class FactoryController {
   // eslint-disable-next-line no-useless-constructor
-  constructor(private readonly dependency: any) {}
+  constructor(private readonly dependency: FactoryDependency) {}
 
   @Get('/value')
   value() {
-    if (this.dependency.state) {
+    if ('state' in this.dependency) {
       return {
         source: 'context',
         path: this.dependency.path
@@ -20,7 +27,7 @@ class FactoryController {
 }
 
 describe('controllerFactory', () => {
-  const servers = [];
+  const servers: Server[] = [];
 
   afterEach(done => {
     const server = servers.pop();
@@ -47,7 +54,7 @@ describe('controllerFactory', () => {
   });
 
   it('resolves an asynchronous controller instance for each request', async () => {
-    const contexts = [];
+    const contexts: Context[] = [];
     const {app} = await bootstrapControllers({
       attachRoutes: true,
       controllers: [FactoryController],
@@ -76,11 +83,13 @@ describe('controllerFactory', () => {
     const {app} = await bootstrapControllers({
       attachRoutes: true,
       controllers: [FactoryController],
-      controllerFactory: async () => undefined as any,
+      controllerFactory: async () => undefined as unknown as object,
       disableVersioning: true,
       errorHandler: async (error, ctx) => {
-        ctx.status = error.output?.statusCode || 500;
-        ctx.body = {message: error.message};
+        ctx.status = Boom.isBoom(error) ? error.output.statusCode : 500;
+        ctx.body = {
+          message: error instanceof Error ? error.message : 'Unknown error'
+        };
       },
       openAPI: {enabled: false}
     });

@@ -1,1 +1,2 @@
-export declare function File(): (object: Record<string, any>, methodName: string, index: number) => void;
+import { ClassMethod } from '../../../types/metadata';
+export declare function File(): (object: ClassMethod, methodName: string, index: number) => void;

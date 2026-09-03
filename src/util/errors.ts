@@ -1,8 +1,8 @@
-import Boom from '@hapi/boom';
+import * as Boom from '@hapi/boom';
 
-export const boom = require('@hapi/boom');
+export const boom = Boom;
 
-export type AmalaError = (message: string, data?: any) => Error
+export type AmalaError = (message: string, data?: unknown) => Error
 // 400s
 export const errorBadRequest: AmalaError = boom.badRequest;
 

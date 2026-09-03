@@ -38,7 +38,11 @@ function addVerbFunctionMeta({ verb, paths, object, methodName }) {
     });
     controller.endpoints[methodName].verb = verb;
     controller.endpoints[methodName].paths = paths;
-    controller.endpoints[methodName].targetMethod = object[methodName];
+    const targetMethod = object[methodName];
+    if (typeof targetMethod !== 'function') {
+        throw new TypeError(`${methodName} must be a controller method`);
+    }
+    controller.endpoints[methodName].targetMethod = targetMethod;
     index_1.metadata.controllers[object.constructor.name] = controller;
 } // argument injection decorators
 function addArgumentInjectMeta({ index, ctxKey, ctxValueOptions, methodName, object }) {
