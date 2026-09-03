@@ -73,7 +73,7 @@ export const bootstrapControllers = async (
   const openAPIBasePath = options.basePath || '';
   options.openAPI.specPath = `${openAPIBasePath}/${options.openAPI.specPath || 'docs'}`;
   options.openAPI.webPath = `${openAPIBasePath}/${options.openAPI.webPath || 'swagger'}`;
-  options.openAPI.spec = options.openAPI.spec || openApiSpec;
+  options.openAPI.spec = options.openAPI.spec || {};
 
   options.bodyParser = options.bodyParser === false ? false : options.bodyParser;
   options.diagnostics = options.diagnostics || false;

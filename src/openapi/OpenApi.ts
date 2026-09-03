@@ -5,27 +5,32 @@ import { AmalaMetadata } from "../types/metadata";
 import { translateMetaField, getPropertiesOfClassValidator } from "../util/tools";
 
 
-export let openApiSpec: OpenAPIV3_1.Document = {
-  openapi: "3.0.1",
-  info: {
-    title: "API",
-    description: "powered by AmalaJS (https://github.com/iyobo/amala)",
-    version: "1.0.0"
-  },
-  servers: [],
-  paths: {},
-  components: {
-    schemas: {}
-  },
-  security: [],
-  tags: [],
-  externalDocs: undefined
-};
+function createDefaultOpenApiSpec(): OpenAPIV3_1.Document {
+  return {
+    openapi: "3.0.1",
+    info: {
+      title: "API",
+      description: "powered by AmalaJS (https://github.com/iyobo/amala)",
+      version: "1.0.0"
+    },
+    servers: [],
+    paths: {},
+    components: {
+      schemas: {}
+    },
+    security: [],
+    tags: [],
+    externalDocs: undefined
+  };
+}
+
+export let openApiSpec: OpenAPIV3_1.Document = createDefaultOpenApiSpec();
 
 export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) {
 
   // incorporate custom spec values
-  openApiSpec = _.merge(openApiSpec, options.openAPI.spec);
+  const customSpec = options.openAPI?.spec || {};
+  openApiSpec = _.merge(createDefaultOpenApiSpec(), customSpec);
 
   // overwrite default info with developer's API info. handled by deep merge
   // openApiSpec.info = {...openApiSpec.info, ...options.openAPI.spec.info};
@@ -44,13 +49,12 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
 
   // ---- SERVERS
   const servers: OpenAPIV3_1.ServerObject[] = [];
-  const rootPath = options.openAPI.publicURL + options.basePath;
 
   if (!options.disableVersioning) {
     if (Array.isArray(options.versions)) {
       options.versions.forEach(it => {
         servers.push({
-          url: rootPath + "/v" + it,
+          url: joinServerUrl(options.openAPI.publicURL, options.basePath, `v${it}`),
           description: `version ${it}`
         });
       });
@@ -58,7 +62,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
       for (const [k, v] of Object.entries(options.versions)) {
         if (v) {
           servers.push({
-            url: rootPath + "/v" + k,
+            url: joinServerUrl(options.openAPI.publicURL, options.basePath, `v${k}`),
             description: `version ${k}`
           });
         }
@@ -66,10 +70,10 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
     }
   } else {
     servers.push({
-      url: options.openAPI.publicURL
+      url: joinServerUrl(options.openAPI.publicURL, options.basePath)
     });
   }
-  openApiSpec.servers = [...servers, ...(options.openAPI?.spec?.servers || [])];
+  openApiSpec.servers = [...servers, ...(customSpec.servers || [])];
 
   /**
    * logs encountered SCHEMAS
@@ -126,7 +130,7 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
 
     controller.paths.forEach(controllerPath => {
 
-      const basePath = options.basePath + convertRegexpToSwagger(controllerPath);
+      const controllerBasePath = convertRegexpToSwagger(controllerPath);
 
       // for each endpoint
       for (const endpointName in controller.endpoints) {
@@ -137,7 +141,10 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
         endpoint.paths.forEach(endpointPath => {
 
           // PROCESS ENDPOINT
-          const fullPath = basePath + convertRegexpToSwagger((endpointPath === "/" ? "" : endpointPath));
+          const fullPath = joinRoutePath(
+            controllerBasePath,
+            convertRegexpToSwagger(endpointPath === "/" ? "" : endpointPath)
+          );
           const verb = endpoint.verb;
 
           paths[fullPath] = paths[fullPath] || {};
@@ -284,18 +291,40 @@ export function generateOpenApi(metaData: AmalaMetadata, options: AmalaOptions) 
     });
   }
 
-  openApiSpec.paths = paths;
-  openApiSpec.components.schemas = schemas;
+  openApiSpec.paths = _.merge({}, customSpec.paths || {}, paths);
+  openApiSpec.components = openApiSpec.components || {};
+  openApiSpec.components.schemas = {
+    ...(openApiSpec.components.schemas || {}),
+    ...schemas
+  };
   // @ts-ignore
   // openApiSpec.components.requestBodies = schemas;
   // console.log('OpenApi.init', meta);
+}
+
+function joinRoutePath(...segments: string[]): string {
+  const path = segments
+    .join('/')
+    .split('/')
+    .filter(Boolean)
+    .join('/');
+
+  return path ? `/${path}` : '/';
+}
+
+function joinServerUrl(publicURL = '', ...segments: string[]): string {
+  const origin = publicURL.replace(/\/+$/, '');
+  const path = joinRoutePath(...segments);
+
+  if (path === '/') return origin || '/';
+  return `${origin}${path}`;
 }
 
 function convertRegexpToSwagger(path) {
   const swaggerPath = [];
 
   let paramMode = false;
-  for (const c of path) {
+  for (const c of String(path)) {
 
     if (c === ":") {
       paramMode = true;
@@ -324,7 +353,6 @@ function deriveOasSoure(source) {
     }
   }
 }
-
 
 
 

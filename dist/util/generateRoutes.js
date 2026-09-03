@@ -47,8 +47,25 @@ const argumentInjectorTranslations = {
     },
     body: async (ctx, injectOptions) => {
         return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
+    },
+    request: async (ctx, injectOptions) => {
+        var _a;
+        if (injectOptions === 'files') {
+            return (_a = ctx.request.files) !== null && _a !== void 0 ? _a : ctx.request.file;
+        }
+        return _argumentInjectorProcessor('request', ctx.request, injectOptions);
     }
 };
+function flattenValidationErrors(errors, parentPath = '') {
+    return errors.flatMap(error => {
+        const field = [parentPath, error.property].filter(Boolean).join('.');
+        const ownViolations = error.constraints
+            ? [{ field, violations: error.constraints }]
+            : [];
+        const childViolations = flattenValidationErrors(error.children || [], field);
+        return [...ownViolations, ...childViolations];
+    });
+}
 /**
  * Processes an endpoint-function argument and validates it etc
  * @param ctx
@@ -75,9 +92,7 @@ async function _determineArgument(ctx, argument, options) {
         values = await (0, class_transformer_1.plainToClass)(argType, values, { enableImplicitConversion: true });
         const errors = await (0, class_validator_1.validate)(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
         if (errors.length > 0) {
-            throw boom_1.default.badData('validation error for argument type: ' + ctxKey, errors.map(it => {
-                return { field: it.property, violations: it.constraints };
-            }));
+            throw boom_1.default.badData('validation error for argument type: ' + ctxKey, flattenValidationErrors(errors));
         }
     }
     else if (values && argType && argType !== String) {

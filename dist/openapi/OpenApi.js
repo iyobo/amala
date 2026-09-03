@@ -26,26 +26,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateOpenApi = exports.openApiSpec = void 0;
 const _ = __importStar(require("lodash"));
 const tools_1 = require("../util/tools");
-exports.openApiSpec = {
-    openapi: "3.0.1",
-    info: {
-        title: "API",
-        description: "powered by AmalaJS (https://github.com/iyobo/amala)",
-        version: "1.0.0"
-    },
-    servers: [],
-    paths: {},
-    components: {
-        schemas: {}
-    },
-    security: [],
-    tags: [],
-    externalDocs: undefined
-};
+function createDefaultOpenApiSpec() {
+    return {
+        openapi: "3.0.1",
+        info: {
+            title: "API",
+            description: "powered by AmalaJS (https://github.com/iyobo/amala)",
+            version: "1.0.0"
+        },
+        servers: [],
+        paths: {},
+        components: {
+            schemas: {}
+        },
+        security: [],
+        tags: [],
+        externalDocs: undefined
+    };
+}
+exports.openApiSpec = createDefaultOpenApiSpec();
 function generateOpenApi(metaData, options) {
-    var _a, _b;
+    var _a;
     // incorporate custom spec values
-    exports.openApiSpec = _.merge(exports.openApiSpec, options.openAPI.spec);
+    const customSpec = ((_a = options.openAPI) === null || _a === void 0 ? void 0 : _a.spec) || {};
+    exports.openApiSpec = _.merge(createDefaultOpenApiSpec(), customSpec);
     // overwrite default info with developer's API info. handled by deep merge
     // openApiSpec.info = {...openApiSpec.info, ...options.openAPI.spec.info};
     const meta = { ...metaData };
@@ -59,12 +63,11 @@ function generateOpenApi(metaData, options) {
     };
     // ---- SERVERS
     const servers = [];
-    const rootPath = options.openAPI.publicURL + options.basePath;
     if (!options.disableVersioning) {
         if (Array.isArray(options.versions)) {
             options.versions.forEach(it => {
                 servers.push({
-                    url: rootPath + "/v" + it,
+                    url: joinServerUrl(options.openAPI.publicURL, options.basePath, `v${it}`),
                     description: `version ${it}`
                 });
             });
@@ -73,7 +76,7 @@ function generateOpenApi(metaData, options) {
             for (const [k, v] of Object.entries(options.versions)) {
                 if (v) {
                     servers.push({
-                        url: rootPath + "/v" + k,
+                        url: joinServerUrl(options.openAPI.publicURL, options.basePath, `v${k}`),
                         description: `version ${k}`
                     });
                 }
@@ -82,10 +85,10 @@ function generateOpenApi(metaData, options) {
     }
     else {
         servers.push({
-            url: options.openAPI.publicURL
+            url: joinServerUrl(options.openAPI.publicURL, options.basePath)
         });
     }
-    exports.openApiSpec.servers = [...servers, ...(((_b = (_a = options.openAPI) === null || _a === void 0 ? void 0 : _a.spec) === null || _b === void 0 ? void 0 : _b.servers) || [])];
+    exports.openApiSpec.servers = [...servers, ...(customSpec.servers || [])];
     /**
      * logs encountered SCHEMAS
      */
@@ -133,7 +136,7 @@ function generateOpenApi(metaData, options) {
         // e.g UserController
         const controller = meta.controllers[controllerClassName];
         controller.paths.forEach(controllerPath => {
-            const basePath = options.basePath + convertRegexpToSwagger(controllerPath);
+            const controllerBasePath = convertRegexpToSwagger(controllerPath);
             // for each endpoint
             for (const endpointName in controller.endpoints) {
                 const endpoint = controller.endpoints[endpointName];
@@ -141,7 +144,7 @@ function generateOpenApi(metaData, options) {
                 endpoint.paths.forEach(endpointPath => {
                     var _a, _b;
                     // PROCESS ENDPOINT
-                    const fullPath = basePath + convertRegexpToSwagger((endpointPath === "/" ? "" : endpointPath));
+                    const fullPath = joinRoutePath(controllerBasePath, convertRegexpToSwagger(endpointPath === "/" ? "" : endpointPath));
                     const verb = endpoint.verb;
                     paths[fullPath] = paths[fullPath] || {};
                     const parameters = [
@@ -266,17 +269,36 @@ function generateOpenApi(metaData, options) {
             }
         });
     }
-    exports.openApiSpec.paths = paths;
-    exports.openApiSpec.components.schemas = schemas;
+    exports.openApiSpec.paths = _.merge({}, customSpec.paths || {}, paths);
+    exports.openApiSpec.components = exports.openApiSpec.components || {};
+    exports.openApiSpec.components.schemas = {
+        ...(exports.openApiSpec.components.schemas || {}),
+        ...schemas
+    };
     // @ts-ignore
     // openApiSpec.components.requestBodies = schemas;
     // console.log('OpenApi.init', meta);
 }
 exports.generateOpenApi = generateOpenApi;
+function joinRoutePath(...segments) {
+    const path = segments
+        .join('/')
+        .split('/')
+        .filter(Boolean)
+        .join('/');
+    return path ? `/${path}` : '/';
+}
+function joinServerUrl(publicURL = '', ...segments) {
+    const origin = publicURL.replace(/\/+$/, '');
+    const path = joinRoutePath(...segments);
+    if (path === '/')
+        return origin || '/';
+    return `${origin}${path}`;
+}
 function convertRegexpToSwagger(path) {
     const swaggerPath = [];
     let paramMode = false;
-    for (const c of path) {
+    for (const c of String(path)) {
         if (c === ":") {
             paramMode = true;
             swaggerPath.push("{");

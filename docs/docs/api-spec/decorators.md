@@ -74,7 +74,7 @@ remove(@Params('id') id: string) {}
 | `@State()` / `@State('name')` | Koa state or one state value |
 | `@CurrentUser()` | `ctx.state.user` |
 | `@Session()` / `@Session('name')` | The configured Koa session or one value |
-| `@File()` | `ctx.request.files` |
+| `@File()` | `ctx.request.file` for a single @koa/multer upload, otherwise `ctx.request.files` |
 | `@Req()` | The Koa request |
 | `@Res()` | The Koa response |
 | `@Ctx()` / `@Ctx('name')` | The Koa context or one context field |
@@ -99,6 +99,8 @@ getOne(@Params() input: LookupInput) {
 
 Use classes, not interfaces, for validated inputs. Consider `whitelist: true` and `forbidNonWhitelisted: true` in `validatorOptions` when extra properties should be rejected.
 
+For nested objects, combine class-validator's `@ValidateNested()` with class-transformer's `@Type()` so the child object has a runtime class. Nested failures use dot-separated field names such as `metadata.size` in `errorDetails`; raw target objects and values are not returned.
+
 ### Authentication
 
 `@CurrentUser()` is an accessor, not an authentication check. Authentication middleware must verify the request, store the trusted user in `ctx.state.user`, and run before the endpoint:
@@ -113,7 +115,7 @@ getMe(@CurrentUser() user: AuthenticatedUser) {
 
 ### File uploads
 
-`@File()` requires multipart parsing. Set explicit upload limits and verify file type from content, not only from the supplied filename or content type. Disable multipart parsing when the application does not accept files.
+`@File()` supports koa-body's `ctx.request.files` and @koa/multer's `ctx.request.file`/`files` shapes. Set explicit upload limits and verify file type from content, not only from the supplied filename or content type. Disable multipart parsing when the application does not accept files.
 
 ## Custom argument decorators
 
