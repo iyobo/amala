@@ -11,6 +11,14 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    groups:
+      docusaurus:
+        patterns:
+          - "@docusaurus/*"
+      react:
+        patterns:
+          - react
+          - react-dom
 
   - package-ecosystem: github-actions
     directory: /

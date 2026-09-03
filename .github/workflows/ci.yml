@@ -17,6 +17,7 @@ jobs:
   framework:
     name: Framework
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,6 +46,7 @@ jobs:
   documentation:
     name: Documentation
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,4 +64,8 @@ jobs:
 
       - name: Build website
         run: npm run build
+        working-directory: docs
+
+      - name: Audit documentation dependencies
+        run: npm run audit
         working-directory: docs
