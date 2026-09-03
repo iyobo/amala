@@ -74,6 +74,12 @@ Validate data again at narrower trust boundaries where required, such as databas
 
 OpenAPI JSON and Swagger UI are enabled by default. They expose route names and request shapes, so disable them in production or protect them when that inventory is sensitive.
 
+## Documentation build dependencies
+
+The published documentation is static; its Node.js dependencies run only while building the site. Patched transitive versions are enforced for `qs`, `serialize-javascript`, and `uuid`.
+
+Docusaurus 3.10.2 still installs `image-size` 2.0.2, whose HEIF, ICNS, and JPEG XL parsers have two upstream advisories without a patched release. Amala's documentation does not process local Markdown images through that library: local images must use Docusaurus's `pathname://` escape hatch, and the build fails when an ordinary local Markdown image is introduced. CI is read-only and the documentation build has a ten-minute timeout. The audit allowlist contains only those two reviewed advisories and fails on any new advisory.
+
 Keep `diagnostics` off in normal production operation. Custom error handlers and logs must redact authorization headers, cookies, secrets, request bodies, and query strings or fragments from third-party URLs.
 
 ## Trusted startup configuration

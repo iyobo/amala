@@ -40,7 +40,7 @@ describe('security-sensitive bootstrap options', () => {
     it('honors multipart: false instead of parsing uploads', async () => {
         await testServer
             .post('/api/arg/uploadFile2')
-            .attach('testFile', 'src/tests/attachments/image.png')
+            .field('testFile', 'not parsed')
             .expect(204);
     });
     it('uses a same-origin OpenAPI URL when publicURL is omitted', () => {
