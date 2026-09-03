@@ -1,3 +1,4 @@
+import CodeBlock from '@theme/CodeBlock';
 import Heading from '@theme/Heading';
 import styles from './styles.module.css';
 
@@ -5,22 +6,100 @@ const features = [
   {
     number: '01',
     title: 'Routes that read like code',
-    description: 'Map controller methods to HTTP paths, versions, and middleware without giving up the underlying Koa router.',
+    description: 'A controller prefix and an HTTP decorator become a real Koa route. Bootstrap mounts it and returns the app.',
+    codeTitle: 'GET /v1/users/:id',
+    code: `@Controller('/users')
+class UserController {
+  @Get('/:id')
+  getOne(@Params('id') id: string) {
+    return {id};
+  }
+}
+
+async function main() {
+  const {app} = await bootstrapControllers({
+    controllers: [UserController],
+  });
+  app.listen(3000);
+}
+
+void main();`,
   },
   {
     number: '02',
     title: 'Inputs with a narrow shape',
-    description: 'Inject the specific body, path, query, state, session, or context value each handler actually needs.',
+    description: 'Inject only what a handler needs. The method signature documents the request instead of hiding it in context access.',
+    codeTitle: 'GET /v1/search?q=amala',
+    code: `@Controller('/search')
+class SearchController {
+  @Get('/')
+  find(@Query('q') query?: string) {
+    return {query};
+  }
+}
+
+async function main() {
+  const {app} = await bootstrapControllers({
+    controllers: [SearchController],
+  });
+  app.listen(3000);
+}
+
+void main();`,
   },
   {
     number: '03',
     title: 'Validation at the edge',
-    description: 'Transform decorated TypeScript classes and run class-validator before application logic receives the value.',
+    description: 'A decorated class becomes a runtime request boundary, with strict unknown-field handling selected at bootstrap.',
+    codeTitle: 'POST /v1/users',
+    code: `class CreateUserInput {
+  @IsEmail()
+  email!: string;
+}
+
+@Controller('/users')
+class UserController {
+  @Post('/')
+  create(@Body({required: true}) input: CreateUserInput) {
+    return input;
+  }
+}
+
+async function main() {
+  const {app} = await bootstrapControllers({
+    controllers: [UserController],
+    validatorOptions: {
+      forbidNonWhitelisted: true,
+      whitelist: true,
+    },
+  });
+  app.listen(3000);
+}
+
+void main();`,
   },
   {
     number: '04',
     title: 'An API others can inspect',
-    description: 'Generate an OpenAPI 3 document and Swagger UI from the same metadata that powers the routes.',
+    description: 'Configure the generated OpenAPI document beside the controllers it describes. Swagger stays on the same origin.',
+    codeTitle: 'OpenAPI at /api/docs',
+    code: `async function main() {
+  const {app} = await bootstrapControllers({
+    basePath: '/api',
+    controllers: [UserController],
+    openAPI: {
+      spec: {
+        info: {
+          title: 'Example API',
+          version: '1.0.0',
+        },
+      },
+    },
+  });
+  app.listen(3000);
+}
+
+void main();`,
   },
 ];
 
@@ -40,6 +119,11 @@ export default function HomepageFeatures() {
               <span className={styles.number}>{feature.number}</span>
               <Heading as="h3">{feature.title}</Heading>
               <p>{feature.description}</p>
+              <div className={styles.example}>
+                <CodeBlock language="typescript" title={feature.codeTitle}>
+                  {feature.code}
+                </CodeBlock>
+              </div>
             </article>
           ))}
         </div>
