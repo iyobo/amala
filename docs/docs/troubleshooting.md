@@ -68,11 +68,38 @@ bodyParser: {
 }
 ```
 
-Use `@File()` or `@Req()` to access `ctx.request.files`. Uploaded file field names become keys in that object.
+Use `@File()` or `@Req()` to access uploads. koa-body places uploads in `ctx.request.files`. For Multer, use the Koa adapter and disable Amala's parser so only one middleware consumes the stream:
+
+```typescript
+import multer from '@koa/multer';
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {fileSize: 5 * 1024 * 1024},
+});
+
+await bootstrapControllers({
+  bodyParser: false,
+  controllers: [UploadController],
+});
+
+@Controller('/uploads')
+class UploadController {
+  @Flow([upload.single('image')])
+  @Post('/')
+  upload(@File() file: {originalname: string; size: number}) {
+    return {name: file.originalname, size: file.size};
+  }
+}
+```
+
+Use `@koa/multer`, not Express's `multer` middleware directly. A single upload is available from `ctx.request.file`; field and array uploads use `ctx.request.files`. Store files explicitly in the handler or a service—parsing an upload does not persist it automatically.
 
 ## Swagger cannot load the OpenAPI document
 
 With `basePath: '/api'`, the default routes are `/api/docs` and `/api/swagger`. Omit `publicURL` for same-origin access, or set it to the externally reachable API origin. Do not point a public Swagger page at an internal-only hostname.
+
+Generated OpenAPI server URLs contain `basePath` and the active version. Operation paths are relative to those server URLs, so clients resolve `/users/:id` as `/api/v1/users/:id` without repeating `/api`.
 
 ## Multiple Amala apps affect each other
 

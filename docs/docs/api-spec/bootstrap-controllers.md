@@ -103,6 +103,8 @@ openAPI: {
 
 `specPath` and `webPath` are appended to `basePath`. With `basePath: '/api'`, their defaults are `/api/docs` and `/api/swagger`. `publicURL` defaults to the current origin.
 
+In the generated document, each server URL owns the API `basePath` and version prefix. Paths remain relative to that server, preventing clients from repeating the base path.
+
 Set `openAPI: {enabled: false}` to disable both endpoints. In production, disable them or apply access-control middleware if the API inventory is sensitive.
 
 ## HTTP security headers

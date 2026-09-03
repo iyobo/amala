@@ -78,7 +78,7 @@ const bootstrapControllers = async (params) => {
     const openAPIBasePath = exports.options.basePath || '';
     exports.options.openAPI.specPath = `${openAPIBasePath}/${exports.options.openAPI.specPath || 'docs'}`;
     exports.options.openAPI.webPath = `${openAPIBasePath}/${exports.options.openAPI.webPath || 'swagger'}`;
-    exports.options.openAPI.spec = exports.options.openAPI.spec || OpenApi_1.openApiSpec;
+    exports.options.openAPI.spec = exports.options.openAPI.spec || {};
     exports.options.bodyParser = exports.options.bodyParser === false ? false : exports.options.bodyParser;
     exports.options.diagnostics = exports.options.diagnostics || false;
     exports.options.cors = exports.options.cors || { enabled: true, opts: {} };

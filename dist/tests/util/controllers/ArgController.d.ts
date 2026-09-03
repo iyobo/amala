@@ -9,6 +9,12 @@ declare class ClassInput {
     aString: string;
     aNumber: number;
 }
+declare class FileMetadataInput {
+    size: number;
+}
+declare class NestedFileInput {
+    metadata: FileMetadataInput;
+}
 export declare class ArgController {
     twoParams(params: any, id: string): Promise<{
         params: any;
@@ -17,6 +23,7 @@ export declare class ArgController {
     bodyRequired(body: ClassInput): Promise<ClassInput>;
     simpleBody(body: any): Promise<any>;
     body(body: ClassInput): Promise<ClassInput>;
+    bodyNested(body: NestedFileInput): Promise<NestedFileInput>;
     bodySpecific(foo: string): Promise<string>;
     bodyInterface(body: InterfaceInput): Promise<InterfaceInput>;
     state(state: any): Promise<any>;

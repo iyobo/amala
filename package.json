@@ -1,6 +1,6 @@
 {
   "name": "amala",
-  "version": "10.0.8",
+  "version": "10.0.9",
   "description": "A decorator-based TypeScript framework for building Koa APIs with validation, versioning, and OpenAPI support.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -61,6 +61,7 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
+    "@koa/multer": "^4.0.0",
     "@types/boom": "^7.3.0",
     "@types/cookies": "^0.9.2",
     "@types/express": "^4.17.25",
@@ -84,6 +85,7 @@
     "eslint-plugin-react": "7.24.0",
     "eslint-plugin-standard": "5.0.0",
     "jest": "^29.7.0",
+    "multer": "^2.3.0",
     "prettier": "^2.8.8",
     "supertest": "^7.2.2",
     "ts-jest": "^29.1.1",

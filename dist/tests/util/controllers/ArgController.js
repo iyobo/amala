@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ArgController = void 0;
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const index_1 = require("../../../index");
 const flow_1 = require("../flow/flow");
@@ -26,6 +27,19 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], ClassInput.prototype, "aNumber", void 0);
+class FileMetadataInput {
+}
+__decorate([
+    (0, class_validator_1.IsPositive)(),
+    __metadata("design:type", Number)
+], FileMetadataInput.prototype, "size", void 0);
+class NestedFileInput {
+}
+__decorate([
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => FileMetadataInput),
+    __metadata("design:type", FileMetadataInput)
+], NestedFileInput.prototype, "metadata", void 0);
 const CustomDeco = () => (0, index_1.Ctx)('query');
 let ArgController = exports.ArgController = class ArgController {
     async twoParams(params, id) {
@@ -38,6 +52,9 @@ let ArgController = exports.ArgController = class ArgController {
         return body;
     }
     async body(body) {
+        return body;
+    }
+    async bodyNested(body) {
         return body;
     }
     async bodySpecific(foo) {
@@ -141,6 +158,13 @@ __decorate([
     __metadata("design:paramtypes", [ClassInput]),
     __metadata("design:returntype", Promise)
 ], ArgController.prototype, "body", null);
+__decorate([
+    (0, index_1.Post)('/bodyNested'),
+    __param(0, (0, index_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [NestedFileInput]),
+    __metadata("design:returntype", Promise)
+], ArgController.prototype, "bodyNested", null);
 __decorate([
     (0, index_1.Post)('/bodySpecific'),
     __param(0, (0, index_1.Body)('foo')),

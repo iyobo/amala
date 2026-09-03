@@ -119,6 +119,32 @@ describe("Arguments", () => {
       expect(response.body.errorDetails[0].violations.isNumber).toBeDefined();
     });
 
+    it("reports nested validation failures without exposing target values", async () => {
+      const response = await testServer
+        .post("/api/v2/arg/bodyNested")
+        .send({metadata: {size: -1}})
+        .expect(422);
+
+      expect(response.body.errorDetails).toEqual([
+        {
+          field: 'metadata.size',
+          violations: {isPositive: 'size must be a positive number'}
+        }
+      ]);
+      expect(response.body.errorDetails[0].target).toBeUndefined();
+      expect(response.body.errorDetails[0].value).toBeUndefined();
+    });
+
+    it("accepts valid nested input", async () => {
+      const payload = {metadata: {size: 42}};
+      const response = await testServer
+        .post("/api/v2/arg/bodyNested")
+        .send(payload)
+        .expect(200);
+
+      expect(response.body).toEqual(payload);
+    });
+
     it("Using an interface will not validate. Must use class with field decorators", async () => {
       await testServer
         .post("/api/v2/arg/interface")

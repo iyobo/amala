@@ -1,7 +1,7 @@
 import boom from '@hapi/boom';
 import Router from '@koa/router';
 import {plainToClass} from 'class-transformer';
-import {validate} from 'class-validator';
+import {validate, ValidationError} from 'class-validator';
 import {Context} from 'koa';
 import _ from 'lodash';
 import {isClass, isValidatableClass} from './tools';
@@ -54,8 +54,29 @@ const argumentInjectorTranslations = {
   },
   body: async (ctx: any, injectOptions: any) => {
     return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
+  },
+  request: async (ctx: any, injectOptions: any) => {
+    if (injectOptions === 'files') {
+      return ctx.request.files ?? ctx.request.file;
+    }
+    return _argumentInjectorProcessor('request', ctx.request, injectOptions);
   }
 };
+
+function flattenValidationErrors(
+  errors: ValidationError[],
+  parentPath = ''
+): Array<{field: string; violations: Record<string, string>}> {
+  return errors.flatMap(error => {
+    const field = [parentPath, error.property].filter(Boolean).join('.');
+    const ownViolations = error.constraints
+      ? [{field, violations: error.constraints}]
+      : [];
+    const childViolations = flattenValidationErrors(error.children || [], field);
+
+    return [...ownViolations, ...childViolations];
+  });
+}
 
 /**
  * Processes an endpoint-function argument and validates it etc
@@ -95,9 +116,7 @@ async function _determineArgument(
     if (errors.length > 0) {
       throw boom.badData(
         'validation error for argument type: ' + ctxKey,
-        errors.map(it => {
-          return {field: it.property, violations: it.constraints};
-        })
+        flattenValidationErrors(errors)
       );
     }
 

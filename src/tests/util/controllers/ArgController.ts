@@ -1,4 +1,5 @@
-import {IsNumber, IsString} from 'class-validator';
+import {Type} from 'class-transformer';
+import {IsNumber, IsPositive, IsString, ValidateNested} from 'class-validator';
 import {Request, Response} from 'koa';
 import {
   Body,
@@ -32,6 +33,17 @@ class ClassInput {
   aNumber: number;
 }
 
+class FileMetadataInput {
+  @IsPositive()
+  size: number;
+}
+
+class NestedFileInput {
+  @ValidateNested()
+  @Type(() => FileMetadataInput)
+  metadata: FileMetadataInput;
+}
+
 const CustomDeco = ()=>Ctx('query');
 
 @Controller('/arg')
@@ -53,6 +65,11 @@ export class ArgController {
 
   @Post('/body')
   async body(@Body() body: ClassInput) {
+    return body;
+  }
+
+  @Post('/bodyNested')
+  async bodyNested(@Body() body: NestedFileInput) {
     return body;
   }
 
