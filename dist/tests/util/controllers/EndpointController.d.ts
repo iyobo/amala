@@ -10,13 +10,13 @@ export declare class EndpointController {
     unauthorized(): Promise<string>;
     badFlow(): Promise<string>;
     multiFlow(): Promise<string>;
-    staten(state: any): Promise<any>;
-    usedByThis(p: any): Promise<any>;
-    usedByThis2(p: any): Promise<{
-        res: any;
+    staten(state: Record<string, unknown>): Promise<Record<string, unknown>>;
+    usedByThis(p: unknown): Promise<unknown>;
+    usedByThis2(p: unknown): Promise<{
+        res: unknown;
     }>;
-    usingThis(): Promise<any>;
+    usingThis(): Promise<unknown>;
     usingThis2(): Promise<{
-        res: any;
+        res: unknown;
     }>;
 }

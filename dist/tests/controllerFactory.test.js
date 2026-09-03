@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const boom_1 = __importDefault(require("@hapi/boom"));
 const supertest_1 = __importDefault(require("supertest"));
 const index_1 = require("../index");
 let FactoryController = class FactoryController {
@@ -20,7 +21,7 @@ let FactoryController = class FactoryController {
         this.dependency = dependency;
     }
     value() {
-        if (this.dependency.state) {
+        if ('state' in this.dependency) {
             return {
                 source: 'context',
                 path: this.dependency.path
@@ -92,9 +93,10 @@ describe('controllerFactory', () => {
             controllerFactory: async () => undefined,
             disableVersioning: true,
             errorHandler: async (error, ctx) => {
-                var _a;
-                ctx.status = ((_a = error.output) === null || _a === void 0 ? void 0 : _a.statusCode) || 500;
-                ctx.body = { message: error.message };
+                ctx.status = boom_1.default.isBoom(error) ? error.output.statusCode : 500;
+                ctx.body = {
+                    message: error instanceof Error ? error.message : 'Unknown error'
+                };
             },
             openAPI: { enabled: false }
         });

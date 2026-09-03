@@ -9,5 +9,5 @@ export declare class ManualController {
     passFlow(): Promise<string>;
     unauthorized(): Promise<string>;
     multiFlow(): Promise<string>;
-    staten(state: any): Promise<any>;
+    staten(state: Record<string, unknown>): Promise<Record<string, unknown>>;
 }

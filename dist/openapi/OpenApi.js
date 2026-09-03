@@ -37,6 +37,16 @@ exports.openApiSpec = void 0;
 exports.generateOpenApi = generateOpenApi;
 const _ = __importStar(require("lodash"));
 const tools_1 = require("../util/tools");
+function toSimpleSchemaType(value) {
+    const normalized = value === null || value === void 0 ? void 0 : value.toLowerCase();
+    if (normalized === 'number'
+        || normalized === 'integer'
+        || normalized === 'boolean'
+        || normalized === 'object') {
+        return normalized;
+    }
+    return 'string';
+}
 function createDefaultOpenApiSpec() {
     return {
         openapi: "3.0.1",
@@ -128,7 +138,7 @@ function generateOpenApi(metaData, options) {
             for (const fieldName in meta) {
                 const tr = (0, tools_1.translateMetaField)(meta[fieldName]);
                 properties[fieldName] = {
-                    type: tr.type
+                    type: toSimpleSchemaType(tr.type)
                 };
                 if (tr.required)
                     required.push(fieldName);
@@ -169,6 +179,7 @@ function generateOpenApi(metaData, options) {
                     // }
                     ];
                     const requestBodyProperties = {};
+                    const requestBodyRequired = [];
                     /**
                      *  For each argument, divide it between requestBody (source:body) or parameters (any other source).
                      *  extract fields from classvalidators into its own function.
@@ -178,17 +189,17 @@ function generateOpenApi(metaData, options) {
                         const argumentMeta = endpoint.arguments[argId];
                         const ctxKey = argumentMeta.ctxKey;
                         // We only care about arguments with @Body, @Query or @Params decorators
-                        if (!["body", "query", "params"].includes(ctxKey))
+                        if (!isDocumentedSource(ctxKey))
                             continue;
                         // register schema if applicable
                         registerSchema(argumentMeta.argType);
                         // const ctxValueOptions = argumentMeta.ctxValueOptions;
                         // const valueOptionsType = typeof argumentMeta.ctxValueOptions;
                         let required = false;
-                        const oasSource = deriveOasSoure(argumentMeta.ctxKey);
+                        const oasSource = deriveOasSource(ctxKey);
                         if (argumentMeta.ctxValueOptions && typeof argumentMeta.ctxValueOptions !== "string") {
                             // injection object
-                            required = argumentMeta.ctxValueOptions.required || false;
+                            required = Boolean(argumentMeta.ctxValueOptions.required);
                         }
                         // if the argument exists as part of path, consider to be required
                         if (oasSource === "path") {
@@ -198,10 +209,14 @@ function generateOpenApi(metaData, options) {
                         const meta = (0, tools_1.getPropertiesOfClassValidator)(argumentMeta.argType);
                         const metaEntries = Object.entries(meta);
                         if (metaEntries.length > 0) {
-                            metaEntries.forEach((it, idx) => {
+                            metaEntries.forEach(it => {
                                 const tr = (0, tools_1.translateMetaField)(it[1]);
                                 if (oasSource === "body") {
-                                    requestBodyProperties[it[0]] = { type: tr.type, required: tr.required };
+                                    requestBodyProperties[it[0]] = {
+                                        type: toSimpleSchemaType(tr.type)
+                                    };
+                                    if (tr.required)
+                                        requestBodyRequired.push(it[0]);
                                 }
                                 else {
                                     parameters.push({
@@ -218,18 +233,20 @@ function generateOpenApi(metaData, options) {
                         }
                         else {
                             if (oasSource === "body") {
-                                requestBodyProperties[argumentMeta.ctxValueOptions] = {
-                                    type: ((_a = argumentMeta.argType) === null || _a === void 0 ? void 0 : _a.name) || "object",
-                                    required
+                                const propertyName = String(argumentMeta.ctxValueOptions);
+                                requestBodyProperties[propertyName] = {
+                                    type: toSimpleSchemaType(((_a = argumentMeta.argType) === null || _a === void 0 ? void 0 : _a.name) || "object"),
                                 };
+                                if (required)
+                                    requestBodyRequired.push(propertyName);
                             }
                             else {
                                 parameters.push({
-                                    name: argumentMeta.ctxValueOptions,
+                                    name: String(argumentMeta.ctxValueOptions),
                                     in: oasSource,
                                     required: oasSource !== "path" ? required : undefined,
                                     schema: {
-                                        type: ((_b = argumentMeta.argType) === null || _b === void 0 ? void 0 : _b.name) || "object"
+                                        type: toSimpleSchemaType(((_b = argumentMeta.argType) === null || _b === void 0 ? void 0 : _b.name) || "object")
                                     }
                                 });
                             }
@@ -240,13 +257,15 @@ function generateOpenApi(metaData, options) {
                             "multipart/form-data": {
                                 schema: {
                                     type: "object",
-                                    properties: requestBodyProperties
+                                    properties: requestBodyProperties,
+                                    required: requestBodyRequired.length ? requestBodyRequired : undefined
                                 }
                             },
                             "application/x-www-form-urlencoded": {
                                 schema: {
                                     type: "object",
-                                    properties: requestBodyProperties
+                                    properties: requestBodyProperties,
+                                    required: requestBodyRequired.length ? requestBodyRequired : undefined
                                 }
                             },
                         }
@@ -325,7 +344,10 @@ function convertRegexpToSwagger(path) {
         swaggerPath.push("}");
     return swaggerPath.join("");
 }
-function deriveOasSoure(source) {
+function isDocumentedSource(source) {
+    return source === 'body' || source === 'query' || source === 'params';
+}
+function deriveOasSource(source) {
     switch (source) {
         case "params": {
             return "path";

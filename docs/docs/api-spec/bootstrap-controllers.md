@@ -8,7 +8,10 @@ sidebar_label: bootstrapControllers
 Initializes controller routes and returns the Koa app and router used by Amala.
 
 ```typescript
-Promise<{app: Application; router: Router}>
+bootstrapControllers<StateT, ContextT>(options): Promise<{
+  app: Application<StateT, ContextT>;
+  router: Router<StateT, ContextT>;
+}>
 ```
 
 Only `controllers` is required.
@@ -24,7 +27,7 @@ const {app, router} = await bootstrapControllers({
 | Option | Default | Purpose |
 | --- | --- | --- |
 | `controllers` | required | Trusted controller classes or glob strings to load. Prefer explicit classes. |
-| `controllerFactory` | Per-request `new ControllerClass(ctx)` | Resolve controller instances through an application-owned dependency injection container. |
+| `controllerFactory` | Per-request `new ControllerClass(ctx)` | Override how Amala constructs a controller. |
 | `app` | new Koa app | Use an existing Koa application. |
 | `router` | new Koa router | Use an existing `@koa/router` instance. |
 | `basePath` | `''` | Prefix added before version, controller, and OpenAPI paths. |
@@ -33,6 +36,37 @@ const {app, router} = await bootstrapControllers({
 | `diagnostics` | `false` | Log controller and route registration details. Avoid in noisy production logs. |
 
 Controller glob strings are executed with `require()` at startup. Never derive them from request data or another untrusted source.
+
+## Typed Koa context
+
+Provide Koa's state and context-extension types once and Amala carries them through its context-bearing APIs:
+
+```typescript
+interface AppState {
+  user?: User;
+  services: Services;
+}
+
+interface ContextExtensions {
+  requestId: string;
+}
+
+const app = new Koa<AppState, ContextExtensions>();
+
+const {router} = await bootstrapControllers({
+  app,
+  controllers: [UserController],
+  flow: [async (ctx, next) => {
+    ctx.state.services = services;
+    ctx.requestId = crypto.randomUUID();
+    await next();
+  }],
+});
+```
+
+The supplied app lets TypeScript infer `AppState` and `ContextExtensions`. Alternatively, call `bootstrapControllers<AppState, ContextExtensions>(options)` when Amala should create the app.
+
+The same types appear in global middleware, `@Flow`, `controllerFactory`, `errorHandler`, the body parser's `onError`, and the returned app and router. Undeclared custom properties are rejected at compile time by default.
 
 ## Versioning
 
@@ -83,28 +117,24 @@ validatorOptions: {
 
 Interfaces do not exist at runtime and cannot be validated. Use a class with class-validator decorators.
 
-## Dependency injection
+## Controller construction
 
-By default, Amala constructs a fresh controller for each request and passes the Koa context to its constructor. Set `controllerFactory` to resolve that request's controller from a dependency injection container instead:
+By default, Amala constructs a fresh controller for each request and passes the typed Koa context to its constructor. Applications can place their services on typed Koa state:
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [UserController],
-  flow: [async (ctx, next) => {
-    const scope = container.createScope();
-    try {
-      ctx.state.container = scope;
-      await next();
-    } finally {
-      await scope.dispose();
-    }
-  }],
-  controllerFactory: (ControllerClass, ctx) =>
-    ctx.state.container.resolve(ControllerClass),
-});
+type AppContext = AmalaContext<AppState, ContextExtensions>;
+
+class UserController {
+  constructor(private readonly ctx: AppContext) {}
+
+  @Get('/')
+  list() {
+    return this.ctx.state.services.users.list();
+  }
+}
 ```
 
-The factory receives the controller class and current Koa context, may return a promise, and runs once per request. Amala does not store a global container or dispose application-owned scopes. Create and clean up request scopes in middleware so concurrent requests cannot share request-specific state accidentally.
+The optional `controllerFactory` remains available when an application needs custom construction. It receives the controller class and typed context, may return a promise, and runs once per request. Amala does not provide or manage a dependency-injection container, binding registry, or service lifecycle.
 
 ## OpenAPI
 
@@ -165,12 +195,16 @@ The default handler formats Boom errors, returns validation details for client e
 
 ```typescript
 errorHandler: async (error, ctx) => {
-  ctx.status = error.status ?? 500;
-  ctx.body = {error: ctx.status < 500 ? error.message : 'Internal Server Error'};
+  const message = error instanceof Error
+    ? error.message
+    : 'Internal Server Error';
+
+  ctx.status = 500;
+  ctx.body = {error: message};
 }
 ```
 
-Keep secrets, request bodies, authorization headers, and raw third-party URLs out of error logs.
+The error value is `unknown`; narrow it before accessing error-specific properties. Keep secrets, request bodies, authorization headers, and raw third-party URLs out of error logs.
 
 ## Bring your own app or router
 

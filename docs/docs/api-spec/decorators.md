@@ -22,6 +22,8 @@ class UserController {}
 
 Adds one Koa middleware function or an array of middleware functions to every endpoint in the controller. Middleware runs in declaration order before the endpoint handler.
 
+Use `AmalaMiddleware<AppState, ContextExtensions>` when the flow reads application-specific Koa values. `@Flow` preserves those generics instead of widening the context to `any`.
+
 ```typescript
 @Controller('/admin')
 @Flow([requireUser, requireAdmin])
@@ -129,6 +131,8 @@ list(@RequestId() requestId: string) {
   return {requestId};
 }
 ```
+
+The handler annotation describes the injected value. Use `AmalaContext<AppState, ContextExtensions>` when injecting the complete context with `@Ctx()`.
 
 ## Controller metadata
 

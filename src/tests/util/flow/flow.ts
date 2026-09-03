@@ -1,4 +1,18 @@
 import Boom from '@hapi/boom';
+import type {AmalaMiddleware} from '../../../index';
+
+type TestState = {
+  something?: string;
+  user?: {
+    id: string;
+    firstname: string;
+    lastName: string;
+  };
+};
+
+type SessionContext = {
+  session?: Record<string, string>;
+};
 
 export const unauthorizedFlow = async () => {
   // console.log('running auth flow...')
@@ -10,30 +24,30 @@ export const unauthorizedFlow = async () => {
  * @param ctx
  * @param next
  */
-export const badFlow = async (ctx, next) => {
-  const a: any = {};
+export const badFlow: AmalaMiddleware = async (ctx, next) => {
+  const a: {hello?: {world: string}} = {};
   // should fail and throw error.
-  a.hello.world = 'whoo';
+  a.hello!.world = 'whoo';
   await next();
 };
 
-export const setSomethingStateFlow = async (ctx, next) => {
+export const setSomethingStateFlow: AmalaMiddleware<TestState> = async (ctx, next) => {
   ctx.state.something = 'hahaha';
   await next();
 };
 
-export const loginForTest = async (ctx, next) => {
+export const loginForTest: AmalaMiddleware<TestState> = async (ctx, next) => {
   ctx.state.user = {id: 'avenger1', firstname: 'Tony', lastName: 'Stark'};
   await next();
 };
 
-export const setSomethingSessionFlow = async (ctx, next) => {
+export const setSomethingSessionFlow: AmalaMiddleware<{}, SessionContext> = async (ctx, next) => {
   if (ctx.session) {
     ctx.session.amala = 'ewedu';
   }
   await next();
 };
 
-export const passFlow = async (ctx, next) => {
+export const passFlow: AmalaMiddleware = async (ctx, next) => {
   await next();
 };

@@ -7,8 +7,10 @@ exports.getPropertiesOfClassValidator = getPropertiesOfClassValidator;
 exports.translateMetaField = translateMetaField;
 const class_validator_1 = require("class-validator");
 function isClass(type) {
-    var _a, _b, _c;
-    return ((_a = type === null || type === void 0 ? void 0 : type.prototype) === null || _a === void 0 ? void 0 : _a.constructor) && ((_c = (_b = type === null || type === void 0 ? void 0 : type.prototype) === null || _b === void 0 ? void 0 : _b.constructor) === null || _c === void 0 ? void 0 : _c.name) !== "Object";
+    var _a;
+    return typeof type === 'function'
+        && Boolean((_a = type.prototype) === null || _a === void 0 ? void 0 : _a.constructor)
+        && type.prototype.constructor.name !== "Object";
 }
 function isValidatableClass(type) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _j;
@@ -35,7 +37,9 @@ function getPropertiesOfClassValidator(targetConstructor) {
         }));
     }
     catch (e) {
-        e.message += '. This typically happens when you build your TS code with a compiler like EsBuild that does not respect the "emitDecorators:true" configuration. Please recompile your amala project with tsc or a derivative/combination that involves tsc';
+        if (e instanceof Error) {
+            e.message += '. This typically happens when you build your TS code with a compiler like EsBuild that does not respect the "emitDecorators:true" configuration. Please recompile your amala project with tsc or a derivative/combination that involves tsc';
+        }
         throw e;
     }
 }

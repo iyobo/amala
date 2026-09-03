@@ -41,6 +41,7 @@ Use this as a baseline `tsconfig.json`:
     "experimentalDecorators": true,
     "module": "commonjs",
     "outDir": "dist",
+    "skipLibCheck": true,
     "target": "ES2018"
   },
   "include": ["src/**/*.ts"]
@@ -104,6 +105,43 @@ The response is:
 ```
 
 Version `v1` is enabled by default. To serve `GET /api/health`, set `disableVersioning: true`.
+
+## Type application context
+
+Koa accepts separate types for `ctx.state` and properties added directly to `ctx`. Amala preserves both:
+
+```typescript
+import Koa from 'koa';
+import {AmalaMiddleware, bootstrapControllers} from 'amala';
+
+interface AppState {
+  user?: User;
+  services: Services;
+}
+
+interface ContextExtensions {
+  requestId: string;
+}
+
+const app = new Koa<AppState, ContextExtensions>();
+
+const requestContext: AmalaMiddleware<AppState, ContextExtensions> =
+  async (ctx, next) => {
+    ctx.state.services = services;
+    ctx.requestId = crypto.randomUUID();
+    await next();
+  };
+
+await bootstrapControllers({
+  app,
+  controllers: [HealthController],
+  flow: [requestContext],
+});
+```
+
+The typed application lets `bootstrapControllers` infer both generic arguments. When Amala creates the app, provide them explicitly with `bootstrapControllers<AppState, ContextExtensions>(...)`.
+
+These generics catch accidental undeclared context access at compile time. They do not validate middleware output or establish an authenticated identity.
 
 ## Add validation
 

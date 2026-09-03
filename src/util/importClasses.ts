@@ -5,20 +5,20 @@ import * as path from 'path';
  */
 export function importClassesFromDirectories(globString: string, formats = ['.js', '.ts']): Function[] {
 
-    const loadFileClasses = function (exported: any, allLoaded: Function[]) {
-        if (exported instanceof Function) {
+    const loadFileClasses = function (exported: unknown, allLoaded: Function[]) {
+        if (typeof exported === 'function') {
             allLoaded.push(exported);
-        } else if (exported instanceof Array) {
-            exported.forEach((i: any) => loadFileClasses(i, allLoaded));
-        } else if (exported instanceof Object || typeof exported === 'object') {
-            Object.keys(exported).forEach(key => loadFileClasses(exported[key], allLoaded));
+        } else if (Array.isArray(exported)) {
+            exported.forEach(item => loadFileClasses(item, allLoaded));
+        } else if (exported && typeof exported === 'object') {
+            Object.values(exported).forEach(value => loadFileClasses(value, allLoaded));
         }
 
         return allLoaded;
     };
 
     // get absolute paths of each file that matches the glut
-    const allFiles = require('glob').sync(path.normalize(globString));
+    const allFiles: string[] = require('glob').sync(path.normalize(globString));
 
     const dirs = allFiles
         .filter(file => {

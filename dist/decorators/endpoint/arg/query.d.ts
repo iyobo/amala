@@ -1,2 +1,3 @@
 import { ValidationDecoratorOptions } from '../../common';
-export declare function Query(injectOptions?: string | ValidationDecoratorOptions): (object: Record<string, any>, methodName: string, index: number) => void;
+import { ClassMethod } from '../../../types/metadata';
+export declare function Query(injectOptions?: string | ValidationDecoratorOptions): (object: ClassMethod, methodName: string, index: number) => void;

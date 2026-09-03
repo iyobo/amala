@@ -3,9 +3,10 @@ import {bootstrapControllers} from "../index";
 import {EndpointController} from "./util/controllers/EndpointController";
 import {ArgController} from "./util/controllers/ArgController";
 import {ProtectedController} from "./util/controllers/ProtectedController";
+import type {Server} from 'node:http';
 
-let nativeServer;
-let testServer;
+let nativeServer: Server;
+let testServer: ReturnType<typeof request>;
 beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({

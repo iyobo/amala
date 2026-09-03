@@ -1,34 +1,16 @@
-import type {Context} from 'koa';
+import type {KoaBodyMiddlewareOptions} from 'koa-body';
+import type {AmalaContext, EmptyContext} from './context';
 
-export type KoaBodyOptions = {
-  patchNode?: boolean;
-  patchKoa?: boolean;
-  jsonLimit?: string | number;
-  formLimit?: string | number;
-  textLimit?: string | number;
-  encoding?: string;
-  multipart?: boolean;
-  urlencoded?: boolean;
-  text?: boolean;
-  json?: boolean;
-  jsonStrict?: boolean;
-  jsonTypes?: string[];
-  urlencodedTypes?: string[];
-  textTypes?: string[];
-  multipartTypes?: string[];
-  includeUnparsed?: boolean;
-  formidable?: {
-    maxFields?: number;
-    maxFieldsSize?: number;
-    maxFileSize?: number;
-    maxFiles?: number;
-    uploadDir?: string;
-    keepExtensions?: boolean;
-    hash?: string;
-    multiples?: boolean;
-    onFileBegin?: (name: string, file: any) => void;
-  };
-  onError?: (error: Error, context: Context) => void;
-  strict?: boolean;
-  parsedMethods?: string[];
-}
+/**
+ * koa-body options with Amala's application state and context extensions
+ * preserved in the error callback.
+ */
+export type KoaBodyOptions<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+> = Omit<Partial<KoaBodyMiddlewareOptions>, 'onError'> & {
+  onError?: (
+    error: Error,
+    context: AmalaContext<StateT, ContextT>
+  ) => void;
+};

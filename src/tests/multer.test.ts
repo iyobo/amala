@@ -1,6 +1,7 @@
 import multer from '@koa/multer';
 import request from 'supertest';
 import {bootstrapControllers, Controller, File, Flow, Post} from '../index';
+import type {Server} from 'node:http';
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -11,7 +12,7 @@ const upload = multer({
 class MulterController {
   @Flow([upload.single('image')])
   @Post('/single')
-  single(@File() file: any) {
+  single(@File() file: multer.File) {
     return {
       fieldname: file.fieldname,
       originalname: file.originalname,
@@ -21,7 +22,7 @@ class MulterController {
 
   @Flow([upload.fields([{name: 'image', maxCount: 1}])])
   @Post('/fields')
-  fields(@File() files: Record<string, any[]>) {
+  fields(@File() files: Record<string, multer.File[]>) {
     return {
       fieldname: files.image[0].fieldname,
       originalname: files.image[0].originalname,
@@ -31,8 +32,8 @@ class MulterController {
 }
 
 describe('@koa/multer support', () => {
-  let nativeServer;
-  let testServer;
+  let nativeServer: Server;
+  let testServer: ReturnType<typeof request>;
 
   beforeAll(async () => {
     const {app} = await bootstrapControllers({

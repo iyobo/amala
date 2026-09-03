@@ -10,6 +10,28 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
@@ -23,10 +45,10 @@ require("reflect-metadata");
 const router_1 = __importDefault(require("@koa/router"));
 const generateRoutes_1 = require("./util/generateRoutes");
 const importClasses_1 = require("./util/importClasses");
-const boom_1 = __importDefault(require("@hapi/boom"));
+const Boom = __importStar(require("@hapi/boom"));
 const OpenApi_1 = require("./openapi/OpenApi");
 const koa_body_1 = __importDefault(require("koa-body"));
-const koa_1 = __importDefault(require("koa"));
+const KoaApplication = require("koa");
 const koa_helmet_1 = __importDefault(require("koa-helmet"));
 const common_1 = require("./decorators/common");
 const koa2_swagger_ui_1 = require("koa2-swagger-ui");
@@ -37,19 +59,22 @@ exports.metadata = {
 function getControllers() {
     return exports.metadata.controllers;
 }
+const logInternalError = (statusCode) => {
+    console.error(`Amala: request failed with status ${statusCode}`);
+};
 const defaultErrorHandler = async (err, ctx) => {
-    if (err.isBoom) {
-        const error = err.output.payload;
+    if (Boom.isBoom(err)) {
+        const error = { ...err.output.payload };
         error.errorDetails = error.statusCode >= 500 ? undefined : err.data;
         ctx.body = error;
         ctx.status = error.statusCode;
         if (error.statusCode >= 500)
-            console.error(err);
+            logInternalError(error.statusCode);
     }
     else {
         ctx.body = { error: 'Internal Server Error' };
         ctx.status = 500;
-        console.error(err);
+        logInternalError(500);
     }
 };
 const addLegacyFileMetadataAliases = (files) => {
@@ -79,29 +104,34 @@ const addLegacyFileMetadataAliases = (files) => {
  */
 const bootstrapControllers = async (params) => {
     var _a;
+    const configuredOptions = params;
     exports.options = params;
-    const app = exports.options.app = exports.options.app || new koa_1.default();
-    exports.options.router = exports.options.router || new router_1.default();
-    exports.options.versions = exports.options.versions || { 1: true };
-    exports.options.flow = exports.options.flow || [];
-    if (exports.options.useHelmet) {
-        const opts = exports.options.useHelmet === true ? undefined : exports.options.useHelmet;
-        exports.options.flow = [(0, koa_helmet_1.default)(opts), ...exports.options.flow];
+    const app = configuredOptions.app = configuredOptions.app || new KoaApplication();
+    configuredOptions.router = configuredOptions.router || new router_1.default();
+    configuredOptions.versions = configuredOptions.versions || { 1: true };
+    configuredOptions.flow = configuredOptions.flow || [];
+    if (configuredOptions.useHelmet) {
+        const opts = configuredOptions.useHelmet === true ? undefined : configuredOptions.useHelmet;
+        const helmetMiddleware = (0, koa_helmet_1.default)(opts);
+        configuredOptions.flow = [
+            helmetMiddleware,
+            ...configuredOptions.flow
+        ];
     }
-    exports.options.validatorOptions = exports.options.validatorOptions || {};
-    exports.options.errorHandler = exports.options.errorHandler || defaultErrorHandler;
-    exports.options.openAPI = {
+    configuredOptions.validatorOptions = configuredOptions.validatorOptions || {};
+    configuredOptions.errorHandler = configuredOptions.errorHandler || defaultErrorHandler;
+    configuredOptions.openAPI = {
         enabled: true,
         publicURL: '',
-        ...exports.options.openAPI
+        ...configuredOptions.openAPI
     };
-    const openAPIBasePath = exports.options.basePath || '';
-    exports.options.openAPI.specPath = `${openAPIBasePath}/${exports.options.openAPI.specPath || 'docs'}`;
-    exports.options.openAPI.webPath = `${openAPIBasePath}/${exports.options.openAPI.webPath || 'swagger'}`;
-    exports.options.openAPI.spec = exports.options.openAPI.spec || {};
-    exports.options.bodyParser = exports.options.bodyParser === false ? false : exports.options.bodyParser;
-    exports.options.diagnostics = exports.options.diagnostics || false;
-    exports.options.cors = exports.options.cors || { enabled: true, opts: {} };
+    const openAPIBasePath = configuredOptions.basePath || '';
+    configuredOptions.openAPI.specPath = `${openAPIBasePath}/${configuredOptions.openAPI.specPath || 'docs'}`;
+    configuredOptions.openAPI.webPath = `${openAPIBasePath}/${configuredOptions.openAPI.webPath || 'swagger'}`;
+    configuredOptions.openAPI.spec = configuredOptions.openAPI.spec || {};
+    configuredOptions.bodyParser = configuredOptions.bodyParser === false ? false : configuredOptions.bodyParser;
+    configuredOptions.diagnostics = configuredOptions.diagnostics || false;
+    configuredOptions.cors = configuredOptions.cors || { enabled: true, opts: {} };
     /**
      * Versions can be defined in multiple ways.
      * If an array, it's just a list of active versions.
@@ -110,16 +140,16 @@ const bootstrapControllers = async (params) => {
      * The object is the native form. Arrays are converted to object.
      */
     // if versions are in array for, convert to object
-    if (Array.isArray(exports.options.versions)) {
+    if (Array.isArray(configuredOptions.versions)) {
         const versions = {};
-        exports.options.versions.forEach(version => {
+        configuredOptions.versions.forEach(version => {
             versions[version] = true;
         });
-        exports.options.versions = versions;
+        configuredOptions.versions = versions;
     }
     // CORS
-    if ((_a = exports.options.cors) === null || _a === void 0 ? void 0 : _a.enabled) {
-        app.use((0, cors_1.default)(exports.options.cors.opts));
+    if ((_a = configuredOptions.cors) === null || _a === void 0 ? void 0 : _a.enabled) {
+        app.use((0, cors_1.default)(configuredOptions.cors.opts));
     }
     // Amala's Error handling middleware
     app.use(async (ctx, next) => {
@@ -127,7 +157,7 @@ const bootstrapControllers = async (params) => {
             await next();
         }
         catch (err) {
-            await exports.options.errorHandler(err, ctx);
+            await configuredOptions.errorHandler(err, ctx);
         }
     });
     /**
@@ -136,10 +166,10 @@ const bootstrapControllers = async (params) => {
      *
      * The Controller class files just need to be loaded. They will handle their own registration in metadata
      */
-    for (const controllerDef of exports.options.controllers) {
+    for (const controllerDef of configuredOptions.controllers) {
         if (typeof controllerDef === 'string') {
             // This is a path. get all controllers in that folder
-            if (exports.options.diagnostics)
+            if (configuredOptions.diagnostics)
                 console.info(`Amala: munching controllers in path ${controllerDef}`);
             (0, importClasses_1.importClassesFromDirectories)(controllerDef); // this is a string glob path. Load controllers from path
         }
@@ -151,48 +181,48 @@ const bootstrapControllers = async (params) => {
         }
     }
     // Register all global flows
-    exports.options.flow.forEach(flow => {
+    configuredOptions.flow.forEach(flow => {
         app.use(flow);
     });
     //
-    await (0, generateRoutes_1.generateRoutes)(exports.options.router, exports.options, exports.metadata);
+    await (0, generateRoutes_1.generateRoutes)(configuredOptions.router, configuredOptions, exports.metadata);
     // open api
-    if (exports.options.openAPI.enabled) {
+    if (configuredOptions.openAPI.enabled) {
         // Generate OpenAPI/Swagger spec
-        await (0, OpenApi_1.generateOpenApi)(exports.metadata, exports.options);
-        exports.options.router.get(exports.options.openAPI.specPath, (ctx) => {
+        await (0, OpenApi_1.generateOpenApi)(exports.metadata, configuredOptions);
+        configuredOptions.router.get(configuredOptions.openAPI.specPath, (ctx) => {
             ctx.body = OpenApi_1.openApiSpec;
         });
-        if (exports.options.openAPI.webPath) {
+        if (configuredOptions.openAPI.webPath) {
             app.use((0, koa2_swagger_ui_1.koaSwagger)({
-                routePrefix: exports.options.openAPI.webPath, // host at /swagger instead of default /docs
+                routePrefix: configuredOptions.openAPI.webPath, // host at /swagger instead of default /docs
                 swaggerOptions: {
-                    url: `${exports.options.openAPI.publicURL}${exports.options.openAPI.specPath}`, // example path to json
+                    url: `${configuredOptions.openAPI.publicURL}${configuredOptions.openAPI.specPath}`, // example path to json
                 },
             }));
         }
     }
     // body parser
-    if (exports.options.bodyParser !== false) {
+    if (configuredOptions.bodyParser !== false) {
         app.use((0, koa_body_1.default)({
             multipart: true,
-            ...exports.options.bodyParser
+            ...configuredOptions.bodyParser
         }));
         app.use(async (ctx, next) => {
             addLegacyFileMetadataAliases(ctx.request.files);
             await next();
         });
     }
-    if (exports.options.attachRoutes) {
+    if (configuredOptions.attachRoutes) {
         // Combine routes
-        app.use(exports.options.router.routes());
-        app.use(exports.options.router.allowedMethods({
-            methodNotAllowed: () => boom_1.default.notFound(),
-            notImplemented: () => boom_1.default.notImplemented(),
+        app.use(configuredOptions.router.routes());
+        app.use(configuredOptions.router.allowedMethods({
+            methodNotAllowed: () => Boom.notFound(),
+            notImplemented: () => Boom.notImplemented(),
             throw: true,
         }));
     }
-    return { app, router: exports.options.router };
+    return { app, router: configuredOptions.router };
 };
 exports.bootstrapControllers = bootstrapControllers;
 __exportStar(require("class-validator"), exports);

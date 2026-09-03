@@ -1,10 +1,11 @@
 import request from 'supertest';
 import {bootstrapControllers, options} from '../index';
 import {ArgController} from './util/controllers/ArgController';
+import type {Server} from 'node:http';
 
 describe('security-sensitive bootstrap options', () => {
-  let nativeServer;
-  let testServer;
+  let nativeServer: Server;
+  let testServer: ReturnType<typeof request>;
 
   beforeAll(async () => {
     const {app} = await bootstrapControllers({

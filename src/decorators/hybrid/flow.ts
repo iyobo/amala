@@ -2,6 +2,7 @@ import {addFlowFunctionMeta} from '../common';
 import {metadata} from '../../index';
 import {ensureArray} from '../../util/tools';
 import {ClassMethod, FlowFunction} from '../../types/metadata';
+import {EmptyContext} from '../../types/context';
 
 /**
  * Flow is an array of middleware you want to run prior to the controller endpoint.
@@ -9,7 +10,10 @@ import {ClassMethod, FlowFunction} from '../../types/metadata';
  * @param flow - A middleware or array of middleware
  * @constructor
  */
-export function Flow(flow: FlowFunction | Array<FlowFunction>) {
+export function Flow<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+>(flow: FlowFunction<StateT, ContextT> | Array<FlowFunction<StateT, ContextT>>) {
   return function (object: Function | ClassMethod, methodName?: string) {
     if (typeof object === "object") {
       // endpoint

@@ -44,6 +44,8 @@ Amala does not authenticate requests. Use Koa middleware to verify a session, to
 
 `@CurrentUser()` only reads `ctx.state.user`. Never treat the presence or shape of a client-supplied value as proof of identity. Protect privileged, destructive, export, and payment operations with appropriately strong or step-up authentication.
 
+Amala 12's Koa state and context generics prevent accidental undeclared property access during compilation. They do not validate runtime values or prove that middleware authenticated a user. Keep authentication middleware and authorization checks on the trusted request path.
+
 ## CORS and browser credentials
 
 CORS is enabled by default. Configure an explicit origin allowlist for browser clients, or disable Amala's middleware and install your own policy. A permissive CORS header is not authentication.
@@ -81,6 +83,8 @@ The published documentation is static; its Node.js dependencies run only while b
 Docusaurus 3.10.2 still installs `image-size` 2.0.2, whose HEIF, ICNS, and JPEG XL parsers have two upstream advisories without a patched release. Amala's documentation does not process local Markdown images through that library: local images must use Docusaurus's `pathname://` escape hatch, and the build fails when an ordinary local Markdown image is introduced. CI is read-only and the documentation build has a ten-minute timeout. The audit allowlist contains only those two reviewed advisories and fails on any new advisory.
 
 Keep `diagnostics` off in normal production operation. Custom error handlers and logs must redact authorization headers, cookies, secrets, request bodies, and query strings or fragments from third-party URLs.
+
+Amala's default error handler logs only the internal response status. If you replace it to capture stack traces or richer diagnostics, send them through a structured logger with explicit redaction rather than logging the raw error object.
 
 ## Trusted startup configuration
 

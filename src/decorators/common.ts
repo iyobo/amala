@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import {metadata} from '../index';
-import {AmalaMetadataController, AmalaMetadataEndpoint, FlowFunction, RestVerb, StringOrRegex} from '../types/metadata';
+import {AmalaMetadataController, AmalaMetadataEndpoint, Class, ClassMethod, FlowFunction, RestVerb, StringOrRegex} from '../types/metadata';
 
 export interface ValidationDecoratorOptions {
   validClass?: Function;
@@ -11,7 +11,7 @@ export interface ValidationDecoratorOptions {
 type AddFlowProps = {
   flow: Array<FlowFunction>,
   methodName: string,
-  object: Function | Record<string, any>
+  object: Function | ClassMethod
 }
 
 export function addFlowFunctionMeta({flow, methodName, object}: AddFlowProps): void {
@@ -29,7 +29,7 @@ export function addFlowFunctionMeta({flow, methodName, object}: AddFlowProps): v
 type AddVersionProps = {
   version: string | number,
   methodName: string,
-  object: Function | Record<string, any>,
+  object: Function | ClassMethod,
   endpointDeprecationWarning: string
 }
 
@@ -57,7 +57,7 @@ export function addVersionFunctionMeta({
 type AddVerbProps = {
   verb: RestVerb,
   paths: StringOrRegex[],
-  object: Record<string, any>,
+  object: ClassMethod,
   methodName: string
 }
 
@@ -67,7 +67,7 @@ export function addVerbFunctionMeta({verb, paths, object, methodName}: AddVerbPr
   controller.endpoints = controller.endpoints || {};
   controller.endpoints[methodName] = controller.endpoints[methodName] || {};
 
-  const argumentTypes: any[] = Reflect.getMetadata(
+  const argumentTypes: Class[] | undefined = Reflect.getMetadata(
     "design:paramtypes",
     object,
     methodName
@@ -81,7 +81,11 @@ export function addVerbFunctionMeta({verb, paths, object, methodName}: AddVerbPr
 
   controller.endpoints[methodName].verb = verb;
   controller.endpoints[methodName].paths = paths;
-  controller.endpoints[methodName].targetMethod = object[methodName];
+  const targetMethod = (object as Record<string, unknown>)[methodName];
+  if (typeof targetMethod !== 'function') {
+    throw new TypeError(`${methodName} must be a controller method`);
+  }
+  controller.endpoints[methodName].targetMethod = targetMethod as (...args: unknown[]) => unknown;
 
   metadata.controllers[object.constructor.name] = controller;
 } // argument injection decorators
@@ -90,9 +94,9 @@ export function addVerbFunctionMeta({verb, paths, object, methodName}: AddVerbPr
 type AddArgumentProps = {
   index: number
   ctxKey: string
-  ctxValueOptions: string | ValidationDecoratorOptions
+  ctxValueOptions?: unknown
   methodName: string
-  object: Record<string, any>
+  object: ClassMethod
 }
 
 export function addArgumentInjectMeta({
@@ -101,7 +105,7 @@ export function addArgumentInjectMeta({
                                         ctxValueOptions,
                                         methodName,
                                         object
-                                      }: AddArgumentProps) {
+                                      }: AddArgumentProps): void {
   // console.log('argument', stackConfig, injectSource, injectOptions, object, methodName);
   const controller: AmalaMetadataController = metadata.controllers[object.constructor.name] || {};
 

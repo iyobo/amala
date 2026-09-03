@@ -1,7 +1,8 @@
 import path from "path";
 import {bootstrapControllers, getControllers} from "../index";
+import type {Server} from 'node:http';
 
-let nativeServer;
+let nativeServer: Server;
 beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({
@@ -24,7 +25,7 @@ afterAll(done => {
   }
 });
 
-describe.only("library exports", () => {
+describe("library exports", () => {
   it("controllers", async () => {
     const controllers = getControllers();
     expect(controllers).toBeDefined();

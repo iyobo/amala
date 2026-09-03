@@ -68,7 +68,7 @@ export class ManualController {
   }
 
   @Get("/staten")
-  async staten(@State() state: any) {
+  async staten(@State() state: Record<string, unknown>) {
     return state;
   }
 }

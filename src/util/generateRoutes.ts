@@ -1,23 +1,34 @@
 import boom from '@hapi/boom';
-import Router from '@koa/router';
+import Router, {RouterContext} from '@koa/router';
 import {plainToClass} from 'class-transformer';
 import {validate, ValidationError} from 'class-validator';
-import {Context} from 'koa';
 import _ from 'lodash';
 import {isClass, isValidatableClass} from './tools';
-import {AmalaOptions} from '../types/AmalaOptions';
-import {AmalaMetadata, AmalaMetadataArgument, AmalaMetadataController} from '../types/metadata';
+import {AmalaOptions, ControllerClass} from '../types/AmalaOptions';
+import {AmalaMetadata, AmalaMetadataArgument, AmalaMetadataController, FlowFunction} from '../types/metadata';
+import {AmalaContext, EmptyContext} from '../types/context';
 
-async function _argumentInjectorProcessor(name: string, body, injectOptions) {
+function readProperty(value: unknown, key: string): unknown {
+  if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
+    return undefined;
+  }
+  return (value as Record<string, unknown>)[key];
+}
+
+async function _argumentInjectorProcessor(
+  name: string,
+  body: unknown,
+  injectOptions: unknown
+): Promise<unknown> {
   if (!injectOptions) {
     return body;
   }
 
   if (typeof injectOptions === 'string') {
-    return body[injectOptions];
-  } else if (typeof injectOptions === 'object') {
+    return readProperty(body, injectOptions);
+  } else if (injectOptions && typeof injectOptions === 'object') {
     // is required
-    if (injectOptions.required && (!body || _.isEmpty(body))) {
+    if (readProperty(injectOptions, 'required') === true && (!body || _.isEmpty(body))) {
       throw boom.badData('Body: is required and cannot be null');
     }
 
@@ -25,7 +36,7 @@ async function _argumentInjectorProcessor(name: string, body, injectOptions) {
   }
 
   throw boom.badImplementation(
-    `${name}: Cannot handle injection options ${injectOptions}`
+    `${name}: Cannot handle injection options ${String(injectOptions)}`
   );
 }
 
@@ -33,31 +44,37 @@ async function _argumentInjectorProcessor(name: string, body, injectOptions) {
  * Acts as a special override for non-trivial injections.
  * e.g "query" should be searched for in ctx.request, not ctx.
  */
-const argumentInjectorTranslations = {
-  session: async (ctx: any, injectOptions: any) => {
-    if (!ctx.session)
+type ArgumentInjector = (
+  ctx: AmalaContext,
+  injectOptions: unknown
+) => Promise<unknown>;
+
+const argumentInjectorTranslations: Record<string, ArgumentInjector> = {
+  session: async (ctx, injectOptions) => {
+    const session = readProperty(ctx, 'session');
+    if (!session)
       throw boom.failedDependency(
         'Sessions have not been activated on this server'
       );
 
     if (typeof injectOptions === 'string') {
-      return ctx.session[injectOptions];
+      return readProperty(session, injectOptions);
     }
-    return ctx.session;
+    return session;
   },
-  ctx: async (ctx: any) => ctx,
-  query: async (ctx: any, injectOptions: any) => {
-    return _argumentInjectorProcessor('query', ctx.query, injectOptions);
+  ctx: async ctx => ctx,
+  query: async (ctx, injectOptions) => {
+    return _argumentInjectorProcessor('query', readProperty(ctx, 'query'), injectOptions);
   },
-  currentUser: async (ctx: any, injectOptions: any) => {
-    return _argumentInjectorProcessor('currentUser', ctx.state.user, injectOptions);
+  currentUser: async (ctx, injectOptions) => {
+    return _argumentInjectorProcessor('currentUser', readProperty(ctx.state, 'user'), injectOptions);
   },
-  body: async (ctx: any, injectOptions: any) => {
-    return _argumentInjectorProcessor('body', ctx.request.body, injectOptions);
+  body: async (ctx, injectOptions) => {
+    return _argumentInjectorProcessor('body', readProperty(ctx.request, 'body'), injectOptions);
   },
-  request: async (ctx: any, injectOptions: any) => {
+  request: async (ctx, injectOptions) => {
     if (injectOptions === 'files') {
-      return ctx.request.files ?? ctx.request.file;
+      return readProperty(ctx.request, 'files') ?? readProperty(ctx.request, 'file');
     }
     return _argumentInjectorProcessor('request', ctx.request, injectOptions);
   }
@@ -84,35 +101,45 @@ function flattenValidationErrors(
  * @param argument
  * @param options
  */
-async function _determineArgument(
-  ctx: Context,
+async function _determineArgument<
+  StateT extends object,
+  ContextT extends object
+>(
+  ctx: AmalaContext<StateT, ContextT>,
   argument: AmalaMetadataArgument,
-  options: AmalaOptions
-) {
-  let values;
+  options: AmalaOptions<StateT, ContextT>
+): Promise<unknown> {
+  let values: unknown;
   const {ctxKey, ctxValueOptions, argType} = argument;
 
-  if (argumentInjectorTranslations[ctxKey]) {
+  const translator = ctxKey ? argumentInjectorTranslations[ctxKey] : undefined;
+  if (translator) {
 
-    values = await argumentInjectorTranslations[ctxKey](ctx, ctxValueOptions);
+    values = await translator(ctx, ctxValueOptions);
 
-  } else {
+  } else if (ctxKey) {
     // not a special arg injector? No special translation exists so just use CTX.
-    values = ctx[ctxKey];
-    if (values && ctxValueOptions) {
-      values = values[ctxValueOptions];
+    values = readProperty(ctx, ctxKey);
+    if (values && typeof ctxValueOptions === 'string') {
+      values = readProperty(values, ctxValueOptions);
     }
 
     // TODO: implement custom function capability here for arg injectors
   }
 
   // validate if this is a class and if this is a body, params, or query injection
-  const shouldValidate = values && isValidatableClass(argType) && ['body', 'params', 'query'].includes(ctxKey);
+  const shouldValidate = values && isValidatableClass(argType) && ctxKey
+    && ['body', 'params', 'query'].includes(ctxKey);
 
   if (shouldValidate) {
-    values = await plainToClass(argType, values, {enableImplicitConversion: true});
+    const transformed = plainToClass<object, unknown>(
+      argType,
+      values,
+      {enableImplicitConversion: true}
+    );
+    values = transformed;
 
-    const errors = await validate(values, options.validatorOptions); // TODO: wrap around this to trap runtime errors
+    const errors = await validate(transformed, options.validatorOptions); // TODO: wrap around this to trap runtime errors
     if (errors.length > 0) {
       throw boom.badData(
         'validation error for argument type: ' + ctxKey,
@@ -120,19 +147,22 @@ async function _determineArgument(
       );
     }
 
-  } else if (values && argType && argType !== String) {
-    values = argType(values);
+  } else if (values && typeof argType === 'function' && argType !== String) {
+    values = (argType as unknown as (value: unknown) => unknown)(values);
   }
 
   return values;
 }
 
-async function _generateEndPoints(
-  router: Router,
-  options: AmalaOptions,
-  controller: AmalaMetadataController,
+async function _generateEndPoints<
+  StateT extends object,
+  ContextT extends object
+>(
+  router: Router<StateT, ContextT>,
+  options: AmalaOptions<StateT, ContextT>,
+  controller: AmalaMetadataController<StateT, ContextT>,
   parentPath: string,
-  generatingForVersion: string | number
+  generatingForVersion?: string | number
 ) {
   // const controllerInstanceName = controller.targetClass.name + '__' + parentPath;
 
@@ -140,12 +170,13 @@ async function _generateEndPoints(
   let deprecationMessage = '';
   if (
     options.versions &&
+    !Array.isArray(options.versions) &&
     typeof options.versions[generatingForVersion] === 'string'
   ) {
     deprecationMessage = options.versions[generatingForVersion];
   }
 
-  const endpoints = Object.values(controller.endpoints);
+  const endpoints = Object.values(controller.endpoints || {});
 
   // for each endpoint...
   for (const endpoint of endpoints) {
@@ -179,21 +210,21 @@ async function _generateEndPoints(
 
     if (willAddEndpoint) {
 
-      for (const endpointPath of endpoint.paths) {
+      for (const endpointPath of endpoint.paths || []) {
         const path = '/' + (parentPath + '/' + endpointPath)
           .split('/')
           .filter(i => i.length)
           .join('/');
 
         // Add defined middlewares for this route
-        const flow = [
+        const flow: FlowFunction<StateT, ContextT>[] = [
           ...(controller?.flow || []),
           ...(endpoint?.flow || [])
         ];
 
 
         // And finally add leaf-level endpoint
-        flow.push(async function endpointFunc(ctx) {
+        flow.push(async function endpointFunc(ctx: RouterContext<StateT, ContextT>) {
 
           const targetArguments = [];
 
@@ -221,20 +252,25 @@ async function _generateEndPoints(
 
           // Each request resolves its own controller instance. Existing
           // applications retain the original constructor-with-context behavior.
-          let controllerInstance;
+          if (!controller.targetClass || !endpoint.targetMethod) {
+            throw boom.badImplementation('Incomplete controller metadata');
+          }
+
+          const ControllerClass = controller.targetClass as unknown as ControllerClass;
+          let controllerInstance: object;
           if (options.controllerFactory) {
             controllerInstance = await options.controllerFactory(
-              controller.targetClass,
+              ControllerClass,
               ctx
             );
           } else {
             // eslint-disable-next-line new-cap
-            controllerInstance = new controller.targetClass(ctx);
+            controllerInstance = new ControllerClass(ctx);
           }
 
           if (!controllerInstance) {
             throw boom.badImplementation(
-              `Controller factory did not return an instance for ${controller.targetClass.name}`
+              `Controller factory did not return an instance for ${ControllerClass.name}`
             );
           }
 
@@ -260,10 +296,13 @@ async function _generateEndPoints(
  * @param options
  * @param metadata
  */
-export async function generateRoutes(
-  router: Router,
-  options: AmalaOptions,
-  metadata: AmalaMetadata
+export async function generateRoutes<
+  StateT extends object = EmptyContext,
+  ContextT extends object = EmptyContext
+>(
+  router: Router<StateT, ContextT>,
+  options: AmalaOptions<StateT, ContextT>,
+  metadata: AmalaMetadata<StateT, ContextT>
 ) {
 
   if (options.diagnostics) {
@@ -280,7 +319,7 @@ export async function generateRoutes(
     if (options.disableVersioning) {
       // enter endpoint without versioning e.g /api/users
 
-      for (const path of controller.paths) {
+      for (const path of controller.paths || []) {
         await _generateEndPoints(
           router,
           options,
@@ -298,7 +337,7 @@ export async function generateRoutes(
 
       for (const version of versions) {
 
-        for (const path of controller.paths) {
+        for (const path of controller.paths || []) {
 
           await _generateEndPoints(
             router,

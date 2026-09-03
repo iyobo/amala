@@ -1,9 +1,10 @@
 import request from "supertest";
 import path from "path";
 import {bootstrapControllers} from "../index";
+import type {Server} from 'node:http';
 
-let nativeServer;
-let testServer;
+let nativeServer: Server;
+let testServer: ReturnType<typeof request>;
 
 beforeAll(async () => {
 

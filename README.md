@@ -4,7 +4,7 @@ Amala is a decorator-based TypeScript framework for building REST APIs on Koa. I
 
 [Read the documentation](https://amalajs.com/docs/intro) · [Get started](https://amalajs.com/docs/getting-started) · [Security guide](https://amalajs.com/docs/security) · [Report an issue](https://github.com/iyobo/amala/issues)
 
-Upgrading from v10? Read the [v11 migration guide](https://amalajs.com/docs/migration-v11).
+Upgrading from v11? Read the [v12 migration guide](https://amalajs.com/docs/migration-v12). The documentation site also preserves the complete v11 reference.
 
 ## Why Amala?
 
@@ -12,7 +12,7 @@ Upgrading from v10? Read the [v11 migration guide](https://amalajs.com/docs/migr
 - **Focused handler inputs.** Inject only the body, query value, path parameter, state, session, or Koa context a handler needs.
 - **Validation at the boundary.** Use `class-validator` classes for request-body, query, and path inputs.
 - **Built-in versioning and API discovery.** Serve multiple API versions and generate an OpenAPI 3 document with Swagger UI.
-- **Container-neutral dependency injection.** Resolve request-scoped controller instances with an optional controller factory.
+- **Typed Koa context.** Define application state and context extensions once and preserve them through middleware, factories, error handlers, and bootstrap results.
 - **Koa stays accessible.** Bring an existing app, router, and middleware when you need lower-level control.
 
 ## Requirements
@@ -72,12 +72,48 @@ Use this compiler configuration as a baseline:
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "module": "commonjs",
+    "skipLibCheck": true,
     "target": "ES2018"
   }
 }
 ```
 
 Start the app, then request `GET http://localhost:3000/api/v1/health`. API versioning is enabled by default; set `disableVersioning: true` if you want `/api/health` instead.
+
+## Type Koa state and context
+
+Amala 12 preserves Koa's existing state and context-extension generics without adding a new runtime abstraction:
+
+```typescript
+import Koa from 'koa';
+import {AmalaMiddleware, bootstrapControllers} from 'amala';
+
+interface AppState {
+  user?: User;
+  services: Services;
+}
+
+interface ContextExtensions {
+  requestId: string;
+}
+
+const app = new Koa<AppState, ContextExtensions>();
+
+const requestContext: AmalaMiddleware<AppState, ContextExtensions> =
+  async (ctx, next) => {
+    ctx.state.services = services;
+    ctx.requestId = crypto.randomUUID();
+    await next();
+  };
+
+await bootstrapControllers({
+  app,
+  controllers: [HealthController],
+  flow: [requestContext],
+});
+```
+
+These types are compile-time safeguards. Application middleware still owns the runtime values placed on Koa context and state.
 
 For a generated starter project, run:
 
