@@ -1,4 +1,3 @@
-/// <reference types="koa__router" />
 import Router from '@koa/router';
 import { AmalaOptions } from '../types/AmalaOptions';
 import { AmalaMetadata } from '../types/metadata';

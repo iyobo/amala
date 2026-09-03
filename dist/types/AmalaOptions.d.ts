@@ -1,5 +1,3 @@
-/// <reference types="koa__router" />
-/// <reference types="koa__cors" />
 import { Options } from '@koa/cors';
 import Router from '@koa/router';
 import { ValidatorOptions } from 'class-validator';

@@ -41,7 +41,7 @@ __decorate([
     __metadata("design:type", FileMetadataInput)
 ], NestedFileInput.prototype, "metadata", void 0);
 const CustomDeco = () => (0, index_1.Ctx)('query');
-let ArgController = exports.ArgController = class ArgController {
+let ArgController = class ArgController {
     async twoParams(params, id) {
         return { params, id };
     }
@@ -129,6 +129,7 @@ let ArgController = exports.ArgController = class ArgController {
         return query;
     }
 };
+exports.ArgController = ArgController;
 __decorate([
     (0, index_1.Post)('/:model/:id'),
     __param(0, (0, index_1.Params)()),

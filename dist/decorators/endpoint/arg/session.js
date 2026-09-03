@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Session = void 0;
+exports.Session = Session;
 const common_1 = require("../../common");
 function Session(injectOptions) {
     return function (object, methodName, index) {
@@ -13,5 +13,4 @@ function Session(injectOptions) {
         });
     };
 }
-exports.Session = Session;
 //# sourceMappingURL=session.js.map

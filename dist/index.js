@@ -17,7 +17,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.errors = exports.addArgumentDecorator = exports.bootstrapControllers = exports.getControllers = exports.metadata = exports.options = void 0;
+exports.errors = exports.addArgumentDecorator = exports.bootstrapControllers = exports.metadata = exports.options = void 0;
+exports.getControllers = getControllers;
 require("reflect-metadata");
 const router_1 = __importDefault(require("@koa/router"));
 const generateRoutes_1 = require("./util/generateRoutes");
@@ -36,7 +37,6 @@ exports.metadata = {
 function getControllers() {
     return exports.metadata.controllers;
 }
-exports.getControllers = getControllers;
 const defaultErrorHandler = async (err, ctx) => {
     if (err.isBoom) {
         const error = err.output.payload;
@@ -145,7 +145,7 @@ const bootstrapControllers = async (params) => {
         });
         if (exports.options.openAPI.webPath) {
             app.use((0, koa2_swagger_ui_1.koaSwagger)({
-                routePrefix: exports.options.openAPI.webPath,
+                routePrefix: exports.options.openAPI.webPath, // host at /swagger instead of default /docs
                 swaggerOptions: {
                     url: `${exports.options.openAPI.publicURL}${exports.options.openAPI.specPath}`, // example path to json
                 },

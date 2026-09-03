@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateRoutes = void 0;
+exports.generateRoutes = generateRoutes;
 const boom_1 = __importDefault(require("@hapi/boom"));
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -213,5 +213,4 @@ async function generateRoutes(router, options, metadata) {
         }
     }
 }
-exports.generateRoutes = generateRoutes;
 //# sourceMappingURL=generateRoutes.js.map

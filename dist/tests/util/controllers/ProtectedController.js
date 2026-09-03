@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProtectedController = void 0;
 const index_1 = require("../../../index");
 const flow_1 = require("../flow/flow");
-let ProtectedController = exports.ProtectedController = class ProtectedController {
+let ProtectedController = class ProtectedController {
     async hello() {
         return "okay";
     }
@@ -44,6 +44,7 @@ let ProtectedController = exports.ProtectedController = class ProtectedControlle
         return "multiFlow allowed";
     }
 };
+exports.ProtectedController = ProtectedController;
 __decorate([
     (0, index_1.Get)("/"),
     __metadata("design:type", Function),

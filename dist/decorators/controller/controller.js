@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Controller = void 0;
+exports.Controller = Controller;
 const index_1 = require("../../index");
 const tools_1 = require("../../util/tools");
 function Controller(baseRoute) {
@@ -26,5 +26,4 @@ function Controller(baseRoute) {
         }
     };
 }
-exports.Controller = Controller;
 //# sourceMappingURL=controller.js.map

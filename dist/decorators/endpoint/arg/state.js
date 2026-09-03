@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.State = void 0;
+exports.State = State;
 const common_1 = require("../../common");
 function State(injectOptions) {
     return function (object, methodName, index) {
@@ -13,5 +13,4 @@ function State(injectOptions) {
         });
     };
 }
-exports.State = State;
 //# sourceMappingURL=state.js.map
