@@ -12,6 +12,7 @@ let nativeServer;
 let testServer;
 beforeAll(async () => {
     const { app, router } = await (0, index_1.bootstrapControllers)({
+        attachRoutes: false,
         basePath: "/api",
         controllers: [EndpointController_1.EndpointController, ArgController_1.ArgController, ProtectedController_1.ProtectedController],
         versions: ["1", "2"]

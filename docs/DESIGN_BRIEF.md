@@ -2,12 +2,12 @@
 
 ## User goal
 
-Help a TypeScript/Koa developer recognize Amala 12 as the small, type-safe layer over Koa, understand the release's typed-context improvement, and run a first endpoint without guessing at configuration or framework behavior.
+Help a TypeScript/Koa developer recognize Amala 13 as the small, type-safe layer over Koa, understand that bootstrap now returns a ready-to-listen app, and run a first endpoint without guessing at route attachment or framework behavior.
 
 ## Information hierarchy
 
-1. A v12 release marker and a direct promise: keep Koa while gaining an explicit context contract.
-2. One primary action for v12 setup and a secondary migration action for existing users.
+1. A v13 release marker and a direct promise: keep Koa while gaining a ready-to-listen, explicitly typed application.
+2. One primary action for v13 setup and a secondary migration action for existing users.
 3. A realistic typed-context example, followed by the familiar controller model.
 4. A compact explanation of what changed, what remains application-owned, and why that keeps Amala small.
 5. Concise capability cards for routing, validation, OpenAPI, and framework control.
@@ -45,4 +45,4 @@ Help a TypeScript/Koa developer recognize Amala 12 as the small, type-safe layer
 ## Open decisions
 
 - Search is deferred until the documentation set is large enough to justify an indexing service.
-- The navbar version selector exposes current v12 documentation and the preserved v11 snapshot. Older unversioned releases remain available through Git history rather than the live selector.
+- The navbar version selector exposes current v13 documentation and the preserved v12 and v11 snapshots. Older unversioned releases remain available through Git history rather than the live selector.

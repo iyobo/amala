@@ -42,8 +42,7 @@ Use this as a baseline `tsconfig.json`:
     "module": "commonjs",
     "outDir": "dist",
     "skipLibCheck": true,
-    "strict": true,
-    "target": "ES2022"
+    "target": "ES2018"
   },
   "include": ["src/**/*.ts"]
 }
@@ -53,23 +52,33 @@ Both decorator settings are required. Without emitted type metadata, Amala canno
 
 These settings select TypeScript's legacy decorator implementation. Standard decorators do not currently support parameter decorators such as `@Body()` or automatically emit the parameter types Amala needs.
 
-## Create and bootstrap the app
+## Create a controller
 
-Create `src/main.ts`. The controller and the call that turns it into a running Koa application live together here so the complete route is visible:
+Create `src/controllers/HealthController.ts`:
 
 ```typescript
-import {bootstrapControllers, Controller, Get} from 'amala';
+import {Controller, Get} from 'amala';
 
 @Controller('/health')
-class HealthController {
+export class HealthController {
   @Get('/')
   status() {
     return {status: 'ok'};
   }
 }
+```
+
+## Bootstrap the app
+
+Create `src/main.ts`:
+
+```typescript
+import {bootstrapControllers} from 'amala';
+import {HealthController} from './controllers/HealthController';
 
 async function start() {
   const {app} = await bootstrapControllers({
+    attachRoutes: true,
     basePath: '/api',
     controllers: [HealthController],
     useHelmet: true,
@@ -95,7 +104,7 @@ The response is:
 {"status":"ok"}
 ```
 
-Version `v1` is enabled by default. To serve `GET /api/health`, set `disableVersioning: true`. Generated routes are attached automatically in Amala 13, so the returned app is ready to listen.
+Version `v1` is enabled by default. To serve `GET /api/health`, set `disableVersioning: true`.
 
 ## Type application context
 
@@ -123,17 +132,11 @@ const requestContext: AmalaMiddleware<AppState, ContextExtensions> =
     await next();
   };
 
-async function start() {
-  await bootstrapControllers({
-    app,
-    controllers: [HealthController],
-    flow: [requestContext],
-  });
-
-  app.listen(3000);
-}
-
-void start();
+await bootstrapControllers({
+  app,
+  controllers: [HealthController],
+  flow: [requestContext],
+});
 ```
 
 The typed application lets `bootstrapControllers` infer both generic arguments. When Amala creates the app, provide them explicitly with `bootstrapControllers<AppState, ContextExtensions>(...)`.
@@ -147,7 +150,6 @@ Create `src/controllers/UserController.ts`:
 ```typescript
 import {
   Body,
-  bootstrapControllers,
   Controller,
   IsEmail,
   IsString,
@@ -169,41 +171,25 @@ export class UserController {
     return input;
   }
 }
-
-async function start() {
-  const {app} = await bootstrapControllers({
-    controllers: [HealthController, UserController],
-    validatorOptions: {
-      forbidNonWhitelisted: true,
-      whitelist: true,
-    },
-  });
-
-  app.listen(3000);
-}
-
-void start();
 ```
 
 Register `UserController` beside `HealthController`. Amala transforms the JSON body into `CreateUserInput`, runs class-validator, and returns `422` when validation fails.
 
-For strict object contracts, pass class-validator options during bootstrap as shown above.
+For strict object contracts, pass class-validator options during bootstrap:
+
+```typescript
+validatorOptions: {
+  forbidNonWhitelisted: true,
+  whitelist: true,
+}
+```
 
 ## Add middleware
 
 Use `@Flow` for controller- or endpoint-level Koa middleware:
 
 ```typescript
-import {
-  AmalaMiddleware,
-  Body,
-  bootstrapControllers,
-  Controller,
-  Flow,
-  Post,
-} from 'amala';
-
-const requireUser: AmalaMiddleware<AppState> = async (ctx, next) => {
+const requireUser = async (ctx, next) => {
   if (!ctx.state.user) {
     ctx.throw(401, 'Authentication required');
   }
@@ -211,24 +197,11 @@ const requireUser: AmalaMiddleware<AppState> = async (ctx, next) => {
   await next();
 };
 
-@Controller('/users')
-class UserController {
-  @Post('/')
-  @Flow(requireUser)
-  create(@Body({required: true}) input: CreateUserInput) {
-    return input;
-  }
+@Post('/')
+@Flow(requireUser)
+create(@Body({required: true}) input: CreateUserInput) {
+  return input;
 }
-
-async function start() {
-  const {app} = await bootstrapControllers<AppState>({
-    controllers: [UserController],
-  });
-
-  app.listen(3000);
-}
-
-void start();
 ```
 
 Authentication and authorization are not built into Amala. Your middleware must establish identity and enforce access before the handler runs.
@@ -243,26 +216,20 @@ OpenAPI is enabled by default. With `basePath: '/api'`, Amala serves:
 Set a public origin when the generated server URLs need an absolute URL:
 
 ```typescript
-const {app} = await bootstrapControllers({
-  controllers: [HealthController, UserController],
-  openAPI: {
-    enabled: true,
-    publicURL: 'https://api.example.com',
-  },
-});
-
-app.listen(3000);
+openAPI: {
+  enabled: true,
+  publicURL: 'https://api.example.com',
+}
 ```
 
 An omitted `publicURL` keeps Swagger on the same origin. Disable or protect these endpoints when your route inventory should not be public.
 
 ## Attach routes manually
 
-Amala attaches generated routes by default. Set `attachRoutes: false` when you need to insert application middleware at a precise point before the router:
+`attachRoutes` is `false` by default. That lets you insert your own middleware before the generated router:
 
 ```typescript
 const {app, router} = await bootstrapControllers({
-  attachRoutes: false,
   basePath: '/api',
   controllers: [HealthController, UserController],
 });
@@ -271,7 +238,5 @@ app.use(yourMiddleware);
 app.use(router.routes());
 app.use(router.allowedMethods());
 ```
-
-The option controls only where router middleware is mounted. Controller discovery and route generation still happen during bootstrap.
 
 Continue with the [`bootstrapControllers` reference](./api-spec/bootstrap-controllers.md) and the [production security guide](./security.md).

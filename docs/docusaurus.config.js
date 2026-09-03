@@ -33,8 +33,12 @@ const config = {
           lastVersion: 'current',
           versions: {
             current: {
-              label: '12.x',
+              label: '13.x',
               banner: 'none',
+            },
+            '12.0': {
+              label: '12.x',
+              banner: 'unmaintained',
             },
             '11.0': {
               label: '11.x',

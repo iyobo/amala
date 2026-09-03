@@ -9,6 +9,7 @@ let testServer: ReturnType<typeof request>;
 beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({
+    attachRoutes: false,
     basePath: "/api",
     controllers: [path.join(__dirname, "util/controllers/**/*.ts")],
     versions: ["1", "2"],

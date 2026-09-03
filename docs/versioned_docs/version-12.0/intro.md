@@ -6,11 +6,9 @@ slug: /intro
 
 # Build typed Koa APIs with decorators
 
-Amala is a TypeScript framework for defining Koa routes as controller classes. It adds a focused programming model—routing decorators, request-data injection, validation, API versioning, and OpenAPI generation—while preserving your Koa state and context types and returning the underlying app and router. In Amala 13, generated routes are mounted by default, so the bootstrapped app is ready to listen.
+Amala is a TypeScript framework for defining Koa routes as controller classes. It adds a focused programming model—routing decorators, request-data injection, validation, API versioning, and OpenAPI generation—while preserving your Koa state and context types and returning the underlying app and router.
 
 ```typescript
-import {bootstrapControllers, Controller, Get, Params} from 'amala';
-
 @Controller('/users')
 class UserController {
   @Get('/:id')
@@ -18,17 +16,6 @@ class UserController {
     return {id};
   }
 }
-
-async function main() {
-  const {app} = await bootstrapControllers({
-    basePath: '/api',
-    controllers: [UserController],
-  });
-
-  app.listen(3000);
-}
-
-void main();
 ```
 
 With `basePath: '/api'` and the default version configuration, this handler serves `GET /api/v1/users/:id`.
@@ -58,7 +45,7 @@ If you need multiple mutually untrusted APIs in one process, note that Amala's d
 ## Next steps
 
 - Follow [Getting started](./getting-started.md) to run a first endpoint.
-- Read [Migrate to v13](./migration-v13.md) when upgrading an existing application.
+- Read [Migrate to v12](./migration-v12.md) when upgrading an existing application.
 - Review [`bootstrapControllers`](./api-spec/bootstrap-controllers.md) for configuration and defaults.
 - Browse the [decorator reference](./api-spec/decorators.md).
 - Complete the [production security checklist](./security.md) before exposing an API publicly.

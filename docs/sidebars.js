@@ -19,7 +19,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Guides',
-      items: ['migration-v12', 'security', 'migration-v11', 'troubleshooting', 'upcoming-features'],
+      items: ['migration-v13', 'security', 'migration-v12', 'migration-v11', 'troubleshooting', 'upcoming-features'],
     },
     {
       type: 'category',

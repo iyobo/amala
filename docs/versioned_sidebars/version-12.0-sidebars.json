@@ -1,0 +1,25 @@
+{
+  "tutorialSidebar": [
+    "intro",
+    "getting-started",
+    {
+      "type": "category",
+      "label": "Guides",
+      "items": [
+        "migration-v12",
+        "security",
+        "migration-v11",
+        "troubleshooting",
+        "upcoming-features"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "API reference",
+      "items": [
+        "api-spec/bootstrap-controllers",
+        "api-spec/decorators"
+      ]
+    }
+  ]
+}

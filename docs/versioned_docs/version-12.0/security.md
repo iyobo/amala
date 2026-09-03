@@ -11,6 +11,7 @@ Amala supplies routing and request-handling primitives. A secure deployment stil
 
 ```typescript
 const {app} = await bootstrapControllers({
+  attachRoutes: true,
   basePath: '/api',
   controllers: [HealthController, UserController],
   cors: {

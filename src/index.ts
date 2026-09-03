@@ -87,6 +87,7 @@ export const bootstrapControllers = async <
   options = params as unknown as AmalaOptions;
   const app = configuredOptions.app = configuredOptions.app || new KoaApplication<StateT, ContextT>();
   configuredOptions.router = configuredOptions.router || new Router<StateT, ContextT>();
+  configuredOptions.attachRoutes = configuredOptions.attachRoutes ?? true;
 
   configuredOptions.versions = configuredOptions.versions || {1: true};
 

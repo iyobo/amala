@@ -5,6 +5,7 @@ import {ProtectedController} from '../tests/util/controllers/ProtectedController
 export const startTestServer = async () => {
   const port = 4050;
   const {app, router} = await bootstrapControllers({
+    attachRoutes: false,
     basePath: "/api",
     controllers: [ArgController, ProtectedController],
     versions: ["1", "2"],

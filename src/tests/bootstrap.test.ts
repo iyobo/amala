@@ -10,6 +10,7 @@ let testServer: ReturnType<typeof request>;
 beforeAll(async () => {
 
   const {app, router} = await bootstrapControllers({
+    attachRoutes: false,
     basePath: "/api",
     controllers: [EndpointController, ArgController, ProtectedController],
     versions: ["1", "2"]
