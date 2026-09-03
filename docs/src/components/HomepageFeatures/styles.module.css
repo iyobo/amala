@@ -28,19 +28,18 @@
 
 .grid {
   display: grid;
-  gap: 1px;
-  grid-template-columns: repeat(4, 1fr);
-  overflow: hidden;
+  gap: 1.25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .card {
-  border-left: 1px solid var(--amala-border);
-  min-height: 300px;
-  padding: 1.7rem;
-}
-
-.card:first-child {
-  border-left: 0;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--amala-border);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1.7rem 1.7rem 1.2rem;
 }
 
 .number {
@@ -49,7 +48,7 @@
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.12em;
-  margin-bottom: 4.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .card h3 {
@@ -64,17 +63,29 @@
   margin: 0;
 }
 
+.example {
+  margin-top: 1.5rem;
+  min-width: 0;
+}
+
+.example :global(.theme-code-block) {
+  border: 1px solid var(--amala-border);
+  box-shadow: none;
+  font-size: 0.78rem;
+  margin: 0;
+}
+
+.example :global(pre) {
+  line-height: 1.45;
+}
+
 @media screen and (max-width: 996px) {
   .heading {
     grid-template-columns: 1fr;
   }
 
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .card:nth-child(3) {
-    border-left: 0;
+  .example :global(.theme-code-block) {
+    font-size: 0.74rem;
   }
 }
 
@@ -87,19 +98,11 @@
     grid-template-columns: 1fr;
   }
 
-  .card,
-  .card:nth-child(3) {
-    border-left: 0;
-    border-top: 1px solid var(--amala-border);
-    min-height: auto;
-    padding: 1.7rem 0;
-  }
-
-  .card:first-child {
-    border-top: 0;
+  .card {
+    padding: 1.4rem 1rem 0.8rem;
   }
 
   .number {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 }

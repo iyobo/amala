@@ -3,6 +3,9 @@ sidebar_position: 2
 sidebar_label: Getting started
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Getting started
 
 This guide creates a small versioned API with one controller and a validated endpoint.
@@ -55,18 +58,29 @@ These settings select TypeScript's legacy decorator implementation. Standard dec
 
 ## Create and bootstrap the app
 
-Create `src/main.ts`. The controller and the call that turns it into a running Koa application live together here so the complete route is visible:
+Start with the controller, then open the `main.ts` tab to see how it becomes a running application:
+
+<Tabs groupId="first-app">
+  <TabItem value="controller" label="HealthController.ts" default>
 
 ```typescript
-import {bootstrapControllers, Controller, Get} from 'amala';
+import {Controller, Get} from 'amala';
 
 @Controller('/health')
-class HealthController {
+export class HealthController {
   @Get('/')
   status() {
     return {status: 'ok'};
   }
 }
+```
+
+  </TabItem>
+  <TabItem value="main" label="main.ts">
+
+```typescript
+import {bootstrapControllers} from 'amala';
+import {HealthController} from './controllers/HealthController';
 
 async function start() {
   const {app} = await bootstrapControllers({
@@ -82,6 +96,9 @@ async function start() {
 
 void start();
 ```
+
+  </TabItem>
+</Tabs>
 
 Compile and run the application with the scripts used by your project. Request:
 
@@ -144,10 +161,12 @@ These generics catch accidental undeclared context access at compile time. They 
 
 Create `src/controllers/UserController.ts`:
 
+<Tabs groupId="validation-example">
+  <TabItem value="controller" label="UserController.ts" default>
+
 ```typescript
 import {
   Body,
-  bootstrapControllers,
   Controller,
   IsEmail,
   IsString,
@@ -156,10 +175,10 @@ import {
 
 class CreateUserInput {
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
-  displayName: string;
+  displayName!: string;
 }
 
 @Controller('/users')
@@ -169,6 +188,15 @@ export class UserController {
     return input;
   }
 }
+```
+
+  </TabItem>
+  <TabItem value="main" label="main.ts">
+
+```typescript
+import {bootstrapControllers} from 'amala';
+import {HealthController} from './controllers/HealthController';
+import {UserController} from './controllers/UserController';
 
 async function start() {
   const {app} = await bootstrapControllers({
@@ -184,6 +212,9 @@ async function start() {
 
 void start();
 ```
+
+  </TabItem>
+</Tabs>
 
 Register `UserController` beside `HealthController`. Amala transforms the JSON body into `CreateUserInput`, runs class-validator, and returns `422` when validation fails.
 

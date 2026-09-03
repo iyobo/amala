@@ -9,4 +9,4 @@
 
 ## Documentation examples
 
-- Keep every TypeScript code fence in the README and current documentation grounded in a `bootstrapControllers()` call. Prefer a complete small application or show the option being explained inside its bootstrap call; do not publish isolated controller, decorator, or configuration fragments.
+- Keep every TypeScript example group in the README and current documentation grounded in a `bootstrapControllers()` call. A single code fence should include its own bootstrap context. A multi-file tab group may lead with the file that best explains the concept and place bootstrap in an adjacent `main.ts` tab; do not publish isolated controller, decorator, or configuration fragments without that visible connection.
