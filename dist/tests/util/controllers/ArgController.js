@@ -108,10 +108,17 @@ let ArgController = class ArgController {
         return req.body;
     }
     async uploadFile(ctx, files) {
-        return files;
+        const file = files === null || files === void 0 ? void 0 : files.testFile;
+        if (!file)
+            return undefined;
+        return { testFile: { ...file, name: file.name, type: file.type } };
     }
     async uploadFile2(ctx, req) {
-        return req.files;
+        var _a;
+        const file = (_a = req.files) === null || _a === void 0 ? void 0 : _a.testFile;
+        if (!file)
+            return undefined;
+        return { testFile: { ...file, name: file.name, type: file.type } };
     }
     async res(res) {
         return res ? 'works' : 'did not work';

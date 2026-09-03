@@ -9,7 +9,7 @@ This guide creates a small versioned API with one controller and a validated end
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 22 or newer
 - A TypeScript project using CommonJS-compatible output
 - `experimentalDecorators` and `emitDecoratorMetadata` enabled
 
@@ -48,6 +48,8 @@ Use this as a baseline `tsconfig.json`:
 ```
 
 Both decorator settings are required. Without emitted type metadata, Amala cannot transform and validate class-based handler arguments.
+
+These settings select TypeScript's legacy decorator implementation. Standard decorators do not currently support parameter decorators such as `@Body()` or automatically emit the parameter types Amala needs.
 
 ## Create a controller
 

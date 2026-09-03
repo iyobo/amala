@@ -9,6 +9,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "moduleResolution": "node",
+    "skipLibCheck": true,
     "baseUrl": ".",
     "esModuleInterop": true,
     "experimentalDecorators": true,

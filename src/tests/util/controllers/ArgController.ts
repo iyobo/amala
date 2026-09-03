@@ -157,18 +157,22 @@ export class ArgController {
   }
 
   @Post('/uploadBuffer')
-  async uploadBuffer(@Ctx() ctx, @Req() req: Request) {
+  async uploadBuffer(@Ctx() ctx, @Req() req: Request): Promise<unknown> {
     return req.body;
   }
 
   @Post('/uploadFile')
   async uploadFile(@Ctx() ctx, @File() files: Record<string, any>) {
-    return files;
+    const file = files?.testFile;
+    if (!file) return undefined;
+    return {testFile: {...file, name: file.name, type: file.type}};
   }
 
   @Post('/uploadFile2')
   async uploadFile2(@Ctx() ctx, @Req() req: Request) {
-    return req.files;
+    const file = (req.files as Record<string, any> | undefined)?.testFile;
+    if (!file) return undefined;
+    return {testFile: {...file, name: file.name, type: file.type}};
   }
 
   @Post('/res')

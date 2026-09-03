@@ -4,6 +4,8 @@ Amala is a decorator-based TypeScript framework for building REST APIs on Koa. I
 
 [Read the documentation](https://amalajs.com/docs/intro) · [Get started](https://amalajs.com/docs/getting-started) · [Security guide](https://amalajs.com/docs/security) · [Report an issue](https://github.com/iyobo/amala/issues)
 
+Upgrading from v10? Read the [v11 migration guide](https://amalajs.com/docs/migration-v11).
+
 ## Why Amala?
 
 - **Typed controller routes.** Define endpoints with `@Controller`, `@Get`, `@Post`, and the other HTTP decorators.
@@ -15,8 +17,10 @@ Amala is a decorator-based TypeScript framework for building REST APIs on Koa. I
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 22 or newer
 - TypeScript with `experimentalDecorators` and `emitDecoratorMetadata` enabled
+
+Amala's parameter decorators rely on TypeScript's legacy decorator metadata. The standard decorator implementation does not yet support parameter decorators or emit design-time parameter types.
 
 ## Quick start
 

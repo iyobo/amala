@@ -22,13 +22,13 @@ updates:
       - dependency-name: "@types/node"
         update-types:
           - "version-update:semver-major"
-      # 8.56+ currently pulls eslint-visitor-keys 5, which requires Node.js 20.
-      - dependency-name: "@typescript-eslint/eslint-plugin"
-        versions:
-          - ">=8.56.0"
-      - dependency-name: "@typescript-eslint/parser"
-        versions:
-          - ">=8.56.0"
+      # eslint-config-standard 17 still uses the legacy ESLint configuration API.
+      - dependency-name: eslint
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: eslint-plugin-n
+        update-types:
+          - "version-update:semver-major"
       # eslint-config-standard 17 supports the maintained 6.x line.
       - dependency-name: eslint-plugin-promise
         update-types:

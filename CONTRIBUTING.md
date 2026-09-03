@@ -4,7 +4,7 @@ Thank you for helping improve Amala. Small, focused pull requests are easiest to
 
 ## Development setup
 
-The framework requires Node.js 18 or newer. Clone the repository, then install the locked dependencies:
+The framework requires Node.js 22 or newer. Clone the repository, then install the locked dependencies:
 
 ```bash
 npm ci
