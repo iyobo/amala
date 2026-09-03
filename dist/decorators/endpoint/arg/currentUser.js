@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CurrentUser = void 0;
+exports.CurrentUser = CurrentUser;
 const common_1 = require("../../common");
 function CurrentUser(injectOptions) {
     return function (object, methodName, index) {
@@ -13,5 +13,4 @@ function CurrentUser(injectOptions) {
         });
     };
 }
-exports.CurrentUser = CurrentUser;
 //# sourceMappingURL=currentUser.js.map

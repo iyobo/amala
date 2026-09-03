@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Ctx = void 0;
+exports.Ctx = Ctx;
 const common_1 = require("../../common");
 /**
  * Injects the full Koa context.
@@ -18,5 +18,4 @@ function Ctx(ctxfield, injectOptions) {
         });
     };
 }
-exports.Ctx = Ctx;
 //# sourceMappingURL=ctx.js.map

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.File = void 0;
+exports.File = File;
 const common_1 = require("../../common");
 function File() {
     return function (object, methodName, index) {
@@ -16,5 +16,4 @@ function File() {
         });
     };
 }
-exports.File = File;
 //# sourceMappingURL=file.js.map

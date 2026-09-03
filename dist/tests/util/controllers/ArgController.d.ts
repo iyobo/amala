@@ -1,5 +1,3 @@
-/// <reference types="node" />
-/// <reference types="formidable" />
 import { Request, Response } from 'koa';
 interface InterfaceInput {
     aString: string;

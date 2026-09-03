@@ -9,7 +9,6 @@ import KoaApplication from 'koa';
 import koaHelmet from 'koa-helmet';
 import {AmalaOptions} from './types/AmalaOptions';
 import {KoaBodyOptions} from './types/KoaBodyOptions';
-import type {HelmetOptions} from 'helmet';
 import {AmalaMetadata} from './types/metadata';
 import {addArgumentInjectMeta} from './decorators/common';
 import {koaSwagger} from 'koa2-swagger-ui';
@@ -58,8 +57,8 @@ export const bootstrapControllers = async (
   options.flow = options.flow || [];
 
   if (options.useHelmet) {
-    const opts: HelmetOptions = options.useHelmet === true ? undefined : options.useHelmet;
-    options.flow = [koaHelmet(opts), ...options.flow];
+    const opts = options.useHelmet === true ? undefined : options.useHelmet;
+    options.flow = [koaHelmet(opts as Parameters<typeof koaHelmet>[0]), ...options.flow];
   }
 
   options.validatorOptions = options.validatorOptions || {};

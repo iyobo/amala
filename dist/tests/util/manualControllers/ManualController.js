@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ManualController = void 0;
 const index_1 = require("../../../index");
 const flow_1 = require("../flow/flow");
-let ManualController = exports.ManualController = class ManualController {
+let ManualController = class ManualController {
     async getRoute() {
         return "okay";
     }
@@ -50,6 +50,7 @@ let ManualController = exports.ManualController = class ManualController {
         return state;
     }
 };
+exports.ManualController = ManualController;
 __decorate([
     (0, index_1.Get)("/"),
     __metadata("design:type", Function),

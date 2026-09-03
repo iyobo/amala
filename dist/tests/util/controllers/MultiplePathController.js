@@ -11,11 +11,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MultiplePathController = void 0;
 const index_1 = require("../../../index");
-let MultiplePathController = exports.MultiplePathController = class MultiplePathController {
+let MultiplePathController = class MultiplePathController {
     async get() {
         return "okay";
     }
 };
+exports.MultiplePathController = MultiplePathController;
 __decorate([
     (0, index_1.Get)("/"),
     __metadata("design:type", Function),

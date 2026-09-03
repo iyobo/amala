@@ -4,14 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
+const path_1 = __importDefault(require("path"));
 const index_1 = require("../index");
 let nativeServer;
 let testServer;
 beforeAll(async () => {
     const { app, router } = await (0, index_1.bootstrapControllers)({
         basePath: "/api",
-        // eslint-disable-next-line node/no-path-concat
-        controllers: [__dirname + "/util/controllers/**/*.ts"],
+        controllers: [path_1.default.join(__dirname, "util/controllers/**/*.ts")],
         versions: ["1", "2"],
         bodyParser: {
             multipart: true

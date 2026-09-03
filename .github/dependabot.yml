@@ -5,6 +5,34 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    groups:
+      testing:
+        patterns:
+          - "@types/jest"
+          - jest
+          - ts-jest
+      linting:
+        patterns:
+          - "@typescript-eslint/*"
+          - eslint
+          - "eslint-*"
+          - prettier
+    ignore:
+      # Keep public runtime types aligned with the supported Node.js major.
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
+      # 8.56+ currently pulls eslint-visitor-keys 5, which requires Node.js 20.
+      - dependency-name: "@typescript-eslint/eslint-plugin"
+        versions:
+          - ">=8.56.0"
+      - dependency-name: "@typescript-eslint/parser"
+        versions:
+          - ">=8.56.0"
+      # eslint-config-standard 17 supports the maintained 6.x line.
+      - dependency-name: eslint-plugin-promise
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: npm
     directory: /docs

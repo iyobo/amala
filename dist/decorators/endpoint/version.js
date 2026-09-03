@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Version = void 0;
+exports.Version = Version;
 const common_1 = require("../common");
 function Version(version, endpointDeprecationWarning) {
     return function (object, methodName) {
@@ -12,5 +12,4 @@ function Version(version, endpointDeprecationWarning) {
         });
     };
 }
-exports.Version = Version;
 //# sourceMappingURL=version.js.map
