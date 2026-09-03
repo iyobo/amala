@@ -219,9 +219,24 @@ async function _generateEndPoints(
           // run target endpoint handler
           // ctx.body = await endpoint.target(...targetArguments);
 
-          // Each request will create a new controller with the ctx passes as constuctor argument
-          // eslint-disable-next-line new-cap
-          const controllerInstance = new controller.targetClass(ctx);
+          // Each request resolves its own controller instance. Existing
+          // applications retain the original constructor-with-context behavior.
+          let controllerInstance;
+          if (options.controllerFactory) {
+            controllerInstance = await options.controllerFactory(
+              controller.targetClass,
+              ctx
+            );
+          } else {
+            // eslint-disable-next-line new-cap
+            controllerInstance = new controller.targetClass(ctx);
+          }
+
+          if (!controllerInstance) {
+            throw boom.badImplementation(
+              `Controller factory did not return an instance for ${controller.targetClass.name}`
+            );
+          }
 
           // bind to controller instance to allow for "this" within class when
           // accessing other class endpoints. e.g this.getOne

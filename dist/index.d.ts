@@ -23,5 +23,6 @@ export * from 'class-transformer';
  */
 export declare const addArgumentDecorator: typeof addArgumentInjectMeta;
 export { errors } from './util/errors';
+export type { AmalaOptions, ControllerFactory } from './types/AmalaOptions';
 export type Context = KoaApplication.Context;
 export * from './decorators';

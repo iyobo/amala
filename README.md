@@ -10,6 +10,7 @@ Amala is a decorator-based TypeScript framework for building REST APIs on Koa. I
 - **Focused handler inputs.** Inject only the body, query value, path parameter, state, session, or Koa context a handler needs.
 - **Validation at the boundary.** Use `class-validator` classes for request-body, query, and path inputs.
 - **Built-in versioning and API discovery.** Serve multiple API versions and generate an OpenAPI 3 document with Swagger UI.
+- **Container-neutral dependency injection.** Resolve request-scoped controller instances with an optional controller factory.
 - **Koa stays accessible.** Bring an existing app, router, and middleware when you need lower-level control.
 
 ## Requirements

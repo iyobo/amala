@@ -191,6 +191,7 @@ export * from 'class-transformer';
 export const addArgumentDecorator = addArgumentInjectMeta;
 
 export {errors} from './util/errors';
+export type {AmalaOptions, ControllerFactory} from './types/AmalaOptions';
 export type Context = KoaApplication.Context
 // export {Ctx} from './decorators/endpoints/args/ctx';
 // export {Query} from './decorators/endpoints/args/query';
