@@ -4,6 +4,8 @@ Amala is a decorator-based TypeScript framework for building REST APIs on Koa. I
 
 [Read the documentation](https://amalajs.com/docs/intro) · [Get started](https://amalajs.com/docs/getting-started) · [Security guide](https://amalajs.com/docs/security) · [Report an issue](https://github.com/iyobo/amala/issues)
 
+Upgrading from v10? Read the [v11 migration guide](https://amalajs.com/docs/migration-v11).
+
 ## Why Amala?
 
 - **Typed controller routes.** Define endpoints with `@Controller`, `@Get`, `@Post`, and the other HTTP decorators.
