@@ -13,7 +13,8 @@ beforeAll(async () => {
     controllers: [path.join(__dirname, "util/controllers/**/*.ts")],
     versions: ["1", "2"],
     bodyParser: {
-      multipart: true
+      multipart: true,
+      jsonStrict: false
     },
   });
 
@@ -96,6 +97,20 @@ describe("Arguments", () => {
       expect(response.body.message).toEqual(
         "Body: is required and cannot be null"
       );
+    });
+
+    it.each([
+      ['false', false],
+      ['zero', 0],
+      ['an empty string', '']
+    ])('accepts %s as a present required body', async (_label, body) => {
+      const response = await testServer
+        .post('/api/v2/arg/bodyRequiredPrimitive')
+        .set('Content-Type', 'application/json')
+        .send(JSON.stringify(body))
+        .expect(200);
+
+      expect(response.body).toEqual({body});
     });
 
     it("validation fails if input not valid", async () => {

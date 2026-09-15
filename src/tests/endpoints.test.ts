@@ -64,6 +64,14 @@ describe("Controller endpoints", () => {
     expect(response.header.deprecation).toEqual("Do not use");
   });
 
+  it("does not leak an endpoint deprecation message to later routes", async () => {
+    const response = await testServer
+      .get("/api/v1/endpoint/passFlow")
+      .expect(200);
+
+    expect(response.header.deprecation).toBeUndefined();
+  });
+
   it("flows can allow", async () => {
     const response = await testServer
       .get("/api/v1/endpoint/passFlow")

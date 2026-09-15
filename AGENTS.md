@@ -6,6 +6,8 @@
 - Preserve user-supplied Koa state and context-extension generics through every context-bearing public API. Use safe empty-object defaults instead of Koa's open-ended `DefaultState` and `DefaultContext` types; users may opt into those defaults explicitly when needed.
 - Treat those generics as compile-time safeguards, not runtime authentication or validation. Continue to validate attacker-controlled request inputs at runtime and leave application-created context values under application ownership.
 - Bootstrap should return an application that is usable by default. Generated routes are mounted automatically; preserve explicit `attachRoutes: false` as the advanced middleware-composition escape hatch.
+- Retain TypeScript's legacy decorator implementation as Amala's primary decorator model. Parameter decorators are a core ergonomic feature because they keep request binding, the local parameter name, and its declared type together. Do not migrate Amala to the standard decorator implementation, or maintain parallel decorator systems, unless the standard model can provide equivalent request-binding ergonomics without duplicate schemas, input types, or framework-specific inference wrappers.
+- Expose the typed request-scoped controller superclass publicly as `AmalaController`, not `ControllerBase`.
 
 ## Documentation examples
 

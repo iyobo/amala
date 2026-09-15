@@ -222,7 +222,7 @@ function generateOpenApi(metaData, options) {
                                     parameters.push({
                                         name: it[0],
                                         in: oasSource,
-                                        required: oasSource !== "path" ? tr.required : undefined,
+                                        required: oasSource === "path" ? true : tr.required,
                                         schema: {
                                             // @ts-ignore
                                             type: tr.type || "string"
@@ -244,7 +244,7 @@ function generateOpenApi(metaData, options) {
                                 parameters.push({
                                     name: String(argumentMeta.ctxValueOptions),
                                     in: oasSource,
-                                    required: oasSource !== "path" ? required : undefined,
+                                    required: oasSource === "path" ? true : required,
                                     schema: {
                                         type: toSimpleSchemaType(((_b = argumentMeta.argType) === null || _b === void 0 ? void 0 : _b.name) || "object")
                                     }
@@ -252,21 +252,21 @@ function generateOpenApi(metaData, options) {
                             }
                         }
                     }
+                    const requestBodySchema = {
+                        type: "object",
+                        properties: requestBodyProperties,
+                        required: requestBodyRequired.length ? requestBodyRequired : undefined
+                    };
                     const requestBody = {
                         content: {
+                            "application/json": {
+                                schema: requestBodySchema
+                            },
                             "multipart/form-data": {
-                                schema: {
-                                    type: "object",
-                                    properties: requestBodyProperties,
-                                    required: requestBodyRequired.length ? requestBodyRequired : undefined
-                                }
+                                schema: requestBodySchema
                             },
                             "application/x-www-form-urlencoded": {
-                                schema: {
-                                    type: "object",
-                                    properties: requestBodyProperties,
-                                    required: requestBodyRequired.length ? requestBodyRequired : undefined
-                                }
+                                schema: requestBodySchema
                             },
                         }
                     };
@@ -281,7 +281,7 @@ function generateOpenApi(metaData, options) {
                         requestBody: Object.keys(requestBodyProperties).length > 0 ? requestBody : undefined,
                         parameters,
                         responses: {
-                            "2xx": {
+                            "2XX": {
                                 description: "Successful response",
                                 headers: {},
                                 content: {

@@ -1,4 +1,4 @@
-import { OpenAPIV3_1 } from "openapi-types";
+import { OpenAPIV3 } from "openapi-types";
 import * as _ from "lodash";
 import { AmalaOptions } from "../types/AmalaOptions";
 import { AmalaMetadata } from "../types/metadata";
@@ -21,7 +21,7 @@ function toSimpleSchemaType(value?: string): SimpleSchemaType {
 }
 
 
-function createDefaultOpenApiSpec(): OpenAPIV3_1.Document {
+function createDefaultOpenApiSpec(): OpenAPIV3.Document {
   return {
     openapi: "3.0.1",
     info: {
@@ -40,7 +40,7 @@ function createDefaultOpenApiSpec(): OpenAPIV3_1.Document {
   };
 }
 
-export let openApiSpec: OpenAPIV3_1.Document = createDefaultOpenApiSpec();
+export let openApiSpec: OpenAPIV3.Document = createDefaultOpenApiSpec();
 
 export function generateOpenApi<
   StateT extends object = EmptyContext,
@@ -57,9 +57,9 @@ export function generateOpenApi<
   const meta = { ...metaData };
 
   // used to build up the paths section of the openAPI spec
-  const paths: OpenAPIV3_1.PathsObject = {};
+  const paths: OpenAPIV3.PathsObject = {};
 
-  const schemas: Record<string, OpenAPIV3_1.SchemaObject> = {
+  const schemas: Record<string, OpenAPIV3.SchemaObject> = {
     Object: {
       type: "object",
       properties: {}
@@ -67,7 +67,7 @@ export function generateOpenApi<
   };
 
   // ---- SERVERS
-  const servers: OpenAPIV3_1.ServerObject[] = [];
+  const servers: OpenAPIV3.ServerObject[] = [];
 
   if (!options.disableVersioning) {
     if (Array.isArray(options.versions)) {
@@ -168,7 +168,7 @@ export function generateOpenApi<
 
           paths[fullPath] = paths[fullPath] || {};
 
-          const parameters: OpenAPIV3_1.ParameterObject[] = [
+          const parameters: OpenAPIV3.ParameterObject[] = [
             // {
             //   "in": "path",
             //   "name": "userId",
@@ -234,7 +234,7 @@ export function generateOpenApi<
                   parameters.push({
                     name: it[0],
                     in: oasSource,
-                    required: oasSource !== "path"? tr.required: undefined,
+                    required: oasSource === "path" ? true : tr.required,
                     schema: {
                       // @ts-ignore
                       type: tr.type || "string"
@@ -256,7 +256,7 @@ export function generateOpenApi<
                 parameters.push({
                   name: String(argumentMeta.ctxValueOptions),
                   in: oasSource,
-                  required: oasSource !== "path"? required: undefined,
+                  required: oasSource === "path" ? true : required,
                   schema: {
                     type: toSimpleSchemaType(argumentMeta.argType?.name || "object")
                   }
@@ -267,21 +267,22 @@ export function generateOpenApi<
 
           }
 
-          const requestBody: OpenAPIV3_1.RequestBodyObject = {
+          const requestBodySchema: OpenAPIV3.SchemaObject = {
+            type: "object",
+            properties: requestBodyProperties,
+            required: requestBodyRequired.length ? requestBodyRequired : undefined
+          };
+
+          const requestBody: OpenAPIV3.RequestBodyObject = {
             content: {
+              "application/json": {
+                schema: requestBodySchema
+              },
               "multipart/form-data": {
-                schema: {
-                  type: "object",
-                  properties: requestBodyProperties,
-                  required: requestBodyRequired.length ? requestBodyRequired : undefined
-                }
+                schema: requestBodySchema
               },
               "application/x-www-form-urlencoded": {
-                schema: {
-                  type: "object",
-                  properties: requestBodyProperties,
-                  required: requestBodyRequired.length ? requestBodyRequired : undefined
-                }
+                schema: requestBodySchema
               },
             }
           };
@@ -297,7 +298,7 @@ export function generateOpenApi<
             requestBody: Object.keys(requestBodyProperties).length > 0 ? requestBody : undefined,
             parameters,
             responses: {
-              "2xx": { // TODO: more details
+              "2XX": { // TODO: more details
                 description: "Successful response",
                 headers: {},
                 content: {

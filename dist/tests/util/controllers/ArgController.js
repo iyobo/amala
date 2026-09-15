@@ -48,6 +48,9 @@ let ArgController = class ArgController {
     async bodyRequired(body) {
         return body;
     }
+    async bodyRequiredPrimitive(body) {
+        return { body };
+    }
     async simpleBody(body) {
         return body;
     }
@@ -152,6 +155,13 @@ __decorate([
     __metadata("design:paramtypes", [ClassInput]),
     __metadata("design:returntype", Promise)
 ], ArgController.prototype, "bodyRequired", null);
+__decorate([
+    (0, index_1.Post)('/bodyRequiredPrimitive'),
+    __param(0, (0, index_1.Body)({ required: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ArgController.prototype, "bodyRequiredPrimitive", null);
 __decorate([
     (0, index_1.Post)('/bodySimple'),
     __param(0, (0, index_1.Body)()),
