@@ -271,6 +271,11 @@ function formatNumber (value) {
   return Math.round(value).toLocaleString('en-US')
 }
 
+function reportSettings (settings) {
+  const { output, ...publicSettings } = settings
+  return publicSettings
+}
+
 function markdownReport (report) {
   const rows = scenarioNames.map(scenario => {
     const amala = report.results.find(result => (
@@ -280,16 +285,29 @@ function markdownReport (report) {
       result.scenario === scenario && result.framework === 'fastify'
     ))
     const relative = (amala.requestsPerSecond / fastify.requestsPerSecond) * 100
-    return `| ${workloads[scenario].label} | ${formatNumber(amala.requestsPerSecond)} | ${formatNumber(fastify.requestsPerSecond)} | ${relative.toFixed(1)}% | ${amala.latencyMs.p99.toFixed(2)} ms | ${fastify.latencyMs.p99.toFixed(2)} ms | ${(amala.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB | ${(fastify.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB |`
+    return `| ${workloads[scenario].label} | ${formatNumber(amala.requestsPerSecond)} | ${formatNumber(fastify.requestsPerSecond)} | ${relative.toFixed(1)}% | ${amala.latencyMs.p99.toFixed(2)} ms | ${fastify.latencyMs.p99.toFixed(2)} ms |`
+  })
+  const resourceRows = scenarioNames.map(scenario => {
+    const amala = report.results.find(result => (
+      result.scenario === scenario && result.framework === 'amala'
+    ))
+    const fastify = report.results.find(result => (
+      result.scenario === scenario && result.framework === 'fastify'
+    ))
+    return `| ${workloads[scenario].label} | ${amala.startupMs.toFixed(1)} ms | ${fastify.startupMs.toFixed(1)} ms | ${(amala.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB | ${(fastify.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB |`
   })
 
   return `# Amala vs Fastify benchmark\n\n` +
     `> Synthetic framework-overhead snapshot generated ${report.environment.timestamp}. ` +
     `Application performance depends on workload and deployment hardware.\n\n` +
     `## Results\n\n` +
-    `| Workload | Amala req/s | Fastify req/s | Amala throughput relative to Fastify | Amala p99 | Fastify p99 | Amala RSS | Fastify RSS |\n` +
-    `| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n` +
+    `| Workload | Amala req/s | Fastify req/s | Amala throughput relative to Fastify | Amala p99 | Fastify p99 |\n` +
+    `| --- | ---: | ---: | ---: | ---: | ---: |\n` +
     `${rows.join('\n')}\n\n` +
+    `## Resource profile\n\n` +
+    `| Workload | Amala startup | Fastify startup | Amala RSS | Fastify RSS |\n` +
+    `| --- | ---: | ---: | ---: | ---: |\n` +
+    `${resourceRows.join('\n')}\n\n` +
     `## Environment\n\n` +
     `- Node: ${report.environment.node}\n` +
     `- Platform: ${report.environment.platform}\n` +
@@ -300,7 +318,7 @@ function markdownReport (report) {
     `@koa/router ${report.environment.versions.router}, Fastify ${report.environment.versions.fastify}, ` +
     `Autocannon ${report.environment.versions.autocannon}\n\n` +
     `## Method\n\n` +
-    `Each framework runs in a fresh child process on loopback. Before measurement, the runner verifies the exact HTTP status and JSON response, then warms the server for ${report.settings.warmup}s. It measures ${report.settings.duration}s with ${report.settings.connections} connections and HTTP/1.1 pipelining of ${report.settings.pipelining}, across ${report.settings.rounds} round(s). Reported values are medians. Framework order alternates by workload and round. RSS is sampled from the server process immediately after each measured run.\n\n` +
+    `Each framework runs in a fresh child process on loopback. Startup includes process launch, dependency loading, and route setup. Before measurement, the runner verifies the exact HTTP status and JSON response, then warms the server for ${report.settings.warmup}s. It measures ${report.settings.duration}s with ${report.settings.connections} connections and HTTP/1.1 pipelining of ${report.settings.pipelining}, across ${report.settings.rounds} round(s). Reported values are medians. Framework order alternates by workload and round. RSS is sampled from the server process immediately after each measured run.\n\n` +
     `The routing workloads disable Amala's body parser, CORS, and OpenAPI middleware. The validation workload enables only body parsing and compares Amala's class-validator transformation with Fastify's compiled JSON Schema validation and serialization.\n`
 }
 
@@ -323,7 +341,10 @@ async function main () {
   const samples = []
 
   console.log('Amala vs Fastify benchmark')
-  console.log(JSON.stringify({ settings, environment: environment() }, null, 2))
+  console.log(JSON.stringify({
+    settings: reportSettings(settings),
+    environment: environment()
+  }, null, 2))
 
   for (let scenarioIndex = 0; scenarioIndex < scenarioNames.length; scenarioIndex += 1) {
     const scenario = scenarioNames[scenarioIndex]
@@ -342,7 +363,7 @@ async function main () {
 
   const report = {
     environment: environment(),
-    settings,
+    settings: reportSettings(settings),
     workloads,
     samples,
     results: aggregate(samples)

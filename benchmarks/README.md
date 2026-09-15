@@ -22,7 +22,8 @@ Use a quiet machine and the Node.js version supported by the package:
 npm run benchmark
 ```
 
-The standard profile follows the Fastify benchmark convention: 100
+The standard profile follows the
+[Fastify benchmark convention](https://github.com/fastify/benchmarks): 100
 connections, HTTP/1.1 pipelining of 10, a 40-second warm-up, and a 40-second
 measurement. It writes machine-readable and human-readable results to
 `benchmarks/results/latest.json` and `benchmarks/results/latest.md`.
@@ -60,3 +61,10 @@ Fastify is designed around performance and compiled schemas, so it is expected
 to lead a synthetic throughput comparison. The useful Amala number is the
 measured cost of its ergonomics—and whether changes improve or regress that
 cost on the same machine and profile.
+
+## Dependency safety
+
+Autocannon 8 currently reaches `uuid` through `hyperid`. The root package
+override selects a patched `uuid` 11 release; the benchmark smoke run exercises
+that dependency path in CI. Both the complete and production-only npm audits
+must remain clean.
