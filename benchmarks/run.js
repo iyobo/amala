@@ -7,7 +7,7 @@ const os = require('os')
 const path = require('path')
 const { workloads } = require('./workloads')
 
-const frameworkNames = ['amala', 'fastify']
+const frameworkNames = ['amala', 'koa', 'fastify']
 const scenarioNames = Object.keys(workloads)
 
 function positiveNumber (value, name) {
@@ -76,7 +76,8 @@ function startServer (framework, scenario) {
       resolve({
         child,
         port: message.port,
-        startupMs: performance.now() - startedAt
+        startupMs: performance.now() - startedAt,
+        stderr: () => stderr
       })
     })
     child.once('exit', code => {
@@ -150,7 +151,7 @@ async function runAutocannon (url, workload, settings, duration) {
 
 async function measure (framework, scenario, settings, round) {
   const workload = workloads[scenario]
-  const { child, port, startupMs } = await startServer(framework, scenario)
+  const { child, port, startupMs, stderr } = await startServer(framework, scenario)
   const url = `http://127.0.0.1:${port}${workload.requestPath}`
 
   try {
@@ -189,6 +190,12 @@ async function measure (framework, scenario, settings, round) {
       timeouts: result.timeouts,
       non2xx: result.non2xx
     }
+  } catch (error) {
+    const serverError = stderr()
+    if (serverError) {
+      error.message += `\nServer diagnostics:\n${serverError}`
+    }
+    throw error
   } finally {
     await stopServer(child)
   }
@@ -281,32 +288,55 @@ function markdownReport (report) {
     const amala = report.results.find(result => (
       result.scenario === scenario && result.framework === 'amala'
     ))
+    const koa = report.results.find(result => (
+      result.scenario === scenario && result.framework === 'koa'
+    ))
     const fastify = report.results.find(result => (
       result.scenario === scenario && result.framework === 'fastify'
     ))
-    const relative = (amala.requestsPerSecond / fastify.requestsPerSecond) * 100
-    return `| ${workloads[scenario].label} | ${formatNumber(amala.requestsPerSecond)} | ${formatNumber(fastify.requestsPerSecond)} | ${relative.toFixed(1)}% | ${amala.latencyMs.p99.toFixed(2)} ms | ${fastify.latencyMs.p99.toFixed(2)} ms |`
+    const versusKoa = (amala.requestsPerSecond / koa.requestsPerSecond) * 100
+    const versusFastify = (amala.requestsPerSecond / fastify.requestsPerSecond) * 100
+    return `| ${workloads[scenario].label} | ${formatNumber(amala.requestsPerSecond)} | ${formatNumber(koa.requestsPerSecond)} | ${formatNumber(fastify.requestsPerSecond)} | ${versusKoa.toFixed(1)}% | ${versusFastify.toFixed(1)}% |`
+  })
+  const latencyRows = scenarioNames.map(scenario => {
+    const amala = report.results.find(result => (
+      result.scenario === scenario && result.framework === 'amala'
+    ))
+    const koa = report.results.find(result => (
+      result.scenario === scenario && result.framework === 'koa'
+    ))
+    const fastify = report.results.find(result => (
+      result.scenario === scenario && result.framework === 'fastify'
+    ))
+    return `| ${workloads[scenario].label} | ${amala.latencyMs.p99.toFixed(2)} ms | ${koa.latencyMs.p99.toFixed(2)} ms | ${fastify.latencyMs.p99.toFixed(2)} ms |`
   })
   const resourceRows = scenarioNames.map(scenario => {
     const amala = report.results.find(result => (
       result.scenario === scenario && result.framework === 'amala'
     ))
+    const koa = report.results.find(result => (
+      result.scenario === scenario && result.framework === 'koa'
+    ))
     const fastify = report.results.find(result => (
       result.scenario === scenario && result.framework === 'fastify'
     ))
-    return `| ${workloads[scenario].label} | ${amala.startupMs.toFixed(1)} ms | ${fastify.startupMs.toFixed(1)} ms | ${(amala.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB | ${(fastify.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB |`
+    return `| ${workloads[scenario].label} | ${amala.startupMs.toFixed(1)} ms | ${koa.startupMs.toFixed(1)} ms | ${fastify.startupMs.toFixed(1)} ms | ${(amala.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB | ${(koa.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB | ${(fastify.rssBytesAfterRun / 1024 / 1024).toFixed(1)} MiB |`
   })
 
-  return `# Amala vs Fastify benchmark\n\n` +
+  return `# Amala vs Koa vs Fastify benchmark\n\n` +
     `> Synthetic framework-overhead snapshot generated ${report.environment.timestamp}. ` +
     `Application performance depends on workload and deployment hardware.\n\n` +
     `## Results\n\n` +
-    `| Workload | Amala req/s | Fastify req/s | Amala throughput relative to Fastify | Amala p99 | Fastify p99 |\n` +
+    `| Workload | Amala req/s | Koa + Router req/s | Fastify req/s | Amala / Koa | Amala / Fastify |\n` +
     `| --- | ---: | ---: | ---: | ---: | ---: |\n` +
     `${rows.join('\n')}\n\n` +
+    `## Tail latency\n\n` +
+    `| Workload | Amala p99 | Koa + Router p99 | Fastify p99 |\n` +
+    `| --- | ---: | ---: | ---: |\n` +
+    `${latencyRows.join('\n')}\n\n` +
     `## Resource profile\n\n` +
-    `| Workload | Amala startup | Fastify startup | Amala RSS | Fastify RSS |\n` +
-    `| --- | ---: | ---: | ---: | ---: |\n` +
+    `| Workload | Amala startup | Koa startup | Fastify startup | Amala RSS | Koa RSS | Fastify RSS |\n` +
+    `| --- | ---: | ---: | ---: | ---: | ---: | ---: |\n` +
     `${resourceRows.join('\n')}\n\n` +
     `## Environment\n\n` +
     `- Node: ${report.environment.node}\n` +
@@ -318,8 +348,8 @@ function markdownReport (report) {
     `@koa/router ${report.environment.versions.router}, Fastify ${report.environment.versions.fastify}, ` +
     `Autocannon ${report.environment.versions.autocannon}\n\n` +
     `## Method\n\n` +
-    `Each framework runs in a fresh child process on loopback. Startup includes process launch, dependency loading, and route setup. Before measurement, the runner verifies the exact HTTP status and JSON response, then warms the server for ${report.settings.warmup}s. It measures ${report.settings.duration}s with ${report.settings.connections} connections and HTTP/1.1 pipelining of ${report.settings.pipelining}, across ${report.settings.rounds} round(s). Reported values are medians. Framework order alternates by workload and round. RSS is sampled from the server process immediately after each measured run.\n\n` +
-    `The routing workloads disable Amala's body parser, CORS, and OpenAPI middleware. The validation workload enables only body parsing and compares Amala's class-validator transformation with Fastify's compiled JSON Schema validation and serialization.\n`
+    `Each framework runs in a fresh child process on loopback. Startup includes process launch, dependency loading, and route setup. Before measurement, the runner verifies the exact HTTP status and JSON response, then warms the server for ${report.settings.warmup}s. It measures ${report.settings.duration}s with ${report.settings.connections} connections and HTTP/1.1 pipelining of ${report.settings.pipelining}, across ${report.settings.rounds} round(s). Reported values are medians. Framework order rotates by workload and round. RSS is sampled from the server process immediately after each measured run.\n\n` +
+    `The routing workloads disable Amala's body parser, CORS, and OpenAPI middleware. Koa uses @koa/router for matched route behavior. The validation workload gives Koa and Amala the same koa-body, class-transformer, and class-validator path; Fastify uses compiled JSON Schema validation and serialization. Post-run RSS reflects each server operating at its own maximum throughput, not memory per request.\n`
 }
 
 function printSummary (report) {
@@ -340,7 +370,7 @@ async function main () {
   const settings = parseOptions(process.argv.slice(2))
   const samples = []
 
-  console.log('Amala vs Fastify benchmark')
+  console.log('Amala vs Koa vs Fastify benchmark')
   console.log(JSON.stringify({
     settings: reportSettings(settings),
     environment: environment()
@@ -349,9 +379,13 @@ async function main () {
   for (let scenarioIndex = 0; scenarioIndex < scenarioNames.length; scenarioIndex += 1) {
     const scenario = scenarioNames[scenarioIndex]
     for (let round = 1; round <= settings.rounds; round += 1) {
-      const order = (scenarioIndex + round) % 2
-        ? frameworkNames
-        : [...frameworkNames].reverse()
+      // Rotate three frameworks so each occupies every run-order position as
+      // workloads and additional rounds advance.
+      const offset = (scenarioIndex + round - 1) % frameworkNames.length
+      const order = [
+        ...frameworkNames.slice(offset),
+        ...frameworkNames.slice(0, offset)
+      ]
       for (const framework of order) {
         process.stdout.write(`Measuring ${scenario}/${framework}, round ${round}... `)
         const sample = await measure(framework, scenario, settings, round)

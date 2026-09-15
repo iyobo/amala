@@ -1,7 +1,8 @@
-# Amala vs Fastify benchmarks
+# Amala vs Koa vs Fastify benchmarks
 
-This suite compares Amala and Fastify through the same HTTP client, Node.js
-executable, machine, request data, and expected JSON responses. It measures:
+This suite compares Amala, a matched Koa stack, and Fastify through the same
+HTTP client, Node.js executable, machine, request data, and expected JSON
+responses. It measures:
 
 - a minimal static JSON route;
 - route-parameter injection; and
@@ -53,14 +54,18 @@ number.
 ## Interpret the results
 
 The static and parameter workloads disable Amala's body parser, CORS, and
-OpenAPI middleware so they isolate routing and controller dispatch. The
-validation workload enables JSON parsing and compares Amala's current
-class-validator transformation with Fastify's compiled JSON Schema path.
+OpenAPI middleware so they isolate routing and controller dispatch. Koa uses
+`@koa/router` for the same route semantics. The validation workload gives Koa
+and Amala the same `koa-body`, `class-transformer`, and `class-validator` path,
+while Fastify uses its compiled JSON Schema path.
 
 Fastify is designed around performance and compiled schemas, so it is expected
 to lead a synthetic throughput comparison. The useful Amala number is the
 measured cost of its ergonomics—and whether changes improve or regress that
 cost on the same machine and profile.
+
+Post-run RSS reflects each server operating at its own maximum throughput. It
+must not be interpreted as memory per request.
 
 ## Dependency safety
 
