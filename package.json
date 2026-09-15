@@ -30,6 +30,8 @@
     "test": "jest --config jestconfig.json",
     "test:watch": "jest --config jestconfig.json --watch",
     "build": "tsc",
+    "benchmark": "npm run build && node benchmarks/run.js",
+    "benchmark:smoke": "npm run build && node benchmarks/run.js --duration 2 --warmup 1 --connections 10 --pipelining 1 --rounds 1 --no-output",
     "prepublishOnly": "npm run build && npm test",
     "dev": "tsc -w",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
@@ -72,6 +74,7 @@
     "@typescript-eslint/eslint-plugin": "^8.69.0",
     "@typescript-eslint/parser": "^8.69.0",
     "auto-changelog": "^2.4.0",
+    "autocannon": "^8.0.0",
     "eslint": "^8.57.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-standard": "^17.1.0",
@@ -80,6 +83,7 @@
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-promise": "^6.6.0",
     "eslint-plugin-react": "^7.37.5",
+    "fastify": "^5.12.4",
     "jest": "^30.5.1",
     "multer": "^2.3.0",
     "prettier": "^3.9.6",
@@ -87,5 +91,12 @@
     "ts-jest": "^29.4.12",
     "ts-node": "^10.9.1",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "autocannon": {
+      "hyperid": {
+        "uuid": "^11.1.1"
+      }
+    }
   }
 }
