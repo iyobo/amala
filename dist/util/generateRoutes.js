@@ -24,7 +24,8 @@ async function _argumentInjectorProcessor(name, body, injectOptions) {
     }
     else if (injectOptions && typeof injectOptions === 'object') {
         // is required
-        if (readProperty(injectOptions, 'required') === true && (!body || lodash_1.default.isEmpty(body))) {
+        if (readProperty(injectOptions, 'required') === true
+            && (body === undefined || body === null)) {
             throw boom_1.default.badData('Body: is required and cannot be null');
         }
         return body;
@@ -85,13 +86,14 @@ async function _determineArgument(ctx, argument, options) {
     else if (ctxKey) {
         // not a special arg injector? No special translation exists so just use CTX.
         values = readProperty(ctx, ctxKey);
-        if (values && typeof ctxValueOptions === 'string') {
+        if (values !== undefined && values !== null && typeof ctxValueOptions === 'string') {
             values = readProperty(values, ctxValueOptions);
         }
         // TODO: implement custom function capability here for arg injectors
     }
     // validate if this is a class and if this is a body, params, or query injection
-    const shouldValidate = values && (0, tools_1.isValidatableClass)(argType) && ctxKey
+    const shouldValidate = values !== undefined && values !== null
+        && (0, tools_1.isValidatableClass)(argType) && ctxKey
         && ['body', 'params', 'query'].includes(ctxKey);
     if (shouldValidate) {
         const transformed = (0, class_transformer_1.plainToClass)(argType, values, { enableImplicitConversion: true });
@@ -101,23 +103,27 @@ async function _determineArgument(ctx, argument, options) {
             throw boom_1.default.badData('validation error for argument type: ' + ctxKey, flattenValidationErrors(errors));
         }
     }
-    else if (values && typeof argType === 'function' && argType !== String) {
+    else if (values !== undefined
+        && values !== null
+        && typeof argType === 'function'
+        && argType !== String) {
         values = argType(values);
     }
     return values;
 }
 async function _generateEndPoints(router, options, controller, parentPath, generatingForVersion) {
     // const controllerInstanceName = controller.targetClass.name + '__' + parentPath;
-    let deprecationMessage = '';
+    let versionDeprecationMessage = '';
     if (options.versions &&
         !Array.isArray(options.versions) &&
         typeof options.versions[generatingForVersion] === 'string') {
-        deprecationMessage = options.versions[generatingForVersion];
+        versionDeprecationMessage = options.versions[generatingForVersion];
     }
     const endpoints = Object.values(controller.endpoints || {});
     // for each endpoint...
     for (const endpoint of endpoints) {
         let willAddEndpoint = true;
+        let deprecationMessage = versionDeprecationMessage;
         // If API versioning mode is active...
         if (generatingForVersion) {
             // ...and endpoint has some version constraints defined...
@@ -131,7 +137,9 @@ async function _generateEndPoints(router, options, controller, parentPath, gener
                 // but if current endpoint version being generated DOES exist in the constraint and it is a string...
                 else if (typeof endpointLimit === 'string') {
                     // ...this is a deprecation message
-                    deprecationMessage += ` ${endpointLimit}`;
+                    deprecationMessage = [deprecationMessage, endpointLimit]
+                        .filter(Boolean)
+                        .join(' ');
                 }
             }
         }

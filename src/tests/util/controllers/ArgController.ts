@@ -64,6 +64,11 @@ export class ArgController {
     return body;
   }
 
+  @Post('/bodyRequiredPrimitive')
+  async bodyRequiredPrimitive(@Body({required: true}) body: unknown) {
+    return {body};
+  }
+
   @Post('/bodySimple')
   async simpleBody(@Body() body: unknown) {
     return body;

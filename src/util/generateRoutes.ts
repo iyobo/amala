@@ -28,7 +28,10 @@ async function _argumentInjectorProcessor(
     return readProperty(body, injectOptions);
   } else if (injectOptions && typeof injectOptions === 'object') {
     // is required
-    if (readProperty(injectOptions, 'required') === true && (!body || _.isEmpty(body))) {
+    if (
+      readProperty(injectOptions, 'required') === true
+      && (body === undefined || body === null)
+    ) {
       throw boom.badData('Body: is required and cannot be null');
     }
 
@@ -120,7 +123,7 @@ async function _determineArgument<
   } else if (ctxKey) {
     // not a special arg injector? No special translation exists so just use CTX.
     values = readProperty(ctx, ctxKey);
-    if (values && typeof ctxValueOptions === 'string') {
+    if (values !== undefined && values !== null && typeof ctxValueOptions === 'string') {
       values = readProperty(values, ctxValueOptions);
     }
 
@@ -128,7 +131,8 @@ async function _determineArgument<
   }
 
   // validate if this is a class and if this is a body, params, or query injection
-  const shouldValidate = values && isValidatableClass(argType) && ctxKey
+  const shouldValidate = values !== undefined && values !== null
+    && isValidatableClass(argType) && ctxKey
     && ['body', 'params', 'query'].includes(ctxKey);
 
   if (shouldValidate) {
@@ -147,7 +151,12 @@ async function _determineArgument<
       );
     }
 
-  } else if (values && typeof argType === 'function' && argType !== String) {
+  } else if (
+    values !== undefined
+    && values !== null
+    && typeof argType === 'function'
+    && argType !== String
+  ) {
     values = (argType as unknown as (value: unknown) => unknown)(values);
   }
 
@@ -167,13 +176,13 @@ async function _generateEndPoints<
   // const controllerInstanceName = controller.targetClass.name + '__' + parentPath;
 
 
-  let deprecationMessage = '';
+  let versionDeprecationMessage = '';
   if (
     options.versions &&
     !Array.isArray(options.versions) &&
     typeof options.versions[generatingForVersion] === 'string'
   ) {
-    deprecationMessage = options.versions[generatingForVersion];
+    versionDeprecationMessage = options.versions[generatingForVersion];
   }
 
   const endpoints = Object.values(controller.endpoints || {});
@@ -181,6 +190,7 @@ async function _generateEndPoints<
   // for each endpoint...
   for (const endpoint of endpoints) {
     let willAddEndpoint = true;
+    let deprecationMessage = versionDeprecationMessage;
 
     // If API versioning mode is active...
     if (generatingForVersion) {
@@ -196,7 +206,9 @@ async function _generateEndPoints<
         // but if current endpoint version being generated DOES exist in the constraint and it is a string...
         else if (typeof endpointLimit === 'string') {
           // ...this is a deprecation message
-          deprecationMessage += ` ${endpointLimit}`;
+          deprecationMessage = [deprecationMessage, endpointLimit]
+            .filter(Boolean)
+            .join(' ');
         }
       }
     } else {

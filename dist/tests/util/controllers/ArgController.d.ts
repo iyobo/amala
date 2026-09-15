@@ -24,6 +24,9 @@ export declare class ArgController {
         id: string;
     }>;
     bodyRequired(body: ClassInput): Promise<ClassInput>;
+    bodyRequiredPrimitive(body: unknown): Promise<{
+        body: unknown;
+    }>;
     simpleBody(body: unknown): Promise<unknown>;
     body(body: ClassInput): Promise<ClassInput>;
     bodyNested(body: NestedFileInput): Promise<NestedFileInput>;

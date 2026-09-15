@@ -42,6 +42,59 @@ describe('OpenAPI path generation', () => {
         ]);
         expect(Object.keys(spec.paths)).toEqual(['/users/{id}']);
     });
+    it('emits a conforming OpenAPI 3.0 version and response range', () => {
+        var _a;
+        const spec = generate(metadataFor('/users', '/:id'));
+        const operation = (_a = spec.paths['/users/{id}']) === null || _a === void 0 ? void 0 : _a.get;
+        expect(spec.openapi).toBe('3.0.1');
+        expect(operation === null || operation === void 0 ? void 0 : operation.responses['2XX']).toBeDefined();
+        expect(operation === null || operation === void 0 ? void 0 : operation.responses['2xx']).toBeUndefined();
+    });
+    it('marks path parameters as required', () => {
+        var _a;
+        const metadata = metadataFor('/users', '/:id');
+        metadata.controllers.TestController.endpoints.getOne.arguments = {
+            0: {
+                ctxKey: 'params',
+                ctxValueOptions: 'id'
+            }
+        };
+        const spec = generate(metadata);
+        const operation = (_a = spec.paths['/users/{id}']) === null || _a === void 0 ? void 0 : _a.get;
+        expect(operation === null || operation === void 0 ? void 0 : operation.parameters).toContainEqual({
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: { type: 'object' }
+        });
+    });
+    it('documents JSON request bodies', () => {
+        var _a;
+        const metadata = metadataFor('/users', '/');
+        const endpoint = metadata.controllers.TestController.endpoints.getOne;
+        endpoint.verb = 'post';
+        endpoint.arguments = {
+            0: {
+                ctxKey: 'body',
+                ctxValueOptions: 'name'
+            }
+        };
+        const spec = generate(metadata);
+        const operation = (_a = spec.paths['/users']) === null || _a === void 0 ? void 0 : _a.post;
+        const requestBody = operation === null || operation === void 0 ? void 0 : operation.requestBody;
+        expect(requestBody).toMatchObject({
+            content: {
+                'application/json': {
+                    schema: {
+                        properties: {
+                            name: { type: 'object' }
+                        },
+                        type: 'object'
+                    }
+                }
+            }
+        });
+    });
     it('includes basePath once for unversioned APIs', () => {
         const spec = generate(metadataFor('/users/', '/'), {
             disableVersioning: true
