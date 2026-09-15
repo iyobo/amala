@@ -1,12 +1,12 @@
 {
   "environment": {
-    "timestamp": "2026-09-15T13:56:42.051Z",
+    "timestamp": "2026-09-15T15:13:09.575Z",
     "node": "v24.19.0",
     "platform": "darwin arm64",
     "cpu": "Apple M1 Max",
     "logicalCpus": 10,
     "memoryBytes": 34359738368,
-    "gitCommit": "5fd7afb7eef9dec2baf26a4e9f2f58076feb4818",
+    "gitCommit": "16853d5b43ffa9c1cdbc42f61ac03285d280f335",
     "gitDirty": false,
     "versions": {
       "amala": "13.0.1",
@@ -64,16 +64,34 @@
       "framework": "amala",
       "scenario": "routing",
       "round": 1,
-      "startupMs": 713.2312499999999,
-      "rssBytesAfterRun": 131432448,
-      "requestsPerSecond": 36981.9,
+      "startupMs": 389.72116600000004,
+      "rssBytesAfterRun": 222724096,
+      "requestsPerSecond": 67977.2,
       "latencyMs": {
-        "average": 26.55,
-        "p50": 25,
-        "p99": 89
+        "average": 14.22,
+        "p50": 16,
+        "p99": 28
       },
-      "throughputBytesPerSecond": 6915392,
-      "totalRequests": 1479248,
+      "throughputBytesPerSecond": 12712140.8,
+      "totalRequests": 2719042,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "koa",
+      "scenario": "routing",
+      "round": 1,
+      "startupMs": 396.2136249999894,
+      "rssBytesAfterRun": 235094016,
+      "requestsPerSecond": 72069.2,
+      "latencyMs": {
+        "average": 13.38,
+        "p50": 11,
+        "p99": 23
+      },
+      "throughputBytesPerSecond": 13476044.8,
+      "totalRequests": 2882646,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -82,16 +100,34 @@
       "framework": "fastify",
       "scenario": "routing",
       "round": 1,
-      "startupMs": 372.4932909999916,
-      "rssBytesAfterRun": 140820480,
-      "requestsPerSecond": 55381.2,
+      "startupMs": 232.0688749999972,
+      "rssBytesAfterRun": 145948672,
+      "requestsPerSecond": 100267.2,
       "latencyMs": {
-        "average": 17.57,
-        "p50": 16,
-        "p99": 57
+        "average": 9.48,
+        "p50": 10,
+        "p99": 16
       },
-      "throughputBytesPerSecond": 10411289.6,
-      "totalRequests": 2215161,
+      "throughputBytesPerSecond": 18848153.61,
+      "totalRequests": 4010614,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "koa",
+      "scenario": "params",
+      "round": 1,
+      "startupMs": 349.972374999983,
+      "rssBytesAfterRun": 224428032,
+      "requestsPerSecond": 72888.8,
+      "latencyMs": {
+        "average": 13.22,
+        "p50": 11,
+        "p99": 23
+      },
+      "throughputBytesPerSecond": 15306956.8,
+      "totalRequests": 2915525,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -100,16 +136,16 @@
       "framework": "fastify",
       "scenario": "params",
       "round": 1,
-      "startupMs": 311.2646250000107,
-      "rssBytesAfterRun": 132169728,
-      "requestsPerSecond": 49437.4,
+      "startupMs": 211.13054099999135,
+      "rssBytesAfterRun": 145637376,
+      "requestsPerSecond": 100393.6,
       "latencyMs": {
-        "average": 19.74,
-        "p50": 17,
-        "p99": 65
+        "average": 9.47,
+        "p50": 10,
+        "p99": 16
       },
-      "throughputBytesPerSecond": 10431846.4,
-      "totalRequests": 1977508,
+      "throughputBytesPerSecond": 21183692.8,
+      "totalRequests": 4015771,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -118,34 +154,16 @@
       "framework": "amala",
       "scenario": "params",
       "round": 1,
-      "startupMs": 943.0984170000011,
-      "rssBytesAfterRun": 131973120,
-      "requestsPerSecond": 33278.15,
+      "startupMs": 366.49904100003187,
+      "rssBytesAfterRun": 224641024,
+      "requestsPerSecond": 71856,
       "latencyMs": {
-        "average": 29.58,
-        "p50": 26,
-        "p99": 104
+        "average": 13.42,
+        "p50": 11,
+        "p99": 22
       },
-      "throughputBytesPerSecond": 6987481.6,
-      "totalRequests": 1331040,
-      "errors": 0,
-      "timeouts": 0,
-      "non2xx": 0
-    },
-    {
-      "framework": "amala",
-      "scenario": "validation",
-      "round": 1,
-      "startupMs": 1098.8657080000266,
-      "rssBytesAfterRun": 136200192,
-      "requestsPerSecond": 13340.25,
-      "latencyMs": {
-        "average": 74.96,
-        "p50": 54,
-        "p99": 283
-      },
-      "throughputBytesPerSecond": 3054937.6,
-      "totalRequests": 533613,
+      "throughputBytesPerSecond": 15089664,
+      "totalRequests": 2874231,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -154,16 +172,52 @@
       "framework": "fastify",
       "scenario": "validation",
       "round": 1,
-      "startupMs": 475.5389159999904,
-      "rssBytesAfterRun": 281804800,
-      "requestsPerSecond": 33745.15,
+      "startupMs": 236.12725000001956,
+      "rssBytesAfterRun": 290471936,
+      "requestsPerSecond": 43321.6,
       "latencyMs": {
-        "average": 29.14,
-        "p50": 21,
-        "p99": 143
+        "average": 22.58,
+        "p50": 18,
+        "p99": 45
       },
-      "throughputBytesPerSecond": 7761638.4,
-      "totalRequests": 1349850,
+      "throughputBytesPerSecond": 9963366.4,
+      "totalRequests": 1732869,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "amala",
+      "scenario": "validation",
+      "round": 1,
+      "startupMs": 398.1940830000676,
+      "rssBytesAfterRun": 150716416,
+      "requestsPerSecond": 34560.81,
+      "latencyMs": {
+        "average": 28.43,
+        "p50": 25,
+        "p99": 54
+      },
+      "throughputBytesPerSecond": 7913984,
+      "totalRequests": 1382370,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "koa",
+      "scenario": "validation",
+      "round": 1,
+      "startupMs": 333.846583000035,
+      "rssBytesAfterRun": 149209088,
+      "requestsPerSecond": 38389.6,
+      "latencyMs": {
+        "average": 25.55,
+        "p50": 22,
+        "p99": 47
+      },
+      "throughputBytesPerSecond": 8790937.6,
+      "totalRequests": 1535548,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -173,80 +227,119 @@
     {
       "framework": "amala",
       "scenario": "routing",
-      "startupMs": 713.2312499999999,
-      "rssBytesAfterRun": 131432448,
-      "requestsPerSecond": 36981.9,
+      "startupMs": 389.72116600000004,
+      "rssBytesAfterRun": 222724096,
+      "requestsPerSecond": 67977.2,
       "latencyMs": {
-        "average": 26.55,
-        "p50": 25,
-        "p99": 89
+        "average": 14.22,
+        "p50": 16,
+        "p99": 28
       },
-      "throughputBytesPerSecond": 6915392
+      "throughputBytesPerSecond": 12712140.8
+    },
+    {
+      "framework": "koa",
+      "scenario": "routing",
+      "startupMs": 396.2136249999894,
+      "rssBytesAfterRun": 235094016,
+      "requestsPerSecond": 72069.2,
+      "latencyMs": {
+        "average": 13.38,
+        "p50": 11,
+        "p99": 23
+      },
+      "throughputBytesPerSecond": 13476044.8
     },
     {
       "framework": "fastify",
       "scenario": "routing",
-      "startupMs": 372.4932909999916,
-      "rssBytesAfterRun": 140820480,
-      "requestsPerSecond": 55381.2,
+      "startupMs": 232.0688749999972,
+      "rssBytesAfterRun": 145948672,
+      "requestsPerSecond": 100267.2,
       "latencyMs": {
-        "average": 17.57,
-        "p50": 16,
-        "p99": 57
+        "average": 9.48,
+        "p50": 10,
+        "p99": 16
       },
-      "throughputBytesPerSecond": 10411289.6
+      "throughputBytesPerSecond": 18848153.61
     },
     {
       "framework": "amala",
       "scenario": "params",
-      "startupMs": 943.0984170000011,
-      "rssBytesAfterRun": 131973120,
-      "requestsPerSecond": 33278.15,
+      "startupMs": 366.49904100003187,
+      "rssBytesAfterRun": 224641024,
+      "requestsPerSecond": 71856,
       "latencyMs": {
-        "average": 29.58,
-        "p50": 26,
-        "p99": 104
+        "average": 13.42,
+        "p50": 11,
+        "p99": 22
       },
-      "throughputBytesPerSecond": 6987481.6
+      "throughputBytesPerSecond": 15089664
+    },
+    {
+      "framework": "koa",
+      "scenario": "params",
+      "startupMs": 349.972374999983,
+      "rssBytesAfterRun": 224428032,
+      "requestsPerSecond": 72888.8,
+      "latencyMs": {
+        "average": 13.22,
+        "p50": 11,
+        "p99": 23
+      },
+      "throughputBytesPerSecond": 15306956.8
     },
     {
       "framework": "fastify",
       "scenario": "params",
-      "startupMs": 311.2646250000107,
-      "rssBytesAfterRun": 132169728,
-      "requestsPerSecond": 49437.4,
+      "startupMs": 211.13054099999135,
+      "rssBytesAfterRun": 145637376,
+      "requestsPerSecond": 100393.6,
       "latencyMs": {
-        "average": 19.74,
-        "p50": 17,
-        "p99": 65
+        "average": 9.47,
+        "p50": 10,
+        "p99": 16
       },
-      "throughputBytesPerSecond": 10431846.4
+      "throughputBytesPerSecond": 21183692.8
     },
     {
       "framework": "amala",
       "scenario": "validation",
-      "startupMs": 1098.8657080000266,
-      "rssBytesAfterRun": 136200192,
-      "requestsPerSecond": 13340.25,
+      "startupMs": 398.1940830000676,
+      "rssBytesAfterRun": 150716416,
+      "requestsPerSecond": 34560.81,
       "latencyMs": {
-        "average": 74.96,
-        "p50": 54,
-        "p99": 283
+        "average": 28.43,
+        "p50": 25,
+        "p99": 54
       },
-      "throughputBytesPerSecond": 3054937.6
+      "throughputBytesPerSecond": 7913984
+    },
+    {
+      "framework": "koa",
+      "scenario": "validation",
+      "startupMs": 333.846583000035,
+      "rssBytesAfterRun": 149209088,
+      "requestsPerSecond": 38389.6,
+      "latencyMs": {
+        "average": 25.55,
+        "p50": 22,
+        "p99": 47
+      },
+      "throughputBytesPerSecond": 8790937.6
     },
     {
       "framework": "fastify",
       "scenario": "validation",
-      "startupMs": 475.5389159999904,
-      "rssBytesAfterRun": 281804800,
-      "requestsPerSecond": 33745.15,
+      "startupMs": 236.12725000001956,
+      "rssBytesAfterRun": 290471936,
+      "requestsPerSecond": 43321.6,
       "latencyMs": {
-        "average": 29.14,
-        "p50": 21,
-        "p99": 143
+        "average": 22.58,
+        "p50": 18,
+        "p99": 45
       },
-      "throughputBytesPerSecond": 7761638.4
+      "throughputBytesPerSecond": 9963366.4
     }
   ]
 }
