@@ -1,5 +1,6 @@
 
 import type {AmalaMiddleware, EmptyContext} from './context';
+import type {StandardSchemaV1} from './standardSchema';
 
 export type Class<T = object> = new (...args: never[]) => T;
 export type FlowFunction<
@@ -16,7 +17,8 @@ export type ClassMethod = object
 export type AmalaMetadataArgument = {
   ctxKey?: string,
   ctxValueOptions?: unknown,
-  argType?: Class
+  argType?: Class,
+  standardSchema?: StandardSchemaV1
 }
 
 export interface AmalaMetadataEndpoint<

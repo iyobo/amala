@@ -70,6 +70,53 @@ function flattenValidationErrors(errors, parentPath = '') {
         return [...ownViolations, ...childViolations];
     });
 }
+function standardSchemaIssuePath(path, fallback) {
+    if (!(path === null || path === void 0 ? void 0 : path.length))
+        return fallback;
+    return path
+        .map(segment => {
+        if (typeof segment === 'object' && segment !== null && 'key' in segment) {
+            return String(segment.key);
+        }
+        return String(segment);
+    })
+        .join('.')
+        .slice(0, 500);
+}
+async function validateStandardSchema(argument, value, source) {
+    const schema = argument.standardSchema;
+    if (!schema)
+        return value;
+    let result;
+    try {
+        // Validation runs after Amala selects the decorated value, so the schema
+        // can transform it or provide a default before the controller receives it.
+        result = await schema["~standard"].validate(value);
+    }
+    catch (_a) {
+        // Validator exceptions may contain input data or library internals. Keep
+        // those details out of the response and Amala's default logs.
+        throw boom_1.default.badImplementation(`Standard Schema validator failed for argument type: ${source}`);
+    }
+    if (result
+        && typeof result === 'object'
+        && 'issues' in result
+        && Array.isArray(result.issues)) {
+        // A schema can emit one issue per invalid field. Bound response detail so
+        // attacker-controlled payloads cannot amplify into an unbounded error.
+        const issues = result.issues.slice(0, 100).map(issue => ({
+            field: standardSchemaIssuePath(issue.path, source),
+            violations: {
+                standard: String(issue.message).slice(0, 1000)
+            }
+        }));
+        throw boom_1.default.badData('validation error for argument type: ' + source, issues);
+    }
+    if (result && typeof result === 'object' && 'value' in result) {
+        return result.value;
+    }
+    throw boom_1.default.badImplementation(`Standard Schema validator returned an invalid result for argument type: ${source}`);
+}
 /**
  * Processes an endpoint-function argument and validates it etc
  * @param ctx
@@ -90,6 +137,9 @@ async function _determineArgument(ctx, argument, options) {
             values = readProperty(values, ctxValueOptions);
         }
         // TODO: implement custom function capability here for arg injectors
+    }
+    if (argument.standardSchema && ctxKey) {
+        return validateStandardSchema(argument, values, ctxKey);
     }
     // validate if this is a class and if this is a body, params, or query injection
     const shouldValidate = values !== undefined && values !== null

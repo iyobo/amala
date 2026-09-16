@@ -1,4 +1,5 @@
 import type { AmalaMiddleware, EmptyContext } from './context';
+import type { StandardSchemaV1 } from './standardSchema';
 export type Class<T = object> = new (...args: never[]) => T;
 export type FlowFunction<StateT extends object = EmptyContext, ContextT extends object = EmptyContext> = AmalaMiddleware<StateT, ContextT>;
 export type RestVerb = 'get' | 'post' | 'put' | 'patch' | 'delete';
@@ -8,6 +9,7 @@ export type AmalaMetadataArgument = {
     ctxKey?: string;
     ctxValueOptions?: unknown;
     argType?: Class;
+    standardSchema?: StandardSchemaV1;
 };
 export interface AmalaMetadataEndpoint<StateT extends object = EmptyContext, ContextT extends object = EmptyContext> {
     /**

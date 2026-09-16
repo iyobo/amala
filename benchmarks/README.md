@@ -6,7 +6,10 @@ responses. It measures:
 
 - a minimal static JSON route;
 - route-parameter injection; and
-- valid JSON parsing, validation, and response serialization.
+- valid JSON parsing, `class-validator` validation, and response serialization;
+  and
+- validator-neutral Standard Schema validation using the same Zod schema in
+  Amala and the matched Koa baseline.
 
 Each result records throughput, latency, errors, exact dependency versions,
 hardware, run settings, and server-process resident memory after the load run.
@@ -55,9 +58,11 @@ number.
 
 The static and parameter workloads disable Amala's body parser, CORS, and
 OpenAPI middleware so they isolate routing and controller dispatch. Koa uses
-`@koa/router` for the same route semantics. The validation workload gives Koa
-and Amala the same `koa-body`, `class-transformer`, and `class-validator` path,
-while Fastify uses its compiled JSON Schema path.
+`@koa/router` for the same route semantics. The legacy validation workload
+gives Koa and Amala the same `koa-body`, `class-transformer`, and
+`class-validator` path. The Standard Schema workload gives both the exact same
+Zod schema and verifies parsed output before measurement. Fastify uses its
+equivalent native compiled JSON Schema path in both validation comparisons.
 
 Fastify is designed around performance and compiled schemas, so it is expected
 to lead a synthetic throughput comparison. The useful Amala number is the

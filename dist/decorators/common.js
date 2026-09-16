@@ -1,11 +1,35 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.isStandardSchema = isStandardSchema;
+exports.resolveValidationDecoratorInput = resolveValidationDecoratorInput;
 exports.addFlowFunctionMeta = addFlowFunctionMeta;
 exports.addVersionFunctionMeta = addVersionFunctionMeta;
 exports.addVerbFunctionMeta = addVerbFunctionMeta;
 exports.addArgumentInjectMeta = addArgumentInjectMeta;
 require("reflect-metadata");
 const index_1 = require("../index");
+function isStandardSchema(value) {
+    if ((typeof value !== 'object' && typeof value !== 'function')
+        || value === null) {
+        return false;
+    }
+    const standard = value["~standard"];
+    if (!standard || typeof standard !== 'object')
+        return false;
+    const props = standard;
+    return props.version === 1 && typeof props.validate === 'function';
+}
+function resolveValidationDecoratorInput(input, propertySchema) {
+    if (propertySchema) {
+        if (typeof input !== 'string') {
+            throw new TypeError('A property name is required when a second Standard Schema argument is supplied');
+        }
+        return { injectOptions: input, standardSchema: propertySchema };
+    }
+    if (isStandardSchema(input))
+        return { standardSchema: input };
+    return { injectOptions: input };
+}
 function addFlowFunctionMeta({ flow, methodName, object }) {
     const controller = index_1.metadata.controllers[object.constructor.name] || {};
     controller.endpoints = controller.endpoints || {};
@@ -45,7 +69,7 @@ function addVerbFunctionMeta({ verb, paths, object, methodName }) {
     controller.endpoints[methodName].targetMethod = targetMethod;
     index_1.metadata.controllers[object.constructor.name] = controller;
 } // argument injection decorators
-function addArgumentInjectMeta({ index, ctxKey, ctxValueOptions, methodName, object }) {
+function addArgumentInjectMeta({ index, ctxKey, ctxValueOptions, standardSchema, methodName, object }) {
     // console.log('argument', stackConfig, injectSource, injectOptions, object, methodName);
     const controller = index_1.metadata.controllers[object.constructor.name] || {};
     controller.endpoints = controller.endpoints || {};
@@ -54,7 +78,8 @@ function addArgumentInjectMeta({ index, ctxKey, ctxValueOptions, methodName, obj
         controller.endpoints[methodName].arguments || {};
     controller.endpoints[methodName].arguments[index] = {
         ctxKey,
-        ctxValueOptions
+        ctxValueOptions,
+        standardSchema
     };
     index_1.metadata.controllers[object.constructor.name] = controller;
 }

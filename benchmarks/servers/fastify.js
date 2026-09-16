@@ -45,6 +45,37 @@ async function main () {
       customerId: request.body.customerId,
       quantity: request.body.quantity
     }))
+  } else if (scenario === 'standardValidation') {
+    // Fastify's native compiled schema is the equivalent production path; its
+    // integer coercion produces the same controller-visible value as Zod.
+    app.post(workloads.standardValidation.routePath, {
+      schema: {
+        body: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['customerId', 'quantity'],
+          properties: {
+            customerId: { type: 'string' },
+            quantity: { type: 'integer', minimum: 1 }
+          }
+        },
+        response: {
+          200: {
+            type: 'object',
+            required: ['id', 'customerId', 'quantity'],
+            properties: {
+              id: { type: 'string' },
+              customerId: { type: 'string' },
+              quantity: { type: 'integer' }
+            }
+          }
+        }
+      }
+    }, request => ({
+      id: 'order_123',
+      customerId: request.body.customerId,
+      quantity: request.body.quantity
+    }))
   } else {
     throw new Error(`Unknown benchmark scenario: ${scenario}`)
   }

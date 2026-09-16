@@ -99,6 +99,7 @@ const config = {
             title: 'Documentation',
             items: [
               {label: 'Get started', to: '/docs/getting-started'},
+              {label: 'Validation', to: '/docs/validation'},
               {label: 'Configuration', to: '/docs/api-spec/bootstrap-controllers'},
               {label: 'Decorators', to: '/docs/api-spec/decorators'},
               {label: 'Security', to: '/docs/security'},

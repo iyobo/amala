@@ -26,5 +26,6 @@ export declare const addArgumentDecorator: typeof addArgumentInjectMeta;
 export { errors } from './util/errors';
 export type { AmalaOptions, ControllerClass, ControllerFactory, ErrorHandler } from './types/AmalaOptions';
 export type { AmalaContext, AmalaMiddleware, AmalaNext, EmptyContext } from './types/context';
+export type { StandardJSONSchemaV1, StandardSchemaV1 } from './types/standardSchema';
 export type Context<StateT extends object = EmptyContext, ContextT extends object = EmptyContext, ResponseBodyT = unknown> = AmalaContext<StateT, ContextT, ResponseBodyT>;
 export * from './decorators';

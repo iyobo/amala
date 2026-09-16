@@ -61,7 +61,7 @@ function HomepageHeader() {
         <div className={styles.heroCopy}>
           <Link className={styles.releasePill} to="/docs/migration-v13">
             <span className={styles.releaseDot} aria-hidden="true" />
-              Amala 13 is here
+              Amala 13.1 is here
             <span aria-hidden="true">↗</span>
           </Link>
           <Heading as="h1" className={styles.heroTitle}>
@@ -69,16 +69,16 @@ function HomepageHeader() {
             <span>Add a contract.</span>
           </Heading>
           <p className={styles.heroSubtitle}>
-            A small TypeScript layer for controller routing, validation, and
+            A small TypeScript layer for controller routing, validator choice, and
             OpenAPI—now ready to listen after bootstrap while carrying your
             Koa state and context types end to end.
           </p>
           <div className={styles.buttons}>
             <Link className="button button--primary button--lg" to="/docs/getting-started">
-              Start with v13
+              Start with v13.1
             </Link>
             <Link className={styles.secondaryAction} to="/docs/migration-v13">
-              Migrate from v12 <span aria-hidden="true">→</span>
+              See the v13 migration <span aria-hidden="true">→</span>
             </Link>
           </div>
           <ul className={styles.heroFacts} aria-label="Project details">

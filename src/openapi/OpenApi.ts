@@ -1,11 +1,48 @@
 import { OpenAPIV3 } from "openapi-types";
 import * as _ from "lodash";
 import { AmalaOptions } from "../types/AmalaOptions";
-import { AmalaMetadata } from "../types/metadata";
+import { AmalaMetadata, AmalaMetadataArgument } from "../types/metadata";
 import { translateMetaField, getPropertiesOfClassValidator } from "../util/tools";
 import {EmptyContext} from '../types/context';
 
 type SimpleSchemaType = 'string' | 'number' | 'integer' | 'boolean' | 'object';
+type OpenApiSchema = OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject;
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function standardInputSchema(
+  argument: AmalaMetadataArgument,
+  diagnostics = false
+): OpenApiSchema | undefined {
+  const standard = argument.standardSchema?.["~standard"] as ({
+    jsonSchema?: {
+      input?: (options: {target: string}) => unknown;
+    };
+  }) | undefined;
+  const convert = standard?.jsonSchema?.input;
+  if (!convert) {
+    if (diagnostics) {
+      console.warn(
+        'Amala: Standard Schema does not provide OpenAPI conversion'
+      );
+    }
+    return undefined;
+  }
+
+  try {
+    const schema = convert({target: 'openapi-3.0'});
+    return isObject(schema) ? schema as OpenApiSchema : undefined;
+  } catch {
+    // Runtime validation remains available when a library cannot represent a
+    // schema as OpenAPI. Diagnostics disclose no schema or application data.
+    if (diagnostics) {
+      console.warn('Amala: Standard Schema OpenAPI conversion failed');
+    }
+    return undefined;
+  }
+}
 
 function toSimpleSchemaType(value?: string): SimpleSchemaType {
   const normalized = value?.toLowerCase();
@@ -179,8 +216,9 @@ export function generateOpenApi<
             // }
           ];
 
-          const requestBodyProperties: Record<string, {type: SimpleSchemaType}> = {};
+          const requestBodyProperties: Record<string, OpenApiSchema> = {};
           const requestBodyRequired: string[] = [];
+          let completeRequestBodySchema: OpenApiSchema | undefined;
 
 
           /**
@@ -215,6 +253,58 @@ export function generateOpenApi<
             // if the argument exists as part of path, consider to be required
             if (oasSource === "path") {
               required = true;
+            }
+
+            if (argumentMeta.standardSchema) {
+              const schema = standardInputSchema(
+                argumentMeta,
+                options.diagnostics
+              );
+
+              // Some Standard Schema libraries intentionally expose runtime
+              // validation only. Omitting docs is safer than inventing them.
+              if (!schema) continue;
+
+              const propertyName = typeof argumentMeta.ctxValueOptions === 'string'
+                ? argumentMeta.ctxValueOptions
+                : undefined;
+
+              if (oasSource === 'body') {
+                if (propertyName) {
+                  requestBodyProperties[propertyName] = schema;
+                } else {
+                  completeRequestBodySchema = schema;
+                }
+                continue;
+              }
+
+              if (propertyName) {
+                parameters.push({
+                  name: propertyName,
+                  in: oasSource,
+                  required: oasSource === 'path',
+                  schema
+                });
+                continue;
+              }
+
+              const properties = 'properties' in schema && isObject(schema.properties)
+                ? schema.properties
+                : {};
+              const requiredProperties = 'required' in schema && Array.isArray(schema.required)
+                ? schema.required
+                : [];
+
+              for (const [name, propertySchema] of Object.entries(properties)) {
+                if (!isObject(propertySchema)) continue;
+                parameters.push({
+                  name,
+                  in: oasSource,
+                  required: oasSource === 'path' || requiredProperties.includes(name),
+                  schema: propertySchema as OpenApiSchema
+                });
+              }
+              continue;
             }
 
             // build parameters
@@ -267,11 +357,13 @@ export function generateOpenApi<
 
           }
 
-          const requestBodySchema: OpenAPIV3.SchemaObject = {
+          const requestBodySchema: OpenApiSchema = completeRequestBodySchema || {
             type: "object",
             properties: requestBodyProperties,
             required: requestBodyRequired.length ? requestBodyRequired : undefined
           };
+          const hasRequestBody = completeRequestBodySchema !== undefined
+            || Object.keys(requestBodyProperties).length > 0;
 
           const requestBody: OpenAPIV3.RequestBodyObject = {
             content: {
@@ -295,7 +387,7 @@ export function generateOpenApi<
               controllerClassName
             ],
             // @ts-ignore
-            requestBody: Object.keys(requestBodyProperties).length > 0 ? requestBody : undefined,
+            requestBody: hasRequestBody ? requestBody : undefined,
             parameters,
             responses: {
               "2XX": { // TODO: more details

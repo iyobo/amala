@@ -37,6 +37,32 @@ exports.openApiSpec = void 0;
 exports.generateOpenApi = generateOpenApi;
 const _ = __importStar(require("lodash"));
 const tools_1 = require("../util/tools");
+function isObject(value) {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+function standardInputSchema(argument, diagnostics = false) {
+    var _a, _b;
+    const standard = (_a = argument.standardSchema) === null || _a === void 0 ? void 0 : _a["~standard"];
+    const convert = (_b = standard === null || standard === void 0 ? void 0 : standard.jsonSchema) === null || _b === void 0 ? void 0 : _b.input;
+    if (!convert) {
+        if (diagnostics) {
+            console.warn('Amala: Standard Schema does not provide OpenAPI conversion');
+        }
+        return undefined;
+    }
+    try {
+        const schema = convert({ target: 'openapi-3.0' });
+        return isObject(schema) ? schema : undefined;
+    }
+    catch (_c) {
+        // Runtime validation remains available when a library cannot represent a
+        // schema as OpenAPI. Diagnostics disclose no schema or application data.
+        if (diagnostics) {
+            console.warn('Amala: Standard Schema OpenAPI conversion failed');
+        }
+        return undefined;
+    }
+}
 function toSimpleSchemaType(value) {
     const normalized = value === null || value === void 0 ? void 0 : value.toLowerCase();
     if (normalized === 'number'
@@ -180,6 +206,7 @@ function generateOpenApi(metaData, options) {
                     ];
                     const requestBodyProperties = {};
                     const requestBodyRequired = [];
+                    let completeRequestBodySchema;
                     /**
                      *  For each argument, divide it between requestBody (source:body) or parameters (any other source).
                      *  extract fields from classvalidators into its own function.
@@ -204,6 +231,51 @@ function generateOpenApi(metaData, options) {
                         // if the argument exists as part of path, consider to be required
                         if (oasSource === "path") {
                             required = true;
+                        }
+                        if (argumentMeta.standardSchema) {
+                            const schema = standardInputSchema(argumentMeta, options.diagnostics);
+                            // Some Standard Schema libraries intentionally expose runtime
+                            // validation only. Omitting docs is safer than inventing them.
+                            if (!schema)
+                                continue;
+                            const propertyName = typeof argumentMeta.ctxValueOptions === 'string'
+                                ? argumentMeta.ctxValueOptions
+                                : undefined;
+                            if (oasSource === 'body') {
+                                if (propertyName) {
+                                    requestBodyProperties[propertyName] = schema;
+                                }
+                                else {
+                                    completeRequestBodySchema = schema;
+                                }
+                                continue;
+                            }
+                            if (propertyName) {
+                                parameters.push({
+                                    name: propertyName,
+                                    in: oasSource,
+                                    required: oasSource === 'path',
+                                    schema
+                                });
+                                continue;
+                            }
+                            const properties = 'properties' in schema && isObject(schema.properties)
+                                ? schema.properties
+                                : {};
+                            const requiredProperties = 'required' in schema && Array.isArray(schema.required)
+                                ? schema.required
+                                : [];
+                            for (const [name, propertySchema] of Object.entries(properties)) {
+                                if (!isObject(propertySchema))
+                                    continue;
+                                parameters.push({
+                                    name,
+                                    in: oasSource,
+                                    required: oasSource === 'path' || requiredProperties.includes(name),
+                                    schema: propertySchema
+                                });
+                            }
+                            continue;
                         }
                         // build parameters
                         const meta = (0, tools_1.getPropertiesOfClassValidator)(argumentMeta.argType);
@@ -252,11 +324,13 @@ function generateOpenApi(metaData, options) {
                             }
                         }
                     }
-                    const requestBodySchema = {
+                    const requestBodySchema = completeRequestBodySchema || {
                         type: "object",
                         properties: requestBodyProperties,
                         required: requestBodyRequired.length ? requestBodyRequired : undefined
                     };
+                    const hasRequestBody = completeRequestBodySchema !== undefined
+                        || Object.keys(requestBodyProperties).length > 0;
                     const requestBody = {
                         content: {
                             "application/json": {
@@ -278,7 +352,7 @@ function generateOpenApi(metaData, options) {
                             controllerClassName
                         ],
                         // @ts-ignore
-                        requestBody: Object.keys(requestBodyProperties).length > 0 ? requestBody : undefined,
+                        requestBody: hasRequestBody ? requestBody : undefined,
                         parameters,
                         responses: {
                             "2XX": {

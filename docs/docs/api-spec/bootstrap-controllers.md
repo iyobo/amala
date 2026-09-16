@@ -103,7 +103,7 @@ Multipart parsing remains enabled by default for compatibility. Explicitly set `
 
 Set `bodyParser: false` if the application installs its own parser.
 
-## Validation
+## class-validator options
 
 `validatorOptions` is passed to class-validator whenever Amala receives a decorated class input:
 
@@ -120,6 +120,8 @@ app.listen(3000);
 ```
 
 Interfaces do not exist at runtime and cannot be validated. Use a class with class-validator decorators.
+
+`validatorOptions` applies only to class-validator inputs. New endpoints can instead pass any Standard Schema validator directly to `@Body`, `@Query`, or `@Params`; see [Validate requests](../validation.md).
 
 ## Controller construction
 

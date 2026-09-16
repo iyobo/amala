@@ -220,6 +220,8 @@ Register `UserController` beside `HealthController`. Amala transforms the JSON b
 
 For strict object contracts, pass class-validator options during bootstrap as shown above.
 
+For new inputs, Amala also accepts Zod, Valibot, and any other Standard Schema validator directly in `@Body`, `@Query`, and `@Params`. The [request validation guide](./validation.md) shows defaults, coercion, selected fields, safe errors, and generated OpenAPI.
+
 ## Add middleware
 
 Use `@Flow` for controller- or endpoint-level Koa middleware:

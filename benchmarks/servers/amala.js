@@ -12,6 +12,7 @@ const {
   bootstrapControllers
 } = require('../../dist')
 const { workloads } = require('../workloads')
+const { z } = require('zod')
 
 class CreateOrderInput {}
 
@@ -21,6 +22,12 @@ class CreateOrderInput {}
 IsString()(CreateOrderInput.prototype, 'customerId')
 IsInt()(CreateOrderInput.prototype, 'quantity')
 Min(1)(CreateOrderInput.prototype, 'quantity')
+
+const standardOrderSchema = z.object({
+  customerId: z.string(),
+  // The string fixture proves the controller receives parsed schema output.
+  quantity: z.coerce.number().int().min(1)
+})
 
 class BenchmarkController {
   hello () {
@@ -58,6 +65,10 @@ function decorateScenario (scenario) {
     )
     Body({ required: true })(prototype, 'createOrder', 0)
     Post(workloads.validation.routePath)(prototype, 'createOrder')
+  } else if (scenario === 'standardValidation') {
+    Reflect.defineMetadata('design:paramtypes', [Object], prototype, 'createOrder')
+    Body(standardOrderSchema)(prototype, 'createOrder', 0)
+    Post(workloads.standardValidation.routePath)(prototype, 'createOrder')
   } else {
     throw new Error(`Unknown benchmark scenario: ${scenario}`)
   }
@@ -78,7 +89,7 @@ async function main () {
     openAPI: { enabled: false },
     // Parsing is intentionally absent from read-only scenarios. The body
     // validation comparison enables JSON parsing without multipart support.
-    bodyParser: scenario === 'validation'
+    bodyParser: ['validation', 'standardValidation'].includes(scenario)
       ? { multipart: false, urlencoded: false, text: false }
       : false
   })

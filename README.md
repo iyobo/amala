@@ -1,8 +1,8 @@
 # Amala
 
-Amala is a small, decorator-based TypeScript framework for building REST APIs on Koa. Controllers become routes, decorated arguments receive request data, class-based inputs are validated, and Koa remains available whenever the application needs it.
+Amala is a small, decorator-based TypeScript framework for building REST APIs on Koa. Controllers become routes, decorated arguments receive request data, your preferred Standard Schema library validates inputs, and Koa remains available whenever the application needs it.
 
-[Documentation](https://amalajs.com/docs/intro) · [Getting started](https://amalajs.com/docs/getting-started) · [API reference](https://amalajs.com/docs/api-spec/bootstrap-controllers) · [Security guide](https://amalajs.com/docs/security) · [Report an issue](https://github.com/iyobo/amala/issues)
+[Documentation](https://amalajs.com/docs/intro) · [Getting started](https://amalajs.com/docs/getting-started) · [Request validation](https://amalajs.com/docs/validation) · [API reference](https://amalajs.com/docs/api-spec/bootstrap-controllers) · [Security guide](https://amalajs.com/docs/security) · [Report an issue](https://github.com/iyobo/amala/issues)
 
 Upgrading from v12? Read the [v13 migration guide](https://amalajs.com/docs/migration-v13). Older documentation remains available from the version selector.
 
@@ -76,7 +76,7 @@ Amala 13 attaches generated routes to the Koa app by default. That makes the res
 
 - **Controller routes:** define endpoints with `@Controller`, `@Get`, `@Post`, and the other HTTP decorators.
 - **Focused arguments:** inject only the body, query value, path parameter, header, state, or Koa context a handler needs.
-- **Runtime validation:** transform and validate class-based request inputs with class-validator.
+- **Your validation library:** pass Zod, Valibot, or any Standard Schema validator directly to `@Body`, `@Query`, or `@Params`; existing class-validator inputs remain supported.
 - **Typed Koa context:** carry application state and context extensions through middleware, controller construction, error handling, and bootstrap results.
 - **Versioning and discovery:** serve multiple API versions and generate an OpenAPI document with Swagger UI.
 - **Koa-native composition:** bring an existing app, use ordinary Koa middleware, or mount the generated router yourself.
@@ -158,8 +158,11 @@ Argument decorators keep handlers focused on the part of the Koa request they ac
 | Decorator | Injected value |
 | --- | --- |
 | `@Body()` / `@Body('field')` | The complete request body or one field |
+| `@Body(schema)` / `@Body('field', schema)` | A body or field validated and transformed by Standard Schema |
 | `@Params()` / `@Params('id')` | All path parameters or one parameter |
+| `@Params(schema)` / `@Params('id', schema)` | Path values validated and transformed by Standard Schema |
 | `@Query()` / `@Query('q')` | The parsed query or one query value |
+| `@Query(schema)` / `@Query('q', schema)` | Query values validated and transformed by Standard Schema |
 | `@Header()` / `@Header('name')` | All request headers or one header |
 | `@State()` / `@State('name')` | Koa state or one state value |
 | `@CurrentUser()` | `ctx.state.user` |
@@ -207,43 +210,58 @@ Prefer the narrowest decorator that supplies what a handler needs. It reduces co
 
 ## Validate request data
 
-Use classes—not interfaces—for inputs that need runtime validation:
+Amala accepts any [Standard Schema](https://standardschema.dev/) validator directly. Install the library your application prefers; this example uses Zod:
+
+```bash
+npm install zod
+```
 
 ```typescript
 import {
   Body,
   bootstrapControllers,
   Controller,
-  IsEmail,
-  IsString,
-  Length,
+  Params,
   Post,
+  Query,
 } from 'amala';
+import {z} from 'zod';
 
-class CreateUserInput {
-  @IsEmail()
-  email!: string;
+const createOrderSchema = z.object({
+  sku: z.string().trim().min(1),
+  // Coercion and defaults happen before the controller receives the order.
+  quantity: z.coerce.number().int().positive().default(1),
+});
 
-  @IsString()
-  @Length(2, 80)
-  displayName!: string;
-}
+const orderIdSchema = z.string().uuid();
+const notifySchema = z
+  .enum(['true', 'false'])
+  .default('false')
+  .transform(value => value === 'true');
 
-@Controller('/users')
-class UserController {
+@Controller('/orders')
+class OrderController {
   @Post('/')
-  create(@Body({required: true}) input: CreateUserInput) {
-    return input;
+  create(
+    @Body(createOrderSchema) order: z.output<typeof createOrderSchema>,
+    @Query('notify', notifySchema) notify: boolean,
+  ) {
+    // Both arguments are already validated and transformed here.
+    return {order, notify};
+  }
+
+  @Post('/:id/cancel')
+  cancel(
+    @Params('id', orderIdSchema) id: string,
+    @Body('reason', z.string().trim().min(3)) reason: string,
+  ) {
+    return {cancelled: id, reason};
   }
 }
 
 async function main() {
   const {app} = await bootstrapControllers({
-    controllers: [UserController],
-    validatorOptions: {
-      forbidNonWhitelisted: true,
-      whitelist: true,
-    },
+    controllers: [OrderController],
   });
 
   app.listen(3000);
@@ -252,7 +270,11 @@ async function main() {
 void main();
 ```
 
-Amala transforms the JSON body into `CreateUserInput`, runs class-validator, and returns `422` when validation fails. The bootstrap options above also reject unexpected fields.
+Amala selects the decorated value, runs the schema even when that value is missing, and injects the parsed output. That makes schema defaults, coercion, trimming, and asynchronous validation visible to the controller. Invalid input returns `422` with normalized field messages but without echoing the rejected value or validator object.
+
+When a validator exposes Standard JSON Schema, Amala also uses its `openapi-3.0` input schema for generated request bodies and parameters. Runtime-only validators still work; Amala omits schema-derived OpenAPI details instead of inventing them.
+
+Existing class-validator inputs remain compatible. Keep using `@Body()` or `@Body({required: true})` with a decorated class and pass strict behavior through `validatorOptions`. Applications can migrate endpoint by endpoint without a flag or adapter.
 
 Validation establishes shape, not identity or permission. Continue to authorize every protected operation against trusted server-side state.
 
@@ -653,11 +675,23 @@ Add authentication, authorization, CSRF protection where applicable, rate limits
 ## Documentation
 
 - [Getting started](https://amalajs.com/docs/getting-started)
+- [Request validation](https://amalajs.com/docs/validation)
 - [`bootstrapControllers` reference](https://amalajs.com/docs/api-spec/bootstrap-controllers)
 - [Decorator reference](https://amalajs.com/docs/api-spec/decorators)
 - [Migrate from v12 to v13](https://amalajs.com/docs/migration-v13)
 - [Production security guide](https://amalajs.com/docs/security)
 - [Troubleshooting](https://amalajs.com/docs/troubleshooting)
+
+## Benchmarks
+
+The repository includes a reproducible Amala vs matched Koa vs Fastify suite for static routing, path parameters, class-validator input, and Standard Schema input. The Standard Schema workload uses the same Zod schema in Amala and plain Koa, verifies equivalent output before measurement, and gives Fastify an equivalent native JSON Schema.
+
+```bash
+npm run benchmark:smoke # Fast correctness check for harness changes.
+npm run benchmark       # Standard 40-second warm-up and measurement profile.
+```
+
+Read the [methodology](benchmarks/README.md) and [latest machine-readable results](benchmarks/results/latest.json). These synthetic numbers measure framework overhead on one machine; they are not a promise about application performance.
 
 ## Development
 
