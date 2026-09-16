@@ -161,9 +161,12 @@ void main();
 | --- | --- |
 | `@Body()` | `ctx.request.body` |
 | `@Body('field')` | `ctx.request.body.field` |
+| `@Body(schema)` / `@Body('field', schema)` | Standard Schema output for the body or one field |
 | `@Body({required: true})` | The body, with a `422` response when empty |
 | `@Params()` / `@Params('id')` | All path parameters or one parameter |
+| `@Params(schema)` / `@Params('id', schema)` | Standard Schema output for all parameters or one parameter |
 | `@Query()` / `@Query('q')` | The parsed query or one query value |
+| `@Query(schema)` / `@Query('q', schema)` | Standard Schema output for the query or one value |
 | `@Header()` / `@Header('name')` | All request headers or one header |
 | `@State()` / `@State('name')` | Koa state or one state value |
 | `@CurrentUser()` | `ctx.state.user` |
@@ -175,7 +178,39 @@ void main();
 
 Prefer the narrowest decorator that gives the handler what it needs. This reduces coupling to Koa and makes the method easier to test.
 
-### Validation and conversion
+### Standard Schema validation
+
+Pass any Standard Schema validator directly. Amala validates after selecting the decorated value and injects parsed output, including transforms and defaults:
+
+```typescript
+import {Body, bootstrapControllers, Controller, Post} from 'amala';
+import {z} from 'zod';
+
+const orderSchema = z.object({
+  sku: z.string().trim().min(1),
+  // The handler receives a number, even when JSON contains "2".
+  quantity: z.coerce.number().int().positive().default(1),
+});
+
+@Controller('/orders')
+class OrderController {
+  @Post('/')
+  create(@Body(orderSchema) order: z.output<typeof orderSchema>) {
+    return order;
+  }
+}
+
+async function main() {
+  const {app} = await bootstrapControllers({controllers: [OrderController]});
+  app.listen(3000);
+}
+
+void main();
+```
+
+The same overloads accept Zod, Valibot, or another compatible library without an Amala adapter. See [Validate requests](../validation.md) for selected fields, query and path values, error behavior, and OpenAPI generation.
+
+### Class validation and conversion
 
 When a body, path, or query argument has a class type, Amala uses reflected metadata to transform the value and run class-validator:
 

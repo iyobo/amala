@@ -8,6 +8,7 @@ const { koaBody } = require('koa-body')
 const { plainToInstance } = require('class-transformer')
 const { IsInt, IsString, Min, validate } = require('class-validator')
 const { workloads } = require('../workloads')
+const { z } = require('zod')
 
 class CreateOrderInput {}
 
@@ -17,6 +18,11 @@ class CreateOrderInput {}
 IsString()(CreateOrderInput.prototype, 'customerId')
 IsInt()(CreateOrderInput.prototype, 'quantity')
 Min(1)(CreateOrderInput.prototype, 'quantity')
+
+const standardOrderSchema = z.object({
+  customerId: z.string(),
+  quantity: z.coerce.number().int().min(1)
+})
 
 async function main () {
   const scenario = process.argv[2]
@@ -66,6 +72,29 @@ async function main () {
         id: 'order_123',
         customerId: input.customerId,
         quantity: input.quantity
+      }
+    })
+  } else if (scenario === 'standardValidation') {
+    app.use(koaBody({
+      multipart: false,
+      urlencoded: false,
+      text: false
+    }))
+    router.post(workloads.standardValidation.routePath, async ctx => {
+      // Use the same public contract and Zod schema as Amala; this isolates
+      // Amala's argument injection and controller dispatch overhead.
+      const result = await standardOrderSchema['~standard'].validate(
+        ctx.request.body
+      )
+      if (result.issues) {
+        ctx.status = 422
+        ctx.body = { error: 'Validation failed' }
+        return
+      }
+      ctx.body = {
+        id: 'order_123',
+        customerId: result.value.customerId,
+        quantity: result.value.quantity
       }
     })
   } else {

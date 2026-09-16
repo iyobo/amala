@@ -28,6 +28,18 @@ const workloads = {
       customerId: 'customer_123',
       quantity: 2
     }
+  },
+  standardValidation: {
+    label: 'Standard Schema (Zod) body',
+    routePath: '/standard-orders',
+    requestPath: '/standard-orders',
+    method: 'POST',
+    requestBody: { customerId: 'customer_123', quantity: '2' },
+    expectedBody: {
+      id: 'order_123',
+      customerId: 'customer_123',
+      quantity: 2
+    }
   }
 }
 

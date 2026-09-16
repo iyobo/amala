@@ -1,11 +1,55 @@
 import "reflect-metadata";
 import {metadata} from '../index';
 import {AmalaMetadataController, AmalaMetadataEndpoint, Class, ClassMethod, FlowFunction, RestVerb, StringOrRegex} from '../types/metadata';
+import {StandardSchemaV1} from '../types/standardSchema';
 
 export interface ValidationDecoratorOptions {
   validClass?: Function;
   required?: boolean;
   trim?: boolean;
+}
+
+export type ValidationDecoratorInput =
+  | string
+  | ValidationDecoratorOptions
+  | Record<string, unknown>
+  | StandardSchemaV1;
+
+export type ResolvedValidationDecoratorInput = {
+  injectOptions?: string | ValidationDecoratorOptions | Record<string, unknown>;
+  standardSchema?: StandardSchemaV1;
+};
+
+export function isStandardSchema(value: unknown): value is StandardSchemaV1 {
+  if (
+    (typeof value !== 'object' && typeof value !== 'function')
+    || value === null
+  ) {
+    return false;
+  }
+
+  const standard = (value as Record<string, unknown>)["~standard"];
+  if (!standard || typeof standard !== 'object') return false;
+
+  const props = standard as Record<string, unknown>;
+  return props.version === 1 && typeof props.validate === 'function';
+}
+
+export function resolveValidationDecoratorInput(
+  input?: ValidationDecoratorInput,
+  propertySchema?: StandardSchemaV1
+): ResolvedValidationDecoratorInput {
+  if (propertySchema) {
+    if (typeof input !== 'string') {
+      throw new TypeError(
+        'A property name is required when a second Standard Schema argument is supplied'
+      );
+    }
+    return {injectOptions: input, standardSchema: propertySchema};
+  }
+
+  if (isStandardSchema(input)) return {standardSchema: input};
+  return {injectOptions: input};
 }
 
 type AddFlowProps = {
@@ -95,6 +139,7 @@ type AddArgumentProps = {
   index: number
   ctxKey: string
   ctxValueOptions?: unknown
+  standardSchema?: StandardSchemaV1
   methodName: string
   object: ClassMethod
 }
@@ -103,6 +148,7 @@ export function addArgumentInjectMeta({
                                         index,
                                         ctxKey,
                                         ctxValueOptions,
+                                        standardSchema,
                                         methodName,
                                         object
                                       }: AddArgumentProps): void {
@@ -116,7 +162,8 @@ export function addArgumentInjectMeta({
     controller.endpoints[methodName].arguments || {};
   controller.endpoints[methodName].arguments[index] = {
     ctxKey,
-    ctxValueOptions
+    ctxValueOptions,
+    standardSchema
   };
 
   metadata.controllers[object.constructor.name] = controller;

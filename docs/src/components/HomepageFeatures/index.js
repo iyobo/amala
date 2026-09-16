@@ -49,29 +49,26 @@ void main();`,
   },
   {
     number: '03',
-    title: 'Validation at the edge',
-    description: 'A decorated class becomes a runtime request boundary, with strict unknown-field handling selected at bootstrap.',
-    codeTitle: 'POST /v1/users',
-    code: `class CreateUserInput {
-  @IsEmail()
-  email!: string;
-}
+    title: 'Your validator, at the edge',
+    description: 'Pass any Standard Schema validator directly. Parsed output reaches the handler without an adapter or registry.',
+    codeTitle: 'POST /v1/orders',
+    code: `const createOrder = z.object({
+  sku: z.string().trim(),
+  // The handler receives a number.
+  quantity: z.coerce.number().int().positive(),
+});
 
-@Controller('/users')
-class UserController {
+@Controller('/orders')
+class OrderController {
   @Post('/')
-  create(@Body({required: true}) input: CreateUserInput) {
-    return input;
+  create(@Body(createOrder) order: z.output<typeof createOrder>) {
+    return order;
   }
 }
 
 async function main() {
   const {app} = await bootstrapControllers({
-    controllers: [UserController],
-    validatorOptions: {
-      forbidNonWhitelisted: true,
-      whitelist: true,
-    },
+    controllers: [OrderController],
   });
   app.listen(3000);
 }

@@ -248,6 +248,10 @@ export type {
   AmalaNext,
   EmptyContext
 } from './types/context';
+export type {
+  StandardJSONSchemaV1,
+  StandardSchemaV1
+} from './types/standardSchema';
 export type Context<
   StateT extends object = EmptyContext,
   ContextT extends object = EmptyContext,

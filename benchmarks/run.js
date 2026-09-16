@@ -269,6 +269,7 @@ function environment () {
       koa: packageVersion('koa'),
       router: packageVersion('@koa/router'),
       fastify: packageVersion('fastify'),
+      zod: packageVersion('zod'),
       autocannon: packageVersion('autocannon')
     }
   }
@@ -346,10 +347,11 @@ function markdownReport (report) {
     `- Commit: \`${report.environment.gitCommit}\`${report.environment.gitDirty ? ' (dirty working tree)' : ''}\n` +
     `- Versions: Amala ${report.environment.versions.amala}, Koa ${report.environment.versions.koa}, ` +
     `@koa/router ${report.environment.versions.router}, Fastify ${report.environment.versions.fastify}, ` +
+    `Zod ${report.environment.versions.zod}, ` +
     `Autocannon ${report.environment.versions.autocannon}\n\n` +
     `## Method\n\n` +
     `Each framework runs in a fresh child process on loopback. Startup includes process launch, dependency loading, and route setup. Before measurement, the runner verifies the exact HTTP status and JSON response, then warms the server for ${report.settings.warmup}s. It measures ${report.settings.duration}s with ${report.settings.connections} connections and HTTP/1.1 pipelining of ${report.settings.pipelining}, across ${report.settings.rounds} round(s). Reported values are medians. Framework order rotates by workload and round. RSS is sampled from the server process immediately after each measured run.\n\n` +
-    `The routing workloads disable Amala's body parser, CORS, and OpenAPI middleware. Koa uses @koa/router for matched route behavior. The validation workload gives Koa and Amala the same koa-body, class-transformer, and class-validator path; Fastify uses compiled JSON Schema validation and serialization. Post-run RSS reflects each server operating at its own maximum throughput, not memory per request.\n`
+    `The routing workloads disable Amala's body parser, CORS, and OpenAPI middleware. Koa uses @koa/router for matched route behavior. The legacy validation workload gives Koa and Amala the same koa-body, class-transformer, and class-validator path. The Standard Schema workload gives Amala and Koa the same Zod schema and confirms parsed output. Fastify uses equivalent compiled JSON Schema validation and serialization. Post-run RSS reflects each server operating at its own maximum throughput, not memory per request.\n`
 }
 
 function printSummary (report) {
