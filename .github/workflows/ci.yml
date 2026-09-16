@@ -43,6 +43,9 @@ jobs:
       - name: Audit runtime dependencies
         run: npm audit --omit=dev
 
+      - name: Smoke-test benchmark equivalence
+        run: npm run benchmark:smoke
+
   documentation:
     name: Documentation
     runs-on: ubuntu-latest
