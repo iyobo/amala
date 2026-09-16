@@ -1,18 +1,19 @@
 {
   "environment": {
-    "timestamp": "2026-09-15T15:13:09.575Z",
+    "timestamp": "2026-09-16T04:55:50.016Z",
     "node": "v24.19.0",
     "platform": "darwin arm64",
     "cpu": "Apple M1 Max",
     "logicalCpus": 10,
     "memoryBytes": 34359738368,
-    "gitCommit": "16853d5b43ffa9c1cdbc42f61ac03285d280f335",
+    "gitCommit": "0d94beaf4968e4d7693032ca255623abe64e744d",
     "gitDirty": false,
     "versions": {
-      "amala": "13.0.1",
+      "amala": "13.1.0",
       "koa": "3.2.1",
       "router": "15.7.0",
       "fastify": "5.12.4",
+      "zod": "4.6.5",
       "autocannon": "8.0.0"
     }
   },
@@ -57,6 +58,21 @@
         "customerId": "customer_123",
         "quantity": 2
       }
+    },
+    "standardValidation": {
+      "label": "Standard Schema (Zod) body",
+      "routePath": "/standard-orders",
+      "requestPath": "/standard-orders",
+      "method": "POST",
+      "requestBody": {
+        "customerId": "customer_123",
+        "quantity": "2"
+      },
+      "expectedBody": {
+        "id": "order_123",
+        "customerId": "customer_123",
+        "quantity": 2
+      }
     }
   },
   "samples": [
@@ -64,16 +80,16 @@
       "framework": "amala",
       "scenario": "routing",
       "round": 1,
-      "startupMs": 389.72116600000004,
-      "rssBytesAfterRun": 222724096,
-      "requestsPerSecond": 67977.2,
+      "startupMs": 289.704542,
+      "rssBytesAfterRun": 227328000,
+      "requestsPerSecond": 68569.2,
       "latencyMs": {
-        "average": 14.22,
+        "average": 14.09,
         "p50": 16,
-        "p99": 28
+        "p99": 25
       },
-      "throughputBytesPerSecond": 12712140.8,
-      "totalRequests": 2719042,
+      "throughputBytesPerSecond": 12821094.4,
+      "totalRequests": 2742694,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -82,16 +98,16 @@
       "framework": "koa",
       "scenario": "routing",
       "round": 1,
-      "startupMs": 396.2136249999894,
-      "rssBytesAfterRun": 235094016,
-      "requestsPerSecond": 72069.2,
+      "startupMs": 212.83920799999032,
+      "rssBytesAfterRun": 223608832,
+      "requestsPerSecond": 63014.4,
       "latencyMs": {
-        "average": 13.38,
-        "p50": 11,
-        "p99": 23
+        "average": 15.37,
+        "p50": 17,
+        "p99": 31
       },
-      "throughputBytesPerSecond": 13476044.8,
-      "totalRequests": 2882646,
+      "throughputBytesPerSecond": 11784755.2,
+      "totalRequests": 2520583,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -100,16 +116,16 @@
       "framework": "fastify",
       "scenario": "routing",
       "round": 1,
-      "startupMs": 232.0688749999972,
-      "rssBytesAfterRun": 145948672,
-      "requestsPerSecond": 100267.2,
+      "startupMs": 201.06912500000908,
+      "rssBytesAfterRun": 153075712,
+      "requestsPerSecond": 87904,
       "latencyMs": {
-        "average": 9.48,
-        "p50": 10,
-        "p99": 16
+        "average": 10.88,
+        "p50": 12,
+        "p99": 20
       },
-      "throughputBytesPerSecond": 18848153.61,
-      "totalRequests": 4010614,
+      "throughputBytesPerSecond": 16524390.4,
+      "totalRequests": 3515879,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -118,16 +134,16 @@
       "framework": "koa",
       "scenario": "params",
       "round": 1,
-      "startupMs": 349.972374999983,
-      "rssBytesAfterRun": 224428032,
-      "requestsPerSecond": 72888.8,
+      "startupMs": 203.65808399999514,
+      "rssBytesAfterRun": 239009792,
+      "requestsPerSecond": 61123,
       "latencyMs": {
-        "average": 13.22,
-        "p50": 11,
-        "p99": 23
+        "average": 15.86,
+        "p50": 18,
+        "p99": 32
       },
-      "throughputBytesPerSecond": 15306956.8,
-      "totalRequests": 2915525,
+      "throughputBytesPerSecond": 12836198.4,
+      "totalRequests": 2444940,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -136,16 +152,16 @@
       "framework": "fastify",
       "scenario": "params",
       "round": 1,
-      "startupMs": 211.13054099999135,
-      "rssBytesAfterRun": 145637376,
-      "requestsPerSecond": 100393.6,
+      "startupMs": 199.4238329999498,
+      "rssBytesAfterRun": 153337856,
+      "requestsPerSecond": 83928,
       "latencyMs": {
-        "average": 9.47,
-        "p50": 10,
-        "p99": 16
+        "average": 11.42,
+        "p50": 12,
+        "p99": 21
       },
-      "throughputBytesPerSecond": 21183692.8,
-      "totalRequests": 4015771,
+      "throughputBytesPerSecond": 17708339.2,
+      "totalRequests": 3357044,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -154,16 +170,16 @@
       "framework": "amala",
       "scenario": "params",
       "round": 1,
-      "startupMs": 366.49904100003187,
-      "rssBytesAfterRun": 224641024,
-      "requestsPerSecond": 71856,
+      "startupMs": 246.34625000000233,
+      "rssBytesAfterRun": 227983360,
+      "requestsPerSecond": 60685.2,
       "latencyMs": {
-        "average": 13.42,
-        "p50": 11,
-        "p99": 22
+        "average": 15.98,
+        "p50": 18,
+        "p99": 29
       },
-      "throughputBytesPerSecond": 15089664,
-      "totalRequests": 2874231,
+      "throughputBytesPerSecond": 12743475.2,
+      "totalRequests": 2427326,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -172,52 +188,106 @@
       "framework": "fastify",
       "scenario": "validation",
       "round": 1,
-      "startupMs": 236.12725000001956,
-      "rssBytesAfterRun": 290471936,
-      "requestsPerSecond": 43321.6,
+      "startupMs": 223.50199999997858,
+      "rssBytesAfterRun": 286523392,
+      "requestsPerSecond": 34033,
       "latencyMs": {
-        "average": 22.58,
-        "p50": 18,
+        "average": 28.88,
+        "p50": 24,
+        "p99": 64
+      },
+      "throughputBytesPerSecond": 7827200,
+      "totalRequests": 1361295,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "amala",
+      "scenario": "validation",
+      "round": 1,
+      "startupMs": 571.8209590000333,
+      "rssBytesAfterRun": 152797184,
+      "requestsPerSecond": 27296.2,
+      "latencyMs": {
+        "average": 36.16,
+        "p50": 29,
+        "p99": 96
+      },
+      "throughputBytesPerSecond": 6251008,
+      "totalRequests": 1091855,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "koa",
+      "scenario": "validation",
+      "round": 1,
+      "startupMs": 356.31729100004304,
+      "rssBytesAfterRun": 148586496,
+      "requestsPerSecond": 29130.2,
+      "latencyMs": {
+        "average": 33.82,
+        "p50": 27,
+        "p99": 74
+      },
+      "throughputBytesPerSecond": 6670924.8,
+      "totalRequests": 1165182,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "amala",
+      "scenario": "standardValidation",
+      "round": 1,
+      "startupMs": 378.2127910000272,
+      "rssBytesAfterRun": 157925376,
+      "requestsPerSecond": 33880.5,
+      "latencyMs": {
+        "average": 29.01,
+        "p50": 23,
+        "p99": 67
+      },
+      "throughputBytesPerSecond": 7758310.4,
+      "totalRequests": 1355205,
+      "errors": 0,
+      "timeouts": 0,
+      "non2xx": 0
+    },
+    {
+      "framework": "koa",
+      "scenario": "standardValidation",
+      "round": 1,
+      "startupMs": 392.4755839999998,
+      "rssBytesAfterRun": 161038336,
+      "requestsPerSecond": 39557.6,
+      "latencyMs": {
+        "average": 24.78,
+        "p50": 21,
         "p99": 45
       },
-      "throughputBytesPerSecond": 9963366.4,
-      "totalRequests": 1732869,
+      "throughputBytesPerSecond": 9057280,
+      "totalRequests": 1582183,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
     },
     {
-      "framework": "amala",
-      "scenario": "validation",
+      "framework": "fastify",
+      "scenario": "standardValidation",
       "round": 1,
-      "startupMs": 398.1940830000676,
-      "rssBytesAfterRun": 150716416,
-      "requestsPerSecond": 34560.81,
+      "startupMs": 250.2614159999648,
+      "rssBytesAfterRun": 287965184,
+      "requestsPerSecond": 30539.3,
       "latencyMs": {
-        "average": 28.43,
+        "average": 32.22,
         "p50": 25,
-        "p99": 54
+        "p99": 108
       },
-      "throughputBytesPerSecond": 7913984,
-      "totalRequests": 1382370,
-      "errors": 0,
-      "timeouts": 0,
-      "non2xx": 0
-    },
-    {
-      "framework": "koa",
-      "scenario": "validation",
-      "round": 1,
-      "startupMs": 333.846583000035,
-      "rssBytesAfterRun": 149209088,
-      "requestsPerSecond": 38389.6,
-      "latencyMs": {
-        "average": 25.55,
-        "p50": 22,
-        "p99": 47
-      },
-      "throughputBytesPerSecond": 8790937.6,
-      "totalRequests": 1535548,
+      "throughputBytesPerSecond": 7024076.8,
+      "totalRequests": 1221582,
       "errors": 0,
       "timeouts": 0,
       "non2xx": 0
@@ -227,119 +297,158 @@
     {
       "framework": "amala",
       "scenario": "routing",
-      "startupMs": 389.72116600000004,
-      "rssBytesAfterRun": 222724096,
-      "requestsPerSecond": 67977.2,
+      "startupMs": 289.704542,
+      "rssBytesAfterRun": 227328000,
+      "requestsPerSecond": 68569.2,
       "latencyMs": {
-        "average": 14.22,
+        "average": 14.09,
         "p50": 16,
-        "p99": 28
+        "p99": 25
       },
-      "throughputBytesPerSecond": 12712140.8
+      "throughputBytesPerSecond": 12821094.4
     },
     {
       "framework": "koa",
       "scenario": "routing",
-      "startupMs": 396.2136249999894,
-      "rssBytesAfterRun": 235094016,
-      "requestsPerSecond": 72069.2,
+      "startupMs": 212.83920799999032,
+      "rssBytesAfterRun": 223608832,
+      "requestsPerSecond": 63014.4,
       "latencyMs": {
-        "average": 13.38,
-        "p50": 11,
-        "p99": 23
+        "average": 15.37,
+        "p50": 17,
+        "p99": 31
       },
-      "throughputBytesPerSecond": 13476044.8
+      "throughputBytesPerSecond": 11784755.2
     },
     {
       "framework": "fastify",
       "scenario": "routing",
-      "startupMs": 232.0688749999972,
-      "rssBytesAfterRun": 145948672,
-      "requestsPerSecond": 100267.2,
+      "startupMs": 201.06912500000908,
+      "rssBytesAfterRun": 153075712,
+      "requestsPerSecond": 87904,
       "latencyMs": {
-        "average": 9.48,
-        "p50": 10,
-        "p99": 16
+        "average": 10.88,
+        "p50": 12,
+        "p99": 20
       },
-      "throughputBytesPerSecond": 18848153.61
+      "throughputBytesPerSecond": 16524390.4
     },
     {
       "framework": "amala",
       "scenario": "params",
-      "startupMs": 366.49904100003187,
-      "rssBytesAfterRun": 224641024,
-      "requestsPerSecond": 71856,
+      "startupMs": 246.34625000000233,
+      "rssBytesAfterRun": 227983360,
+      "requestsPerSecond": 60685.2,
       "latencyMs": {
-        "average": 13.42,
-        "p50": 11,
-        "p99": 22
-      },
-      "throughputBytesPerSecond": 15089664
-    },
-    {
-      "framework": "koa",
-      "scenario": "params",
-      "startupMs": 349.972374999983,
-      "rssBytesAfterRun": 224428032,
-      "requestsPerSecond": 72888.8,
-      "latencyMs": {
-        "average": 13.22,
-        "p50": 11,
-        "p99": 23
-      },
-      "throughputBytesPerSecond": 15306956.8
-    },
-    {
-      "framework": "fastify",
-      "scenario": "params",
-      "startupMs": 211.13054099999135,
-      "rssBytesAfterRun": 145637376,
-      "requestsPerSecond": 100393.6,
-      "latencyMs": {
-        "average": 9.47,
-        "p50": 10,
-        "p99": 16
-      },
-      "throughputBytesPerSecond": 21183692.8
-    },
-    {
-      "framework": "amala",
-      "scenario": "validation",
-      "startupMs": 398.1940830000676,
-      "rssBytesAfterRun": 150716416,
-      "requestsPerSecond": 34560.81,
-      "latencyMs": {
-        "average": 28.43,
-        "p50": 25,
-        "p99": 54
-      },
-      "throughputBytesPerSecond": 7913984
-    },
-    {
-      "framework": "koa",
-      "scenario": "validation",
-      "startupMs": 333.846583000035,
-      "rssBytesAfterRun": 149209088,
-      "requestsPerSecond": 38389.6,
-      "latencyMs": {
-        "average": 25.55,
-        "p50": 22,
-        "p99": 47
-      },
-      "throughputBytesPerSecond": 8790937.6
-    },
-    {
-      "framework": "fastify",
-      "scenario": "validation",
-      "startupMs": 236.12725000001956,
-      "rssBytesAfterRun": 290471936,
-      "requestsPerSecond": 43321.6,
-      "latencyMs": {
-        "average": 22.58,
+        "average": 15.98,
         "p50": 18,
+        "p99": 29
+      },
+      "throughputBytesPerSecond": 12743475.2
+    },
+    {
+      "framework": "koa",
+      "scenario": "params",
+      "startupMs": 203.65808399999514,
+      "rssBytesAfterRun": 239009792,
+      "requestsPerSecond": 61123,
+      "latencyMs": {
+        "average": 15.86,
+        "p50": 18,
+        "p99": 32
+      },
+      "throughputBytesPerSecond": 12836198.4
+    },
+    {
+      "framework": "fastify",
+      "scenario": "params",
+      "startupMs": 199.4238329999498,
+      "rssBytesAfterRun": 153337856,
+      "requestsPerSecond": 83928,
+      "latencyMs": {
+        "average": 11.42,
+        "p50": 12,
+        "p99": 21
+      },
+      "throughputBytesPerSecond": 17708339.2
+    },
+    {
+      "framework": "amala",
+      "scenario": "validation",
+      "startupMs": 571.8209590000333,
+      "rssBytesAfterRun": 152797184,
+      "requestsPerSecond": 27296.2,
+      "latencyMs": {
+        "average": 36.16,
+        "p50": 29,
+        "p99": 96
+      },
+      "throughputBytesPerSecond": 6251008
+    },
+    {
+      "framework": "koa",
+      "scenario": "validation",
+      "startupMs": 356.31729100004304,
+      "rssBytesAfterRun": 148586496,
+      "requestsPerSecond": 29130.2,
+      "latencyMs": {
+        "average": 33.82,
+        "p50": 27,
+        "p99": 74
+      },
+      "throughputBytesPerSecond": 6670924.8
+    },
+    {
+      "framework": "fastify",
+      "scenario": "validation",
+      "startupMs": 223.50199999997858,
+      "rssBytesAfterRun": 286523392,
+      "requestsPerSecond": 34033,
+      "latencyMs": {
+        "average": 28.88,
+        "p50": 24,
+        "p99": 64
+      },
+      "throughputBytesPerSecond": 7827200
+    },
+    {
+      "framework": "amala",
+      "scenario": "standardValidation",
+      "startupMs": 378.2127910000272,
+      "rssBytesAfterRun": 157925376,
+      "requestsPerSecond": 33880.5,
+      "latencyMs": {
+        "average": 29.01,
+        "p50": 23,
+        "p99": 67
+      },
+      "throughputBytesPerSecond": 7758310.4
+    },
+    {
+      "framework": "koa",
+      "scenario": "standardValidation",
+      "startupMs": 392.4755839999998,
+      "rssBytesAfterRun": 161038336,
+      "requestsPerSecond": 39557.6,
+      "latencyMs": {
+        "average": 24.78,
+        "p50": 21,
         "p99": 45
       },
-      "throughputBytesPerSecond": 9963366.4
+      "throughputBytesPerSecond": 9057280
+    },
+    {
+      "framework": "fastify",
+      "scenario": "standardValidation",
+      "startupMs": 250.2614159999648,
+      "rssBytesAfterRun": 287965184,
+      "requestsPerSecond": 30539.3,
+      "latencyMs": {
+        "average": 32.22,
+        "p50": 25,
+        "p99": 108
+      },
+      "throughputBytesPerSecond": 7024076.8
     }
   ]
 }
